@@ -13,8 +13,8 @@ const router = Router();
 
 //User
 router.get("/me", authenticate, getMe);
-router.patch("/me", authenticate, updateMe);
-router.patch("/change-password", authenticate, changePassword);
+router.put("/me", authenticate, updateMe);
+router.put("/change-password", authenticate, changePassword);
 
 //Admin
 router.get("/", authenticate, authorize(["ADMIN"]), getAllUsers);
