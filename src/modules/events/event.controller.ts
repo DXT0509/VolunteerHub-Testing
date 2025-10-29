@@ -20,9 +20,18 @@ export async function list(req: Request, res: Response) {
   }
 }
 
-export async function detal(req: Request, res: Response) {
+export async function detailById(req: Request, res: Response) {
   try {
     const result = await EventService.getEventById(Number(req.params.id));
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+}
+
+export async function detailBySlug(req: Request, res: Response) {
+  try {
+    const result = await EventService.getEventBySlug(req.params.slug);
     res.json(result);
   } catch (err: any) {
     res.status(400).json({ error: err.message });

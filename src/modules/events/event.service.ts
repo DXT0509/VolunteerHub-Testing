@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import slugify from "slugify";
 const prisma = new PrismaClient();
 
 //Create Event (Event Manager)
@@ -14,9 +15,18 @@ export async function createEvent(managerId: number, data: any) {
     banner_url,
   } = data;
 
+  let baseslug = slugify(title, { lower: true, strict: true });
+  let slug = baseslug;
+  let counter = 1;
+
+  while (await prisma.events.findUnique({ where: { slug } })) {
+    slug = `${baseslug}-${counter++}`;
+  }
+
   return prisma.events.create({
     data: {
       title,
+      slug,
       description,
       category_id,
       location_id,
@@ -62,6 +72,19 @@ export async function getEventById(id: number) {
   });
 }
 
+//Get Event Details by slug
+export async function getEventBySlug(slug: string) {
+  return prisma.events.findUnique({
+    where: { slug },
+    include: {
+      category: true,
+      location: true,
+      manager: { select: { id: true, full_name: true, email: true } },
+      registrations: true,
+    },
+  });
+}
+
 //Update Event (Event Manager)
 export async function updateEvent(id: number, managerId: number, data: any) {
   const event = await prisma.events.findUnique({ where: { id } });
@@ -69,19 +92,33 @@ export async function updateEvent(id: number, managerId: number, data: any) {
   if (event.manager_id !== managerId)
     throw new Error("Bạn không có quyền chỉnh sửa sự kiện này");
 
+  let updateData: any = {
+    description: data.description,
+    category_id: data.category_id,
+    location_id: data.location_id,
+    start_time: data.start_time ? new Date(data.start_time) : undefined,
+    end_time: data.end_time ? new Date(data.end_time) : undefined,
+    capacity: data.capacity,
+    banner_url: data.banner_url,
+    updated_at: new Date(),
+  };
+
+  if (data.title && data.title !== event.title) {
+    let newSlug = slugify(data.title, { lower: true, strict: true });
+    let slug = newSlug;
+    let counter = 1;
+
+    while (await prisma.events.findUnique({ where: { slug } })) {
+      slug = `${newSlug}-${counter++}`;
+    }
+
+    updateData.title = data.title;
+    updateData.slug = slug;
+  }
+
   return prisma.events.update({
     where: { id },
-    data: {
-      title: data.title,
-      description: data.description,
-      category_id: data.category_id,
-      location_id: data.location_id,
-      start_time: data.start_time ? new Date(data.start_time) : undefined,
-      end_time: data.end_time ? new Date(data.end_time) : undefined,
-      capacity: data.capacity,
-      banner_url: data.banner_url,
-      updated_at: new Date(),
-    },
+    data: updateData,
   });
 }
 

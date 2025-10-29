@@ -4,7 +4,8 @@ import { authorize } from "../../middlewares/role.middleware";
 import {
   create,
   list,
-  detal,
+  detailById,
+  detailBySlug,
   update,
   remove,
   approve,
@@ -15,7 +16,8 @@ const router = Router();
 
 //public
 router.get("/", list);
-router.get("/:id", detal);
+router.get("/:id", detailById);
+router.get("/slug/:slug", detailBySlug);
 
 //event manager
 router.post("/", authenticate, authorize(["EVENT_MANAGER"]), create);
