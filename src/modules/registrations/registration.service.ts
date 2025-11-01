@@ -117,6 +117,11 @@ export async function updateRegistrationStatus(
         status: "approved",
       },
     });
+
+    await prisma.events.update({
+      where: { id: reg.event_id },
+      data: { total_joined: { increment: 1 } },
+    });
   }
 
   return prisma.registrations.update({
