@@ -6,6 +6,8 @@ import userRoutes from "./modules/users/user.routes";
 import eventRoutes from "./modules/events/event.routes";
 import registratonRoutes from "./modules/registrations/registration.routes";
 import channelRoutes from "./modules/channels/channel.routes";
+import notificationRoutes from "./modules/notifications/notification.routes";
+import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 
 dotevn.config();
 
@@ -20,5 +22,7 @@ app.use("/users", userRoutes);
 app.use("/events", eventRoutes);
 app.use("/registrations", registratonRoutes);
 app.use("/channels", channelRoutes);
+app.use("/notifications", notificationRoutes);
+app.use("/dashboard", dashboardRoutes);
 
 export default app;
