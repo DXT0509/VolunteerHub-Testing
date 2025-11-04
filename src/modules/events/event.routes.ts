@@ -8,7 +8,6 @@ import {
   detailBySlug,
   update,
   remove,
-  approve,
   finalize,
 } from "./event.controller";
 
@@ -29,8 +28,5 @@ router.patch(
   authorize(["EVENT_MANAGER"]),
   finalize
 );
-
-//admin
-router.patch("/:id/approve", authenticate, authorize(["ADMIN"]), approve);
 
 export default router;

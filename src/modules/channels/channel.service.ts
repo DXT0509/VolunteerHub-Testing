@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import { threadCpuUsage } from "process";
+import { sendNotification } from "../notifications/notification.service";
 const prisma = new PrismaClient();
 
 function detectFileType(url: string): string {
@@ -92,6 +92,29 @@ export async function createPost(
     data: { event_id: eventId, author_id: userId, content },
   });
 
+  const participants = await prisma.registrations.findMany({
+    where: { event_id: eventId, status: "approved" },
+    select: { user_id: true },
+  });
+
+  const author = await prisma.users.findUnique({
+    where: { id: userId },
+    select: { full_name: true },
+  });
+  const authorName = author ? author.full_name : "Một người dùng";
+
+  for (const p of participants) {
+    if (p.user_id !== userId) {
+      await sendNotification(
+        p.user_id,
+        "new_post",
+        "Bài viết mới trong sự kiện",
+        `${authorName} vừa đăng bài trong ${event.title}`,
+        { event_id: eventId }
+      );
+    }
+  }
+
   if (attachments.length > 0) {
     await prisma.attachments.createMany({
       data: attachments.map((url) => ({
@@ -179,6 +202,14 @@ export async function createComment(
     where: { id: post.event_id },
     data: { total_comments: { increment: 1 } },
   });
+
+  await sendNotification(
+    post.author_id,
+    "new_comment",
+    "Bình luận mới",
+    `${cmt.author.full_name} vừa bình luận: "${content}"`,
+    { post_id: postId }
+  );
 
   return cmt;
 }

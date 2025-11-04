@@ -33,23 +33,3 @@ export async function changePassword(req: AuthRequest, res: Response) {
     res.status(400).json({ error: err.message });
   }
 }
-
-export async function getAllUsers(req: Request, res: Response) {
-  try {
-    const users = await UserService.listUsers();
-    res.json(users);
-  } catch (err: any) {
-    res.status(400).json({ error: err.message });
-  }
-}
-
-export async function updateStatus(req: Request, res: Response) {
-  try {
-    const id = Number(req.params.id);
-    const { is_active } = req.body;
-    const user = await UserService.updateUserStatus(id, is_active);
-    res.json(user);
-  } catch (err: any) {
-    res.status(400).json({ error: err.message });
-  }
-}

@@ -39,19 +39,3 @@ export async function changePassword(
   });
   return { message: "Đổi mật khẩu thành công" };
 }
-
-//Admin
-export async function listUsers() {
-  return prisma.users.findMany({
-    include: { roles: { include: { role: true } } },
-    orderBy: { created_at: "desc" },
-  });
-}
-
-//Admin
-export async function updateUserStatus(userId: number, isActive: boolean) {
-  return prisma.users.update({
-    where: { id: userId },
-    data: { is_active: isActive },
-  });
-}

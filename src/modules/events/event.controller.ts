@@ -63,20 +63,6 @@ export async function remove(req: AuthRequest, res: Response) {
   }
 }
 
-export async function approve(req: AuthRequest, res: Response) {
-  try {
-    const { action, note } = req.body;
-    const result = await EventService.approveEvent(
-      Number(req.params.id),
-      action,
-      note
-    );
-    res.json(result);
-  } catch (err: any) {
-    res.status(400).json({ error: err.message });
-  }
-}
-
 export async function finalize(req: AuthRequest, res: Response) {
   try {
     const { action, note } = req.body;

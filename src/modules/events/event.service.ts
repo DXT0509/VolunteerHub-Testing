@@ -134,23 +134,6 @@ export async function deleteEvent(id: number, managerId: number) {
   return { message: "Xóa sự kiện thành công" };
 }
 
-//Approve or Reject Event (Admin)
-export async function approveEvent(
-  eventId: number,
-  action: "approve" | "reject",
-  note?: string
-) {
-  const newStatus = action === "approve" ? "active" : "rejected";
-  const updated = await prisma.events.update({
-    where: { id: eventId },
-    data: { status: newStatus },
-  });
-  await prisma.event_approvals.create({
-    data: { event_id: eventId, action, note },
-  });
-  return updated;
-}
-
 //finalize Event (Event Manager)
 export async function finalizeevent(
   eventId: number,

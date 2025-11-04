@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { sendNotification } from "../notifications/notification.service";
 const prisma = new PrismaClient();
 
 //User
@@ -122,6 +123,22 @@ export async function updateRegistrationStatus(
       where: { id: reg.event_id },
       data: { total_joined: { increment: 1 } },
     });
+
+    await sendNotification(
+      reg.user_id,
+      "Registration Approved",
+      "Đăng ký của bạn đã được duyệt",
+      `Bạn đã được chấp thuận tham gia sự kiện: ${reg.event.title}`,
+      { eventId: reg.event_id }
+    );
+  } else if (newStatus === "rejected") {
+    await sendNotification(
+      reg.user_id,
+      "Registration Rejected",
+      "Đăng ký của bạn đã bị từ chối",
+      `Rất tiếc, đăng ký của bạn cho sự kiện: ${reg.event.title} đã bị từ chối.`,
+      { eventId: reg.event_id }
+    );
   }
 
   return prisma.registrations.update({
@@ -138,7 +155,7 @@ export async function finalizeRegistration(
 ) {
   const reg = await prisma.registrations.findUnique({
     where: { id: regId },
-    include: { attendance: true },
+    include: { attendance: true, event: true },
   });
   if (!reg) throw new Error("Không tìm thấy đăng ký");
 
@@ -162,6 +179,16 @@ export async function finalizeRegistration(
       where: { id: reg.attendance.id },
       data: { status: newStatus },
     });
+  }
+
+  if (newStatus === "completed") {
+    await sendNotification(
+      reg.user_id,
+      "Event Completed",
+      "Cảm ơn bạn đã hoàn thành sự kiện",
+      `Bạn đã hoàn thành tham gia sự kiện: ${reg.event.title}.`,
+      { eventId: reg.event_id }
+    );
   }
 
   return prisma.registrations.update({
