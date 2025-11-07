@@ -1,0 +1,312 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+//
+// ─── USERS & ROLES ─────────────────────────────────────────────
+//
+
+model users {
+  id          Int       @id @default(autoincrement())
+  username    String
+  email       String    @unique
+  password    String
+  full_name   String?
+  avatar_url  String?
+  slug        String?   @unique
+  phone       String?
+  is_active   Boolean   @default(true)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  roles        user_roles[]
+  events       events[]         @relation("EventManager")
+  registrations registrations[]
+  registration_status_history registration_status_history[]
+  event_attendance event_attendance[]
+  sessions     sessions[]
+  posts        posts[]
+  comments     comments[]
+  likes        likes[]
+  notifications notifications[]
+  push_subscriptions push_subscriptions[]
+  activity_logs activity_log[]
+  opened_channels event_channels[] @relation("UserOpenedChannels")
+}
+
+model roles {
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  label  String?
+  users  user_roles[]
+}
+
+model user_roles {
+  user_id Int
+  role_id Int
+
+  user users @relation(fields: [user_id], references: [id])
+  role roles @relation(fields: [role_id], references: [id])
+
+  @@id([user_id, role_id])
+}
+
+model sessions {
+  id             String   @id
+  user_id        Int
+  ip_address     String?
+  user_agent     String?
+  created_at     DateTime @default(now())
+  expires_at     DateTime
+  invalidated_at DateTime?
+
+  user users @relation(fields: [user_id], references: [id])
+}
+
+//
+// ─── EVENT CATEGORIES & LOCATIONS ─────────────────────────────
+//
+
+model categories {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  events      events[]
+}
+
+model locations {
+  id           Int      @id @default(autoincrement())
+  name         String
+  address_line String?
+  district     String?
+  province     String?
+  country      String?  @default("VN")
+  created_at   DateTime @default(now())
+  events       events[]
+}
+
+//
+// ─── EVENTS ───────────────────────────────────────────────────
+//
+
+model events {
+  id             Int      @id @default(autoincrement())
+  title          String
+  slug           String?  @unique
+  description    String?
+  category_id    Int?
+  location_id    Int?
+  start_time     DateTime
+  end_time       DateTime
+  capacity       Int?
+  manager_id     Int
+  status         String   @default("pending")
+  note           String?
+  banner_url     String?
+  total_joined   Int?     @default(0)
+  total_likes    Int?     @default(0)
+  total_comments Int?     @default(0)
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+
+  // Relations
+  category      categories? @relation(fields: [category_id], references: [id])
+  location      locations?  @relation(fields: [location_id], references: [id])
+  manager       users       @relation("EventManager", fields: [manager_id], references: [id])
+  approvals     event_approvals[]
+  registrations registrations[]
+  attendances   event_attendance[]
+  posts         posts[]
+  channel       event_channels?
+}
+
+model event_approvals {
+  id         Int      @id @default(autoincrement())
+  event_id   Int
+  action     String
+  note       String?
+  created_at DateTime @default(now())
+
+  event events @relation(fields: [event_id], references: [id])
+}
+
+//
+// ─── REGISTRATION & ATTENDANCE ───────────────────────────────
+//
+
+model registrations {
+  id          Int      @id @default(autoincrement())
+  event_id    Int
+  user_id     Int
+  status      String   @default("pending")
+  note        String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  event        events @relation(fields: [event_id], references: [id])
+  user         users  @relation(fields: [user_id], references: [id])
+  histories    registration_status_history[]
+  attendance   event_attendance?
+
+  @@unique([event_id, user_id])
+}
+
+model registration_status_history {
+  id              Int      @id @default(autoincrement())
+  registration_id Int
+  changed_by      Int
+  old_status      String?
+  new_status      String?
+  note            String?
+  created_at      DateTime @default(now())
+
+  registration registrations @relation(fields: [registration_id], references: [id])
+  user          users        @relation(fields: [changed_by], references: [id])
+}
+
+model event_attendance {
+  id              Int      @id @default(autoincrement())
+  event_id        Int
+  user_id         Int
+  registration_id Int?     @unique  
+  status          String?
+  certificate_url String?
+  created_at      DateTime @default(now())
+
+  event         events         @relation(fields: [event_id], references: [id])
+  user          users          @relation(fields: [user_id], references: [id])
+  registration  registrations? @relation(fields: [registration_id], references: [id])
+}
+
+
+//
+// ─── EVENT CHANNEL & POSTS ───────────────────────────────────
+//
+
+model event_channels {
+  id         Int      @id @default(autoincrement())
+  event_id   Int      @unique
+  opened_at  DateTime @default(now())
+  opened_by  Int?
+
+  event       events @relation(fields: [event_id], references: [id])
+  opened_user users? @relation("UserOpenedChannels", fields: [opened_by], references: [id])
+  posts       posts[]
+}
+
+model posts {
+  id          Int      @id @default(autoincrement())
+  event_id    Int
+  author_id   Int
+  channel_id  Int?
+  content     String
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  event   events          @relation(fields: [event_id], references: [id])
+  author  users           @relation(fields: [author_id], references: [id])
+  channel event_channels? @relation(fields: [channel_id], references: [id])
+  comments comments[]
+  likes     likes[]
+  attachments attachments[]
+}
+
+model comments {
+  id          Int      @id @default(autoincrement())
+  post_id     Int
+  author_id   Int
+  content     String
+  created_at  DateTime @default(now())
+
+  post       posts @relation(fields: [post_id], references: [id])
+  author     users @relation(fields: [author_id], references: [id])
+  likes      likes[]
+  attachments attachments[]
+}
+
+model likes {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  post_id    Int?
+  comment_id Int?
+  created_at DateTime @default(now())
+
+  user    users    @relation(fields: [user_id], references: [id])
+  post    posts?   @relation(fields: [post_id], references: [id])
+  comment comments? @relation(fields: [comment_id], references: [id])
+
+  @@unique([user_id, post_id])
+  @@unique([user_id, comment_id])
+}
+
+model attachments {
+  id         Int      @id @default(autoincrement())
+  post_id    Int?
+  comment_id Int?
+  file_url   String
+  file_type  String?
+  created_at DateTime @default(now())
+
+  post    posts?    @relation(fields: [post_id], references: [id])
+  comment comments? @relation(fields: [comment_id], references: [id])
+}
+
+//
+// ─── NOTIFICATIONS & PUSH ────────────────────────────────────
+//
+
+model notifications {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  type       String
+  title      String?
+  body       String?
+  data       Json?
+  is_read    Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  user users @relation(fields: [user_id], references: [id])
+}
+
+model push_subscriptions {
+  id           Int      @id @default(autoincrement())
+  user_id      Int
+  endpoint     String   @unique
+  p256dh       String
+  auth         String
+  created_at   DateTime @default(now())
+  last_used_at DateTime?
+
+  user users @relation(fields: [user_id], references: [id])
+}
+
+//
+// ─── AUDIT LOG ───────────────────────────────────────────────
+//
+
+model activity_log {
+  id          Int      @id @default(autoincrement())
+  actor_id    Int?
+  action      String
+  entity_type String?
+  entity_id   Int?
+  metadata    Json?
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime @default(now())
+
+  actor users? @relation(fields: [actor_id], references: [id])
+}

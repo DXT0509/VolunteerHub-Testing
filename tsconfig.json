@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    /* Output (nơi TypeScript xuất file JS sau khi build) */
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    /* Module system (cách import/export hoạt động) */
+    "module": "CommonJS",
+    "target": "ES2020",
+    "moduleResolution": "node",
+
+    /* Cải thiện import/export */
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+
+    /* Tăng tính an toàn và hỗ trợ tốt hơn */
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
