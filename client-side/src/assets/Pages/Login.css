@@ -1,0 +1,300 @@
+/* Auth page background now mimics BeVolunteerForm overlay style */
+.auth-page {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 32px 16px;
+        background:
+            linear-gradient(135deg, rgba(245,247,250,0.78), rgba(226,236,247,0.78)),
+            url('../image/community.jpg');
+        background-position: center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+}
+
+/* Card container */
+.wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    min-height: 420px; /* giảm thêm chiều cao tổng thể */
+    background: #ffffff; /* solid white background */
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 20px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* đưa nội dung lên trên giúp giảm khoảng trống đáy */
+    overflow: hidden; /* tránh tràn tạo cảm giác cao hơn */
+    transition: box-shadow .25s ease, transform .25s ease;
+}
+/* Auth form appear animation similar to BeVolunteerForm */
+@keyframes authFadeInUp {
+    0% { opacity:0; transform: translateY(60px); }
+    100% { opacity:1; transform: translateY(0); }
+}
+.auth-animate { opacity:0; transform: translateY(60px); will-change: opacity, transform; }
+.auth-animate.in-view { animation: authFadeInUp 1s ease-out forwards; }
+
+/* No longer toggling between forms on a single page; keeping base wrapper only. */
+
+.wrapper .form-box {
+    width: 100%;
+    background: linear-gradient(#16a34a 0 90px, #ffffff 90px 100%);
+    padding: 0 28px 0px; /* giảm thêm padding đáy để sát nội dung */
+    box-sizing: border-box;
+}
+/* Tăng riêng khoảng trống đáy cho trang Đăng ký để link không sát mép */
+.wrapper .form-box.register { padding-bottom: 22px; }
+.form-box.register .login-register { margin-top: 8px; margin-bottom: 4px; }
+
+.wrapper .form-box.login {
+    transition: transform .18s ease;
+    transform: translateX(0);
+}
+
+/* Register page is standalone now; keep it visible inside wrapper */
+.wrapper .form-box.register {
+    width: 100%;
+    position: static;
+    transition: none;
+    transform: translateX(0);
+}
+
+.wrapper .icon-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 45px;
+    height: 45px;
+    background: #162938;
+    font-size: 2em;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom-left-radius: 20px;
+}
+
+/* Tiêu đề nằm trong dải xanh lá (56px) */
+.form-box h2 {
+    font-size: 1.85em;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    height: 90px;
+    line-height: 90px;
+    text-align: center;
+}
+
+/* khoảng cách giữa các khối trong form */
+.form-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* khoảng cách gọn hơn */
+    margin-top: 50px; /* đưa form lên gần tiêu đề hơn */
+    padding-bottom: 0; /* giữ đáy gọn */
+}
+/* Tăng riêng khoảng cách giữa Email và Mật khẩu */
+.form-box.login .MuiGrid-item:nth-of-type(2) { margin-top: 24px; }
+
+/* Giảm khoảng trống bên dưới phần liên kết đăng ký */
+.form-box .login-register { margin-bottom: 0; }
+.form-box .login-register p { margin-bottom: 0; }
+/* Grid layout spacing refinement for MUI forms */
+.form-box .MuiGrid-container { row-gap: 18px; }
+.form-box.login .MuiGrid-item:first-of-type,
+.form-box.register .MuiGrid-item:first-of-type { margin-top: 4px; }
+
+/* Hide required asterisk globally (vẫn giữ required logic) */
+.form-box .MuiFormLabel-asterisk { display: none; }
+
+/* Native input container (legacy) */
+.input-box {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    border-bottom: 2px solid #162938;
+    margin: 22px 0;
+}
+
+.input-box label {
+    position: absolute;
+    top: 50%;
+    left: 5px;
+    transform: translateY(-50%);
+    font-size: 1em;
+    color: #162938;
+    font-weight: 500;
+    pointer-events: none;
+    transition: .5s;
+}
+
+/* legacy label animation retained only for native inputs (no effect on MUI) */
+.input-box input:focus~label,
+.input-box input:valid~label { top: -5px; }
+
+/* MUI outlined adjustments similar BeVolunteerForm */
+.form-box .MuiTextField-root { width:100%; }
+.form-box .MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline { border-color:#162938; }
+.form-box .MuiOutlinedInput-root:hover .MuiOutlinedInput-notchedOutline { border-color:#0f5330; }
+.form-box .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline { border-color:#16a34a; border-width:2px; }
+.form-box .MuiInputAdornment-root { color:#162938; }
+.form-box .MuiInputBase-input { font-weight:600; }
+.form-box .MuiFormLabel-root.Mui-focused { color:#166534; font-weight:600; }
+
+.input-box input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 1em;
+    color: #162938;
+    font-weight: 600;
+    padding: 0 35px 0 5px;
+    box-sizing: border-box;
+}
+
+.input-box .icon {
+    position: absolute;
+    right: 8px;
+    font-size: 1.2em;
+    color: #162938;
+    line-height: 57px;
+}
+
+.remember-forgot {
+    font-size: .9em;
+    color: #162938;
+    font-weight: 500;
+    margin: 10px 0 10px; /* đẩy nhóm này xuống chút để cân */
+    display: flex;
+    align-items: center; /* canh cùng hàng theo chiều dọc */
+    justify-content: space-between;
+}
+
+.remember-forgot label input {
+    accent-color: #162938;
+    margin-right: 3px;
+}
+
+.remember-forgot a {
+    color: #162938;
+    text-decoration: none;
+}
+
+.remember-forgot a:hover {
+    text-decoration: underline;
+}
+
+.btn {
+    width: 100%;
+    height: 48px;
+    background: #16a34a; /* green */
+    border: none;
+    outline: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.05em;
+    color: #fff;
+    font-weight: 600;
+    letter-spacing: .3px;
+    box-shadow: 0 4px 12px rgba(22,163,74,0.35);
+    transition: background .25s ease, box-shadow .25s ease, transform .2s ease;
+}
+.register-link {
+  text-decoration: none; /* bỏ gạch chân mặc định */
+}
+.register-link { text-decoration: none; }
+.register-link:hover { text-decoration: none; /* đảm bảo hover không hiện lại */ }
+.btn:hover {
+    background: #15803d;
+    box-shadow: 0 6px 20px rgba(21,128,61,0.4);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 14px rgba(21,128,61,0.35);
+}
+
+/* Ensure MUI Button respects green theme */
+.btn.MuiButton-root {
+    background-color: #16a34a !important;
+    color: #ffffff !important;
+    font-weight: 600;
+}
+.btn.MuiButton-root:hover {
+    background-color: #15803d !important;
+    color: #ffffff !important;
+}
+.btn.MuiButton-root:active {
+    background-color: #166534 !important; /* slightly darker */
+}
+
+.login-register {
+    font-size: .9em;
+    color: #374151;
+    text-align: center;
+    font-weight: 500;
+    margin: 20px 0 4px; /* dịch khối footer xuống vừa phải */
+}
+
+.login-register p a {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 600;
+    position: relative;
+}
+
+.login-register p a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background: #2563eb;
+    transition: width .25s ease;
+}
+
+.login-register p a:hover::after {
+    width: 100%;
+}
+
+/* Optional gray variant utility class (apply on wrapper for subtle background) */
+.wrapper.gray-bg { background: #f3f4f6; }
+
+.login-register p a:hover { text-decoration: none; }
+
+/* ===== Register page specific tweaks ===== */
+/* Giảm bớt khoảng cách giữa các dòng (chỉ trang đăng ký) */
+.form-box.register form { gap: 2px; }
+.form-box.register .input-box { margin: 14px 0; }
+.form-box.register .remember-forgot { margin: 6px 0 14px; }
+
+/* Placeholder của đăng ký/điện thoại chỉ hiện sau khi click (focus) */
+.form-box.register .input-box input::placeholder {
+    opacity: 0;
+    color: #6b7280; /* gray-500 */
+    transition: opacity .2s ease;
+}
+.form-box.register .input-box input:focus::placeholder {
+    opacity: 1;
+    transition: opacity .2s ease .12s; /* xuất hiện trễ một chút sau animation label */
+}
+
+/* Đảm bảo ô Số điện thoại có cùng animation label như các ô khác */
+.form-box.register .input-box.phone label {
+    top: 50%; /* reset bất kỳ sai lệch trước đó */
+}
+.form-box.register .input-box.phone input:valid ~ label {
+    /* Với input không required, :valid đúng cả khi rỗng -> giữ label ở giữa */
+    top: 50%;
+}
+.form-box.register .input-box.phone input:focus ~ label,
+.form-box.register .input-box.phone input:not(:placeholder-shown) ~ label {
+    top: -5px;
+}

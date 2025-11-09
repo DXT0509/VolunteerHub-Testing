@@ -60,5 +60,46 @@
       "manager_mail": "thao.vu@example.com",
       "banner_url": "https://images.unsplash.com/photo-1529101091764-c3526daf38fe"
     }
+  ],
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "email": "admin@example.com",
+      "password": "123456",
+      "full_name": "System Administrator",
+      "avatar_url": "https://i.pravatar.cc/150?img=1",
+      "slug": "admin",
+      "phone": "0901234567",
+      "is_active": true,
+      "created_at": "2025-01-01T08:00:00Z",
+      "updated_at": "2025-01-10T09:30:00Z"
+    },
+    {
+      "id": 2,
+      "username": "johndoe",
+      "email": "johndoe@example.com",
+      "password": "password",
+      "full_name": "John Doe",
+      "avatar_url": "https://i.pravatar.cc/150?img=2",
+      "slug": "john-doe",
+      "phone": "0912345678",
+      "is_active": true,
+      "created_at": "2025-02-15T10:20:00Z",
+      "updated_at": "2025-02-16T11:00:00Z"
+    },
+    {
+      "id": 3,
+      "username": "janedoe",
+      "email": "janedoe@example.com",
+      "password": "password",
+      "full_name": "Jane Doe",
+      "avatar_url": "https://i.pravatar.cc/150?img=3",
+      "slug": "jane-doe",
+      "phone": "0987654321",
+      "is_active": false,
+      "created_at": "2025-03-05T12:00:00Z",
+      "updated_at": "2025-03-07T13:00:00Z"
+    }
   ]
 }

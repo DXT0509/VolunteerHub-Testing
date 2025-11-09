@@ -4,11 +4,12 @@ import { AuthRequest } from "../../middlewares/auth.middleware";
 
 export async function register(req: Request, res: Response) {
   try {
-    const { email, password, full_name, roleName } = req.body;
+    const { email, password, full_name, phone, roleName } = req.body;
     const result = await AuthService.registerUser(
       email,
       password,
       full_name,
+      phone,
       roleName
     );
     res.json(result);

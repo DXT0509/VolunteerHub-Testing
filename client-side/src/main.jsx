@@ -2,10 +2,13 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
-import { App, Login } from './App.jsx'
+import { App } from './App.jsx'
+import Login from './assets/Pages/Login.jsx'
+import Register from './assets/Pages/Register.jsx'
+import RegisterSuccess from './assets/Pages/RegisterSuccess.jsx'
 import MainLayout from './assets/Layouts/MainLayout/MainLayout.jsx'
 import ShowCampaignDetail from './assets/Pages/ShowCampaignDetail.jsx'
-
+import BeVolunteerForm from './assets/Pages/BeVolunteerForm.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -13,8 +16,11 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<App />} />
-          <Route path="login" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/register-success" element={<RegisterSuccess />} />
           <Route path = '/events/:id' element={<ShowCampaignDetail />} />
+          <Route path = '/bevolunteer/:id' element={<BeVolunteerForm />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -1,0 +1,115 @@
+/* Root container */
+.bvf-root {
+  display: flex;
+  justify-content: center;
+  padding: 32px 16px;
+  /* Background image behind the form */
+  background:
+    linear-gradient(135deg, rgba(245,247,250,0.68), rgba(226,236,247,0.68)),
+    url('../image/community.jpg');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Paper card */
+.bvf-paper {
+  width: 100%;
+  max-width: 720px;
+  border-radius: 16px; /* 4 * 4px = 16px */
+  overflow: hidden;
+  min-height: 640px; /* Taller card as requested */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.bvf-header {
+  background: linear-gradient(90deg,#2563eb,#1d4ed8);
+  color: #ffffff;
+  padding: 24px;
+}
+
+/* Title tweaks */
+.bvf-title {
+  font-weight: 700;
+}
+.bvf-subtitle {
+  opacity: 0.9;
+  margin-top: 8px;
+}
+
+/* Form */
+.bvf-form {
+  padding: 24px;
+}
+
+/* Enforce one-field-per-row even if breakpoints differ */
+.bvf-form .MuiGrid-container {
+  flex-direction: column;
+}
+.bvf-form .MuiGrid-item {
+  flex-basis: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Divider spacing */
+.bvf-divider {
+  margin: 8px 0;
+}
+
+/* Submit button */
+.bvf-submit-btn {
+  background-color: #16a34a !important;
+  text-transform: none !important;
+  border-radius: 8px !important; /* 2 * 4px */
+  padding: 12px 32px !important; /* py:1.5 (12px), px:4 (32px) */
+  font-weight: 600 !important;
+  position: relative;
+  width: 100% !important; /* match width of text fields */
+}
+.bvf-submit-btn:hover {
+  background-color: #15803d !important;
+}
+.bvf-submit-btn:disabled {
+  opacity: 0.8;
+}
+
+/* Loading layout inside button */
+.bvf-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+/* Center the submit button */
+.bvf-actions { display: block; }
+
+/* Responsive paddings */
+@media (min-width: 900px) {
+  .bvf-root { padding: 64px 16px; }
+  .bvf-header { padding: 32px; }
+  .bvf-form { padding: 32px; }
+}
+
+/* ===== Fade-in-up animation (like ShowCampaignDetail) ===== */
+@keyframes bvfFadeInUp {
+  0% { opacity: 0; transform: translateY(60px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.bvf-animate {
+  opacity: 0;
+  transform: translateY(60px);
+  will-change: opacity, transform;
+}
+
+.bvf-animate.in-view {
+  animation: bvfFadeInUp 1.5s ease-out forwards;
+}
+
+/* Slight stagger */
+.bvf-header.bvf-animate.in-view { animation-delay: 0.05s; }
+.bvf-form.bvf-animate.in-view { animation-delay: 0.15s; }

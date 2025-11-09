@@ -37,16 +37,42 @@ function App() {
 }
 
 function Login() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   useEffect(() => {
     document.body.classList.add("bg-pink");
     return () => document.body.classList.remove("bg-pink");
   }, []);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const account = e.target.account.value;
-    const password = e.target.password.value;
-    console.log("login", { account, password });
+    setError("");
+    setLoading(true);
+    const email = e.target.email.value.trim();
+    const password = e.target.password.value.trim();
+    try {
+      const res = await fetch("http://localhost:4000/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.error || "Đăng nhập thất bại");
+      }
+      // Lưu token & user
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      // Điều hướng về trang chủ
+      window.location.href = "/";
+    } catch (err) {
+      setError(err.message || "Có lỗi xảy ra");
+      const noti = document.getElementById("noti");
+      if (noti) noti.textContent = err.message || "Có lỗi xảy ra";
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -57,12 +83,12 @@ function Login() {
           <hr></hr>
           <form onSubmit={handleLogin}>
             <div className="mb-3">
-              <label className="form-label">Tên đăng nhập</label>
+              <label className="form-label">Email</label>
               <input
-                type="text"
-                name="account"
+                type="email"
+                name="email"
                 className="form-control"
-                placeholder="Nhập tên đăng nhập"
+                placeholder="Nhập email"
                 style = {{ height: "45px" }}
                 required
               />
@@ -91,12 +117,12 @@ function Login() {
               </label>
             </div>
 
-            <button type="submit" className="btn btn-pink w-100" style = {{ height: "45px" }}>
-              Đăng nhập
+            <button type="submit" className="btn btn-pink w-100" style = {{ height: "45px" }} disabled={loading}>
+              {loading ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
           </form>
 
-          <pre id="noti" className="text-danger text-center mt-3"></pre>
+          <pre id="noti" className="text-danger text-center mt-3">{error}</pre>
         </div>
       </div>
     </>

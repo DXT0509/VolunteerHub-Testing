@@ -9,6 +9,7 @@ export async function registerUser(
   email: string,
   password: string,
   full_name: string,
+  phone?: string,
   roleName: string = "VOLUNTEER"
 ) {
   const exists = await prisma.users.findUnique({ where: { email } });
@@ -29,6 +30,7 @@ export async function registerUser(
       username: email.split("@")[0],
       password: hash,
       full_name,
+      phone,
       roles: {
         create: [{ role: { connect: { id: role.id } } }],
       },
@@ -44,6 +46,7 @@ export async function registerUser(
 
 //Login
 export async function loginUser(email: string, password: string) {
+  
   const user = await prisma.users.findUnique({
     where: { email },
     include: { roles: { include: { role: true } } },
@@ -51,7 +54,7 @@ export async function loginUser(email: string, password: string) {
 
   if (!user) throw new Error("Tài khoản không tồn tại");
   if (!user.is_active) throw new Error("Tài khoản đã bị khóa");
-
+  
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) throw new Error("Sai mật khẩu");
 

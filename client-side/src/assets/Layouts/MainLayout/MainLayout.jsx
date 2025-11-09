@@ -11,7 +11,6 @@ const MainLayout = () => (
     </div>
 
     {/* Footer */}
-    <Footer></Footer>
   </div>
 );
 
