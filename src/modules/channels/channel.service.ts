@@ -43,6 +43,14 @@ export async function getEventPosts(
         author: { select: { id: true, full_name: true, avatar_url: true } },
         _count: { select: { comments: true, likes: true } },
         likes: { where: { user_id: userId }, select: { id: true } },
+        attachments: {
+          select: {
+            id: true,
+            file_url: true,
+            file_type: true,
+            created_at: true,
+          },
+        },
         comments: {
           orderBy: { created_at: "asc" },
           include: {
