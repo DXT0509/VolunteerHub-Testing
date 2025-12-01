@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Box, Paper, TextField, Typography, Button, Grid, Divider, CircularProgress } from '@mui/material';
+import { Box, Paper, TextField, Typography, Button, Grid, Divider, CircularProgress, Snackbar, Alert, Slide } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import './BeVolunteerForm.css';
 import { useNavigate } from 'react-router-dom';
@@ -18,8 +18,11 @@ const BeVolunteerForm = () => {
   });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false); // loading during submit
   const [loadingEvent, setLoadingEvent] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const [warnMsg, setWarnMsg] = useState('');
+  const [showWarn, setShowWarn] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   const [allowed, setAllowed] = useState(false);
@@ -79,12 +82,14 @@ const BeVolunteerForm = () => {
     return newErrors;
   };
 
+  const submitTimerRef = useRef(null);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const v = validate();
     setErrors(v);
     if (Object.keys(v).length === 0) {
-      
+      setSubmitting(true);
       const res = await fetch(`http://localhost:4000/registrations/${id}/register`, {
         method: 'POST',
         headers: { 
@@ -94,16 +99,27 @@ const BeVolunteerForm = () => {
       });
       const data = await res.json();
       if (!res.ok) {
-        setLoadError(data?.error || "Đăng ký thất bại");
+        const msg = data?.error || 'Đăng ký thất bại';
+        setLoadError(msg);
+        setWarnMsg(msg);
+        setShowWarn(true);
         setSubmitted(false);
+        setSubmitting(false);
         return;
       }
       setSubmitted(true);
       sessionStorage.setItem('registrationSuccess', 'true');
-      navigate('/registration-success', { state: { fromRegister: true } });
       console.log('Volunteer Registration:', form);
+      // Delay navigation 1.3s to show loading indicator
+      submitTimerRef.current = setTimeout(() => {
+        navigate('/registration-success', { state: { fromRegister: true } });
+      }, 2000);
     }
   };
+
+  const SlideFromTop = React.forwardRef(function SlideFromTop(props, ref) {
+    return <Slide ref={ref} {...props} direction="down" timeout={{ enter: 400, exit: 350 }} />;
+  });
 
   useEffect(() => {
   const targets = [cardRef.current, headerRef.current, formRef.current].filter(Boolean);
@@ -125,6 +141,17 @@ const BeVolunteerForm = () => {
 
   return (
     <Box className="bvf-root">
+      <Snackbar
+        open={showWarn}
+        onClose={(_, reason) => { if (reason === 'clickaway') return; setShowWarn(false); }}
+        autoHideDuration={2500}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        TransitionComponent={SlideFromTop}
+      >
+        <Alert severity="error" variant="filled" sx={{ px: 2, py: 1, borderRadius: 1.5, boxShadow: 2, width: '420px', backgroundColor: '#facc15', color: '#78350f' }}>
+          {warnMsg}
+        </Alert>
+      </Snackbar>
       <Paper ref={cardRef} elevation={6} className="bvf-paper bvf-animate">
         <Box ref={headerRef} className="bvf-header bvf-animate">
           <Typography variant="h5" className="bvf-title">Đăng ký Làm Tình Nguyện Viên</Typography>
@@ -190,7 +217,7 @@ const BeVolunteerForm = () => {
                   type="submit"
                   variant="contained"
                   size="large"
-                  disabled={loadingEvent || !!loadError}
+                  disabled={loadingEvent || !!loadError || submitting}
                   className="bvf-submit-btn"
                 >
                   {loadingEvent ? (
@@ -198,14 +225,15 @@ const BeVolunteerForm = () => {
                       <CircularProgress size={20} color="inherit" />
                       <span>Đang tải sự kiện...</span>
                     </Box>
+                  ) : submitting ? (
+                    <Box className="bvf-loading">
+                      <CircularProgress size={20} color="inherit" />
+                      <span>Đang gửi...</span>
+                    </Box>
                   ) : 'Gửi đăng ký'}
                 </Button>
               </Box>
-              {submitted && (
-                <Typography variant="body2" color="success.main" sx={{ mt: 2 }}>
-                  Đã gửi đăng ký! Chúng tôi sẽ liên hệ sớm.
-                </Typography>
-              )}
+              {submitted}
             </Grid>
           </Grid>
         </Box>

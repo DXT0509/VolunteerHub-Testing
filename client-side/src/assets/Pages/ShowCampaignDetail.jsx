@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, Alert, Slide } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Snackbar, Alert, Slide, CircularProgress } from '@mui/material';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import CancelIcon from '@mui/icons-material/Cancel';
 import { useParams, useNavigate } from "react-router-dom";
@@ -16,16 +16,23 @@ const SlideFromTop = React.forwardRef(function SlideFromTop(props, ref) {
 
 function ShowCampaignDetail() {
   const fmtDeadline = (d) => {
-  if (!d) return 'Không có thời hạn';
-  const dt = d instanceof Date ? d : new Date(d);
-  if (Number.isNaN(dt.getTime())) return String(d);
-  return dt.toLocaleDateString('vi-VN', {
-    weekday: 'long',
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  });
-};
+    if (!d) return 'Không có thời hạn';
+    const dt = d instanceof Date ? d : new Date(d);
+    if (Number.isNaN(dt.getTime())) return String(d);
+    const weekday = dt.toLocaleDateString('vi-VN', { weekday: 'long' });
+    const hour = dt.getHours(); // 0-23
+    const dateStr = dt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return `${weekday}, ${hour} giờ, ${dateStr}`;
+  };
+  const fmtStartTime = (d) => {
+    if (!d) return 'Không có thời gian bắt đầu';
+    const dt = d instanceof Date ? d : new Date(d);
+    if (Number.isNaN(dt.getTime())) return String(d);
+    const weekday = dt.toLocaleDateString('vi-VN', { weekday: 'long' });
+    const hour = dt.getHours();
+    const dateStr = dt.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    return `${weekday}, ${hour} giờ, ${dateStr}`;
+  };
   const { id } = useParams();
   const [event, setEvent] = useState(null);
   const [userRegistrations, setUserRegistrations] = useState([]); 
@@ -33,7 +40,9 @@ function ShowCampaignDetail() {
   const [allowed, setAllowed] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [warnMsg, setWarnMsg] = useState("");
+  const [warnSeverity, setWarnSeverity] = useState('error'); // 'error' | 'success'
   const [showWarn, setShowWarn] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   // Refs for animation targets (declare before any early return)
   const leftRef = useRef(null);
@@ -50,24 +59,31 @@ function ShowCampaignDetail() {
     }
   }, [navigate]);
 
+  // Load event details when allowed
   useEffect(() => {
     if (!allowed) return;
     fetch(`http://localhost:4000/events/${id}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error('Không tải được chi tiết sự kiện');
+        return res.json();
+      })
       .then(data => setEvent(data))
       .catch(err => console.error(err));
   }, [id, allowed]);
+
+  // Load user's registrations when allowed
   useEffect(() => {
-    fetch(`http://localhost:4000/registrations/my`,{
+    if (!allowed) return;
+    fetch(`http://localhost:4000/registrations/my`, {
       method: 'GET',
       headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`,
         'Content-Type': 'application/json'
       }
     })
-    .then(res => res.json())
-    .then(data => setUserRegistrations(data))
-    .catch(err => console.error(err));
+      .then(res => res.json())
+      .then(data => setUserRegistrations(data))
+      .catch(err => console.error(err));
   }, [allowed]);
 
   function getRegistrationStatus(eventId) {
@@ -77,29 +93,54 @@ function ShowCampaignDetail() {
 
   async function handleCancel(eventId) {
     try {
-      await fetch(`http://localhost:4000/registrations/${eventId}/register`, {
+      const resCancel = await fetch(`http://localhost:4000/registrations/${eventId}/register`, {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json'
         }
       });
-      // Refresh registrations list after cancellation
+
+      // If server rejects (e.g., event already occurred), show its error message
+      if (!resCancel.ok) {
+        try {
+          const errBody = await resCancel.json();
+          setWarnMsg(errBody?.error || 'Hủy thất bại');
+        } catch (e) {
+          setWarnMsg('Hủy thất bại');
+        }
+        setWarnSeverity('error');
+        setShowWarn(true);
+        return;
+      }
+
+      // Refresh registrations list after successful cancellation
       const res = await fetch(`http://localhost:4000/registrations/my`,{
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       const data = await res.json();
       setUserRegistrations(data);
+      // show success alert
+      setWarnMsg('Hủy đăng ký thành công');
+      setWarnSeverity('success');
+      setShowWarn(true);
     } catch (e) {
       console.error('Cancel failed', e);
+      setWarnMsg('Lỗi khi hủy đăng ký');
+      setWarnSeverity('error');
+      setShowWarn(true);
     }
   }
 
   const openConfirm = () => setConfirmOpen(true);
   const closeConfirm = () => setConfirmOpen(false);
   const confirmCancel = async () => {
+    setCancelling(true);
+    // show loading for 2 seconds
+    await new Promise(resolve => setTimeout(resolve, 2000));
     closeConfirm();
     await handleCancel(event.id);
+    setCancelling(false);
   };
 
 
@@ -149,7 +190,7 @@ function ShowCampaignDetail() {
         sx={{ mt: 2 }}
       >
         <Alert
-          severity="error"
+          severity={warnSeverity}
           variant="filled"
           sx={{
             px: 2,
@@ -157,8 +198,8 @@ function ShowCampaignDetail() {
             borderRadius: 1.5,
             boxShadow: 2,
             width: '420px',
-            backgroundColor: '#facc15',
-            color: '#78350f',
+            backgroundColor: warnSeverity === 'success' ? '#16a34a' : '#facc15',
+            color: warnSeverity === 'success' ? '#ffffff' : '#78350f',
             '& .MuiAlert-icon': { mr: 1 },
             '& .MuiAlert-message': { fontSize: '0.95rem', fontWeight: 500 },
           }}
@@ -183,16 +224,20 @@ function ShowCampaignDetail() {
           <div className="scd-desc">
             <span>{event.description}</span>
           </div>
-          <h5 className="scd-location">Địa điểm: <span><strong>{event.location?.name}</strong></span></h5>
+          <h5 className="scd-location">Địa điểm: <span ><strong>{event.location?.name}</strong></span></h5>
           <span className = "scd-location">
             <span>{event.location?.address_line}, {event.location?.district}, {event.location?.province}, {event.location?.country}</span>
           </span>
+          <div className="scd-start-time" style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span style={{ color: '#000', fontWeight: 600 }}>Có mặt:</span>
+            <span className="scd-start-time-box">{fmtStartTime(event.start_time)}</span>
+          </div>
           <div className="scd-details">
             {/* Two-column grid: col 1 = Deadline & Contact, col 2 = Capacity & Manager */}
             <div className="scd-grid">
               {/* Row 1 */}
               <div>
-                <div className="scd-label">Hạn chót</div>
+                <div className="scd-label">Hạn đăng ký</div>
                 <div className="scd-value">{fmtDeadline(event.end_time)}</div>
               </div>
               <div>
@@ -225,9 +270,29 @@ function ShowCampaignDetail() {
         <div className="scd-actions">
           {(() => {
             const status = getRegistrationStatus(event.id);
+            const now = new Date();
+            const ended = event?.end_time ? (new Date(event.end_time).getTime() < now.getTime()) : false;
+            if (ended) {
+              return (
+                <Button
+                  className="scd-join-btn"
+                  variant="contained"
+                  sx={{
+                    bgcolor: '#facc15',
+                    color: '#78350f',
+                    cursor: 'default',
+                    textTransform: 'none',
+                    '&:hover': { bgcolor: '#facc15' }
+                  }}
+                >
+                  Sự kiện đã kết thúc
+                </Button>
+              );
+            }
             if (status === 'pending') {
               return (
                 <Button
+                  className="scd-join-btn"
                   variant="contained"
                   onClick={() => {setConfirmOpen(true);}}
                   sx={{
@@ -238,13 +303,31 @@ function ShowCampaignDetail() {
                     '&:hover': { bgcolor: '#facc15' }
                   }}
                 >
-                  <WarningAmberIcon sx={{ mr: 1 }} /> Đang chờ duyệt đơn đăng ký
+                  <WarningAmberIcon sx={{ mr: 1 }} /> Đang chờ duyệt đăng ký
+                </Button>
+              );
+            }
+            if (status === 'rejected') {
+              return (
+                <Button
+                  className="scd-join-btn"
+                  variant="contained"
+                  sx={{
+                    bgcolor: '#dc2626',
+                    color: '#fff',
+                    textTransform: 'none',
+                    cursor: 'default',
+                    '&:hover': { bgcolor: '#dc2626' }
+                  }}
+                >
+                  <CancelIcon sx={{ mr: 1 }} /> Bạn đã bị từ chối
                 </Button>
               );
             }
             if (status === 'approved') {
               return (
                 <Button
+                  className="scd-join-btn"
                   variant="contained"
                   onClick={() => {setConfirmOpen(true);}}
                   sx={{
@@ -275,6 +358,7 @@ function ShowCampaignDetail() {
               const status = getRegistrationStatus(event.id);
               if (status !== 'approved') {
                 setWarnMsg('Bạn chưa tham gia sự kiện');
+                setWarnSeverity('warning');
                 setShowWarn(true);
                 return;
               }
@@ -303,11 +387,16 @@ function ShowCampaignDetail() {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={closeConfirm} variant="contained" sx={{ bgcolor: '#9ca3af', '&:hover': { bgcolor: '#6b7280' }, textTransform: 'none' }}>
+            <Button onClick={closeConfirm} disabled={cancelling} variant="contained" sx={{ bgcolor: '#9ca3af', '&:hover': { bgcolor: '#6b7280' }, textTransform: 'none' }}>
               Hủy
             </Button>
-            <Button onClick={confirmCancel} variant="contained" sx={{ bgcolor: '#16a34a', '&:hover': { bgcolor: '#15803d' }, textTransform: 'none' }} autoFocus>
-              Xác nhận
+            <Button onClick={confirmCancel} disabled={cancelling} variant="contained" sx={{ bgcolor: '#16a34a', '&:hover': { bgcolor: '#15803d' }, textTransform: 'none', display: 'flex', alignItems: 'center', gap: 1 }} autoFocus>
+              {cancelling ? (
+                <>
+                  <CircularProgress size={18} color="inherit" />
+                  <span>Đang hủy...</span>
+                </>
+              ) : 'Xác nhận'}
             </Button>
           </DialogActions>
         </Dialog>

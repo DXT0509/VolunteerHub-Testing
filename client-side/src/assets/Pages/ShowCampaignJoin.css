@@ -1,0 +1,54 @@
+
+.campaign-join-page {
+    
+    background:
+        linear-gradient(135deg, rgba(245,247,250,0.68), rgba(226,236,247,0.68)),
+        url('../image/community.jpg');
+        
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: calc(100vh - 66px);
+}
+@keyframes bvfFadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.bvf-animate {
+  opacity: 0;
+  transform: translateY(20px);
+  will-change: opacity, transform;
+}
+
+.bvf-animate.in-view {
+  animation: bvfFadeInUp 1.5s ease-out forwards;
+  animation-delay: 0.15s;
+}
+
+/* Slight stagger */
+.campaign-join-page.bvf-animate.in-view { animation-delay: 0.05s; }
+
+/* List item base */
+.scj-item {
+  align-items: flex-start;
+  margin-bottom: 10px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 180ms ease, transform 180ms ease;
+  background-color: rgba(100,116,139,0.16);
+}
+.scj-item:hover {
+  box-shadow: 0 8px 24px -12px rgba(0,0,0,0.20);
+  transform: translateY(-1px);
+}
+
+/* Status backgrounds */
+.scj-approved { background-color: rgba(22,163,74,0.14); }
+.scj-completed { background-color: rgba(13,148,136,0.22); }
+.scj-pending { background-color: rgba(245,158,11,0.18); }
+.scj-rejected { background-color: rgba(220,38,38,0.18); }
+.scj-absent { background-color: rgba(220,38,38,0.26); }

@@ -13,7 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback, useMemo } from 'react';
-
+import './ShowChannel.css';
 // Stable transition component defined outside so MUI can properly animate exit
 const SlideFromTop = React.forwardRef(function SlideFromTop(props, ref) {
     return <Slide ref={ref} {...props} direction="down" timeout={{ enter: 400, exit: 350 }} />;
@@ -427,15 +427,18 @@ function ShowChannel() {
                 onClick={openForm}
                 sx={{
                     margin: '0 auto',
-                    display: 'flex', alignItems: 'center',flexDirection: 'column',
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexDirection: 'column',
                     border: '1px solid #e5e7eb',
                     borderRadius: 2,
-                    p: 2,
+                    p: { xs: 1.5, sm: 2 },
                     cursor: 'pointer',
                     color: '#6b7280',
                     backgroundColor: '#ffffff',
                     '&:hover': { backgroundColor: '#f9fafb' },
-                    width: '600px'
+                    width: { xs: '100%', sm: '520px', md: '600px' },
+                    boxShadow: 'none'
                 }}
             >
                 Bạn viết gì đi
@@ -612,9 +615,9 @@ function ShowChannel() {
 // Memoized list of posts to avoid re-rendering while typing in other inputs
 const PostsList = React.memo(function PostsList({ items, onToggleLike, onOpenComments, formatRelative, currentUserId, onRequestDelete }) {
     return (
-        <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center' }}>
+        <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', px: { xs: 1, sm: 0 } }}>
             {items?.map((post) => (
-                <Box key={post.id} onClick={() => onOpenComments(post)} sx={{ border: '1px solid #e5e7eb', borderRadius: 2, background: '#fff', p: 2, width: '100%', maxWidth: 600, cursor: 'pointer' }}>
+            <Box key={post.id} onClick={() => onOpenComments(post)} sx={{ border: '1px solid #e5e7eb', borderRadius: 2, background: '#fff', p: { xs: 1.5, sm: 2 }, width: '100%', maxWidth: 600, cursor: 'pointer', boxShadow: 'none' }}>
                     {/* Header: avatar + name + time + (optional delete) */}
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
@@ -682,16 +685,16 @@ const PostsList = React.memo(function PostsList({ items, onToggleLike, onOpenCom
                                 </Box>
                             )}
                             {post.attachments.length >= 3 && (
-                                <Box sx={{ display: 'flex', gap: 1, height: 220 }}>
+                                <Box sx={{ display: 'flex', gap: 1, height: { xs: 160, sm: 200, md: 220 }, flexDirection: { xs: 'column', sm: 'row' } }}>
                                     <Box
                                         component="img"
                                         src={post.attachments[0]?.file_url}
                                         alt="post-0"
                                         referrerPolicy="no-referrer"
                                         onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                                        sx={{ width: '50%', borderRadius: 1.25, objectFit: 'cover', height: '100%' }}
+                                        sx={{ width: { xs: '100%', sm: '50%' }, borderRadius: 1.25, objectFit: 'cover', height: '100%' }}
                                     />
-                                    <Box sx={{ width: '50%', position: 'relative', borderRadius: 1.25, overflow: 'hidden', height: '100%' }}>
+                                    <Box sx={{ width: { xs: '100%', sm: '50%' }, position: 'relative', borderRadius: 1.25, overflow: 'hidden', height: '100%' }}>
                                         {/* show second image darkened */}
                                         <Box
                                             component="img"
@@ -721,7 +724,7 @@ const PostsList = React.memo(function PostsList({ items, onToggleLike, onOpenCom
                         </Typography>
                     </Box>
                     {/* Actions: like left, comment right */}
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, px: 8 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2, px: { xs: 2, sm: 4, md: 8 } }}>
                         <Button
                             variant="text"
                             startIcon={post.liked ? <ThumbUpAltIcon sx={{ color: '#2563eb' }} /> : <ThumbUpOffAltIcon sx={{ color: '#374151' }} />}
@@ -911,7 +914,7 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
                     </Typography>
                 </Box>
                 {/* Focused actions */}
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, px: 8 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1, px: { xs: 2, sm: 4, md: 8 } }}>
                     <Button
                         variant="text"
                         startIcon={post.liked ? <ThumbUpAltIcon sx={{ color: '#2563eb' }} /> : <ThumbUpOffAltIcon sx={{ color: '#374151' }} />}
