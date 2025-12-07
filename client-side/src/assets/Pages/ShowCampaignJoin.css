@@ -1,15 +1,16 @@
 
 .campaign-join-page {
-    
-    background:
-        linear-gradient(135deg, rgba(245,247,250,0.68), rgba(226,236,247,0.68)),
-        url('../image/community.jpg');
-        
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    height: calc(100vh - 66px);
+  background:
+    linear-gradient(135deg, rgba(245,247,250,0.68), rgba(226,236,247,0.68)),
+    url('../image/community.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  /* Let the page grow with content to avoid spilling out of background */
+  min-height: calc(100vh - 66px);
+  padding-top: 50px;  /* space from navbar */
+  padding-bottom: 40px; /* ensure background covers under long list */
 }
 @keyframes bvfFadeInUp {
   0% { opacity: 0; transform: translateY(20px); }

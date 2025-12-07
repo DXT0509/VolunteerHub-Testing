@@ -12,6 +12,7 @@ import BeVolunteerForm from './assets/Pages/BeVolunteerForm.jsx'
 import ShowChannel from './assets/Pages/ShowChannel.jsx'
 import RegistrationSuccess from './assets/Pages/RegistrationSuccess.jsx'
 import ShowCampaignJoin from './assets/Pages/ShowCampaignJoin.jsx'
+import ControlUser from './assets/Pages/ControlUser.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
@@ -26,6 +27,7 @@ createRoot(document.getElementById('root')).render(
           <Route path="/registration-success" element={<RegistrationSuccess />} />
           <Route path = '/exchange-channel/:id' element={<ShowChannel />} />
           <Route path='/mycampaigns' element={<ShowCampaignJoin />} />
+          <Route path='/control-users' element={<ControlUser />} />
         </Route>
       </Routes>
     </BrowserRouter>
