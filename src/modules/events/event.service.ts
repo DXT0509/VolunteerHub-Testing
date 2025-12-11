@@ -23,7 +23,7 @@ export async function createEvent(managerId: number, data: any) {
     slug = `${baseslug}-${counter++}`;
   }
 
-  // ✅ Tạo location mới từ object
+  //Tạo location mới từ object
   const newLocation = await prisma.locations.create({
     data: {
       name: location.name,
@@ -98,7 +98,10 @@ export async function getEventBySlug(slug: string) {
 
 //Update Event (Event Manager)
 export async function updateEvent(id: number, managerId: number, data: any) {
-  const event = await prisma.events.findUnique({ where: { id } });
+  const event = await prisma.events.findUnique({
+    where: { id },
+    include: { location: true }, //Để so sánh
+  });
   if (!event) throw new Error("Sự kiện không tồn tại");
   if (event.manager_id !== managerId)
     throw new Error("Bạn không có quyền chỉnh sửa sự kiện này");
@@ -106,13 +109,55 @@ export async function updateEvent(id: number, managerId: number, data: any) {
   let updateData: any = {
     description: data.description,
     category_id: data.category_id,
-    location_id: data.location_id,
     start_time: data.start_time ? new Date(data.start_time) : undefined,
     end_time: data.end_time ? new Date(data.end_time) : undefined,
     capacity: data.capacity,
     banner_url: data.banner_url,
     updated_at: new Date(),
   };
+
+  if (data.location) {
+    const newLoc = data.location;
+    const oldLoc = event.location;
+
+    let needNewLocation = false;
+
+    // Nếu event chưa có location hoặc location trống -> chắn chắn tạo mới
+    if (!oldLoc) {
+      needNewLocation = true;
+    } else {
+      // So sánh field
+      const fields: (keyof typeof oldLoc)[] = [
+        "name",
+        "address_line",
+        "district",
+        "province",
+        "country",
+      ];
+
+      for (const field of fields) {
+        if ((newLoc[field] || null) !== (oldLoc[field] || null)) {
+          needNewLocation = true;
+          break;
+        }
+      }
+    }
+
+    if (needNewLocation) {
+      // Tạo location mới
+      const createdLoc = await prisma.locations.create({
+        data: {
+          name: newLoc.name,
+          address_line: newLoc.address_line,
+          district: newLoc.district,
+          province: newLoc.province,
+          country: newLoc.country,
+        },
+      });
+
+      updateData.location_id = createdLoc.id;
+    }
+  }
 
   if (data.title && data.title !== event.title) {
     let newSlug = slugify(data.title, { lower: true, strict: true });

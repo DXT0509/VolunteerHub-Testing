@@ -34,4 +34,8 @@ app.use("/notifications", notificationRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/admin", adminRoutes);
 app.use("/categories", categoryRoutes);
+<<<<<<< HEAD
+=======
+
+>>>>>>> NguyenAnhHao_BE
 export default app;
