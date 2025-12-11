@@ -10,7 +10,7 @@ import channelRoutes from "./modules/channels/channel.routes";
 import notificationRoutes from "./modules/notifications/notification.routes";
 import dashboardRoutes from "./modules/dashboard/dashboard.routes";
 import adminRoutes from "./modules/admin/admin.routes";
-
+import categoryRoutes from "./modules/categories/category.routes";
 dotevn.config();
 
 const app = express();
@@ -33,5 +33,5 @@ app.use("/channels", channelRoutes);
 app.use("/notifications", notificationRoutes);
 app.use("/dashboard", dashboardRoutes);
 app.use("/admin", adminRoutes);
-
+app.use("/categories", categoryRoutes);
 export default app;

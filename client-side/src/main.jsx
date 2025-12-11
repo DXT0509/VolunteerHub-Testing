@@ -13,6 +13,7 @@ import ShowChannel from './assets/Pages/ShowChannel.jsx'
 import RegistrationSuccess from './assets/Pages/RegistrationSuccess.jsx'
 import ShowCampaignJoin from './assets/Pages/ShowCampaignJoin.jsx'
 import ControlUser from './assets/Pages/ControlUser.jsx'
+import ManageMyCampaign from './assets/Pages/ManageMyCampaign.jsx'
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
@@ -28,6 +29,7 @@ createRoot(document.getElementById('root')).render(
           <Route path = '/exchange-channel/:id' element={<ShowChannel />} />
           <Route path='/mycampaigns' element={<ShowCampaignJoin />} />
           <Route path='/control-users' element={<ControlUser />} />
+          <Route path='/manage-my-campaigns' element={<ManageMyCampaign />} />
         </Route>
       </Routes>
     </BrowserRouter>

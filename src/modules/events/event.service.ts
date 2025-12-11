@@ -8,7 +8,7 @@ export async function createEvent(managerId: number, data: any) {
     title,
     description,
     category_id,
-    location_id,
+    location, // <== nhận object location thay vì location_id
     start_time,
     end_time,
     capacity,
@@ -23,13 +23,24 @@ export async function createEvent(managerId: number, data: any) {
     slug = `${baseslug}-${counter++}`;
   }
 
+  // ✅ Tạo location mới từ object
+  const newLocation = await prisma.locations.create({
+    data: {
+      name: location.name,
+      address_line: location.address_line,
+      district: location.district,
+      province: location.province,
+      country: location.country,
+    },
+  });
+
   return prisma.events.create({
     data: {
       title,
       slug,
       description,
       category_id,
-      location_id,
+      location_id: newLocation.id,
       start_time: new Date(start_time),
       end_time: new Date(end_time),
       capacity,

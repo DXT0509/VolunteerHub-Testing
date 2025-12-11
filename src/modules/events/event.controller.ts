@@ -4,7 +4,22 @@ import { AuthRequest } from "../../middlewares/auth.middleware";
 
 export async function create(req: AuthRequest, res: Response) {
   try {
-    const result = await EventService.createEvent(req.user!.userId, req.body);
+    // Support both JSON and multipart/form-data
+    const body: any = req.body || {};
+    // location may arrive as JSON string when using multipart
+    if (typeof body.location === "string") {
+      try { body.location = JSON.parse(body.location); } catch { /* keep as string if invalid */ }
+    }
+    // numeric conversions if provided as strings
+    if (typeof body.category_id === "string" && body.category_id !== "") body.category_id = Number(body.category_id);
+    if (typeof body.capacity === "string" && body.capacity !== "") body.capacity = Number(body.capacity);
+    // attach banner_url if a file was uploaded
+    const file = (req as any).file as Express.Multer.File | undefined;
+    if (file) {
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      body.banner_url = `${baseUrl}/uploads/${file.filename}`;
+    }
+    const result = await EventService.createEvent(req.user!.userId, body);
     res.json(result);
   } catch (err: any) {
     res.status(400).json({ error: err.message });

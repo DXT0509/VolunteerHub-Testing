@@ -45,6 +45,47 @@ function ControlUser() {
   const [searchMode, setSearchMode] = useState('name'); // name | email | phone
   const [searchQuery, setSearchQuery] = useState('');
   const [applySearch, setApplySearch] = useState(false);
+  const exportVolunteersCsv = () => {
+    try {
+      const volunteers = users.filter(u => {
+        const roleName = (u.roles || []).map(r => r?.role?.name)[0];
+        return roleName === 'VOLUNTEER';
+      });
+      const headers = ['ID','Họ tên','Tên đăng nhập','Email','SĐT','Trạng thái','Ngày tạo'];
+      const rows = volunteers.map(u => [
+        u.id,
+        (u.full_name || '').replace(/\n|\r/g, ' ').trim(),
+        (u.username || '').replace(/\n|\r/g, ' ').trim(),
+        (u.email || '').replace(/\n|\r/g, ' ').trim(),
+        (u.phone || '').replace(/\n|\r/g, ' ').trim(),
+        u.is_active ? 'Hiệu lực' : 'Bị khóa',
+        u.created_at ? new Date(u.created_at).toLocaleString('vi-VN') : ''
+      ]);
+      const escapeCsv = (val) => {
+        const s = String(val ?? '');
+        if (/[",\n]/.test(s)) {
+          return '"' + s.replace(/"/g, '""') + '"';
+        }
+        return s;
+      };
+      const csv = [headers, ...rows].map(r => r.map(escapeCsv).join(',')).join('\n');
+      // Prepend UTF-8 BOM to fix Vietnamese characters in Excel
+      const csvWithBom = '\uFEFF' + csv;
+      const blob = new Blob([csvWithBom], { type: 'text/csv;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+      a.download = `volunteers-${ts}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      openSnack('Đã xuất CSV tình nguyện viên','success');
+    } catch (e) {
+      openSnack('Xuất CSV thất bại','error');
+    }
+  };
 
   const filteredUsers = users.filter(u => {
     switch (filter) {
@@ -186,9 +227,9 @@ function ControlUser() {
             <Typography color="error">{error}</Typography>
           </Box>
         ) : (
-          <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
+          <Box sx={{ p: { xs: 1, sm: 2 } }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1.5, flexWrap: 'wrap', mb: 1 }}>
-              <FormControl size="small" sx={{ minWidth: 260 }}>
+              <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 240 }, flex: { xs: '1 1 100%', sm: '0 0 auto' } }}>
                 <InputLabel id="user-filter-label">Bộ lọc người dùng</InputLabel>
                 <Select
                   labelId="user-filter-label"
@@ -204,7 +245,15 @@ function ControlUser() {
                   <MenuItem value="role_manager">Vai trò: Quản lý sự kiện</MenuItem>
                 </Select>
               </FormControl>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto', position: 'relative' }}>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={exportVolunteersCsv}
+                sx={{ textTransform: 'none' }}
+              >
+                Xuất CSV tình nguyện viên
+              </Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: { xs: 0, sm: 'auto' }, position: 'relative', width: { xs: '100%', sm: 'auto' } }}>
                 <TextField
                   size="small"
                   label="Tìm kiếm người dùng"
@@ -213,7 +262,7 @@ function ControlUser() {
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') { setApplySearch(true); setPage(0); }
                   }}
-                  sx={{ minWidth: 420 }}
+                  sx={{ minWidth: { xs: '100%', sm: 380, md: 420 }, flex: 1 }}
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start" sx={{ gap: 0.75 }}>
@@ -222,7 +271,7 @@ function ControlUser() {
                           onChange={(e) => { setSearchMode(e.target.value); setApplySearch(false); setPage(0); }}
                           variant="standard"
                           disableUnderline
-                          sx={{ minWidth: 90, fontSize: '.85rem' }}
+                          sx={{ minWidth: { xs: 80, sm: 90 }, fontSize: '.85rem' }}
                         >
                           <MenuItem value="name">Họ tên</MenuItem>
                           <MenuItem value="email">Email</MenuItem>
@@ -234,7 +283,7 @@ function ControlUser() {
                   }}
                 />
                 {suggestedUsers.length > 0 && !applySearch && (
-                  <Paper elevation={3} sx={{ position: 'absolute', top: '40px', right: 0, width: { xs: '100%', sm: 520 }, zIndex: 10 }}>
+                  <Paper elevation={3} sx={{ position: 'absolute', top: '40px', right: 0, width: { xs: '100%', sm: 520 }, maxHeight: 300, overflowY: 'auto', zIndex: 10 }}>
                     <List>
                       {suggestedUsers.map(su => (
                         <ListItem
@@ -255,7 +304,7 @@ function ControlUser() {
                   variant="contained"
                   color="primary"
                   onClick={() => { setApplySearch(true); setPage(0); }}
-                  sx={{ textTransform: 'none' }}
+                  sx={{ textTransform: 'none', whiteSpace: 'nowrap' }}
                 >
                   Tìm kiếm
                 </Button>
@@ -273,7 +322,7 @@ function ControlUser() {
                     key={u.id}
                     className={`cu-item ${u.is_active ? 'cu-active' : 'cu-locked'}`}
                     secondaryAction={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
                         <Typography sx={{ fontSize: '.82rem', color: '#16a34a', fontWeight: 700 }}>{roleLabel}</Typography>
                         <Button
                           size="small"
@@ -299,11 +348,11 @@ function ControlUser() {
                   >
                     <ListItemText
                       primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, flexWrap: 'wrap' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.2 }, flexWrap: 'wrap' }}>
                           {avatar ? (
-                            <Box component="img" src={avatar} alt={displayName} sx={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }} />
+                            <Box component="img" src={avatar} alt={displayName} sx={{ width: { xs: 48, sm: 64 }, height: { xs: 48, sm: 64 }, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }} />
                           ) : (
-                            <Box sx={{ width: 64, height: 64, borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#334155', fontWeight: 700, border: '1px solid #e2e8f0' }} aria-label="no-avatar">
+                            <Box sx={{ width: { xs: 48, sm: 64 }, height: { xs: 48, sm: 64 }, borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#334155', fontWeight: 700, border: '1px solid #e2e8f0' }} aria-label="no-avatar">
                               {String(displayName).trim().charAt(0).toUpperCase()}
                             </Box>
                           )}
@@ -328,7 +377,7 @@ function ControlUser() {
                         </Box>
                       }
                       secondary={
-                        <Typography sx={{ color: '#475569', mt: 0.25, fontSize: '.84rem' }}>
+                        <Typography sx={{ color: '#475569', mt: 0.25, fontSize: { xs: '.8rem', sm: '.84rem' } }}>
                           Email: <strong>{u.email}</strong>
                           {u.phone ? <span>{' · SĐT: '}{u.phone}</span> : null}
                         </Typography>
@@ -347,7 +396,7 @@ function ControlUser() {
               >
                 <KeyboardArrowLeftIcon />
               </IconButton>
-              <Typography sx={{ fontSize: '.9rem', mx: 0.5 }}>
+              <Typography sx={{ fontSize: { xs: '.85rem', sm: '.9rem' }, mx: 0.5 }}>
                 Trang {page + 1} / {Math.max(1, Math.ceil(searchedUsers.length / pageSize))}
               </Typography>
               <IconButton

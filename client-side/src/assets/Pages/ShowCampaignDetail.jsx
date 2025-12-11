@@ -56,12 +56,14 @@ function ShowCampaignDetail() {
       navigate('/login', { replace: true });
     } else {
       setAllowed(true);
+      
     }
   }, [navigate]);
 
   // Load event details when allowed
   useEffect(() => {
     if (!allowed) return;
+   
     fetch(`http://localhost:4000/events/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('Không tải được chi tiết sự kiện');
@@ -237,8 +239,8 @@ function ShowCampaignDetail() {
             <div className="scd-grid">
               {/* Row 1 */}
               <div>
-                <div className="scd-label">Hạn đăng ký</div>
-                <div className="scd-value">{fmtDeadline(event.end_time)}</div>
+                <div style={{ color: '#000', fontWeight: 600 }}>Ra về:</div>
+                <div className="scd-start-time-box">{fmtDeadline(event.end_time)}</div>
               </div>
               <div>
                 <div className="scd-label">Số TNV còn thiếu</div>
@@ -269,9 +271,39 @@ function ShowCampaignDetail() {
         </div>
         <div className="scd-actions">
           {(() => {
-            const status = getRegistrationStatus(event.id);
+            // If viewer is event manager or admin, show status button instead of join
+            let currentUserId = null;
+            try {
+              const u = localStorage.getItem('user');
+              const parsed = u ? JSON.parse(u) : null;
+              
+              
+               
+              const roleStr = String(parsed.roles[0].role.name);
+              
+              var isPrivileged = roleStr === 'EVENT_MANAGER' || roleStr === 'ADMIN';
+            } catch { currentUserId = null; }
             const now = new Date();
             const ended = event?.end_time ? (new Date(event.end_time).getTime() < now.getTime()) : false;
+            if (isPrivileged) {
+              return (
+                <Button
+                  className="scd-join-btn"
+                  variant="contained"
+                  sx={{
+                    bgcolor: ended ? '#facc15' : '#16a34a',
+                    color: ended ? '#78350f' : '#ffffff',
+                    cursor: 'default',
+                    textTransform: 'none',
+                    '&:hover': { bgcolor: ended ? '#facc15' : '#16a34a' }
+                  }}
+                >
+                  {ended ? 'Sự kiện đã kết thúc' : 'Sự kiện đang diễn ra'}
+                </Button>
+              );
+            }
+
+            const status = getRegistrationStatus(event.id);
             if (ended) {
               return (
                 <Button
