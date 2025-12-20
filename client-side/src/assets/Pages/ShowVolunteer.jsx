@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Chip, Button, CircularProgress, List, ListItem, ListItemText, Snackbar, Alert, Fade, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, Avatar, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Typography, Button, CircularProgress, Snackbar, Alert, Fade, IconButton, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
+import { isTokenExpired, clearAuth } from '../utils/auth';
+import { useTranslation } from 'react-i18next';
 
 const ShowVolunteer = () => {
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -34,6 +36,7 @@ const ShowVolunteer = () => {
       const token = localStorage.getItem('token');
       const userStr = localStorage.getItem('user');
       if (!token || !userStr) { navigate('/login', { replace: true }); return; }
+      if (isTokenExpired(token)) { clearAuth(); navigate('/login', { replace: true }); return; }
       const user = JSON.parse(userStr);
       const roleName = String(user.roles?.[0]?.role?.name || '');
       setCurrentUserId(user?.id ?? user?.user_id ?? null);
@@ -77,7 +80,7 @@ const ShowVolunteer = () => {
     fetch('http://localhost:4000/registrations/approved', {
       headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
     })
-      .then(res => { if (!res.ok) throw new Error('Không lấy được danh sách tình nguyện viên'); return res.json(); })
+      .then(res => { if (!res.ok) throw new Error(t('volunteers.fetchError', 'Không lấy được danh sách tình nguyện viên')); return res.json(); })
       .then(data => {
         const arr = Array.isArray(data) ? data : [];
         setRegs(arr);
@@ -148,20 +151,20 @@ const ShowVolunteer = () => {
         const j = await res.json().catch(() => ({}));
         throw new Error(j?.error || 'Kick tình nguyện viên thất bại');
       }
-      setSnackbarMsg('Đã kick tình nguyện viên khỏi sự kiện');
+      setSnackbarMsg(t('volunteers.kickSuccess', 'Đã kick tình nguyện viên khỏi sự kiện'));
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
       closeKickConfirm();
       await refresh();
     } catch (e) {
-      setSnackbarMsg(e.message || 'Có lỗi khi kick');
+      setSnackbarMsg(e.message || t('volunteers.kickError', 'Có lỗi khi kick'));
       setSnackbarSeverity('warning');
       setSnackbarOpen(true);
     }
   };
 
   return (
-    <Box className={`campaign-join-page`} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: 'calc(100vh - 66px)' }}>
+    <Box className={"campaign-join-page py-16 font-qs"} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', minHeight: 'calc(100vh - 66px)' }}>
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={2000}
@@ -175,36 +178,30 @@ const ShowVolunteer = () => {
           {snackbarMsg}
         </Alert>
       </Snackbar>
-      <Paper sx={{ p: 0, borderRadius: 2, maxWidth: 1200, width: '100%', mx: 'auto' }} className={`bvf-animate ${mounted ? 'in-view' : ''}`}>
-        <Typography
-          variant="h4"
-          sx={{
-            backgroundColor: '#16a34a',
-            color: '#ffffff',
-            minHeight: '100px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8,
-            m: 0
-          }}
-        >
-          Tình nguyện viên đang tham gia
-        </Typography>
-        <Box sx={{ p: { xs: 1.5, sm: 2 }, mt: 4 }}>
+      <div
+        data-aos="fade-left"
+        data-aos-anchor-placement="top-bottom"
+        data-aos-easing="linear"
+        data-aos-duration="1500"
+        className="container mx-auto mb-6"
+      >
+        <h2 className="text-2xl md:text-5xl font-bold text-center ">{t('volunteers.title', 'Tình nguyện viên đang tham gia')}</h2>
+        <p className="w-2/3 mx-auto md:text-lg mt-4 text-center leading-relaxed ">{t('volunteers.subtitle', 'Quản lý tình nguyện viên đã tham gia chiến dịch của bạn: xem chi tiết và kick khi cần.')}</p>
+      </div>
+      <div className={`bvf-animate ${mounted ? 'in-view' : ''}`}>
+        <Box sx={{ px: { xs: 1.5, sm: 2 }, mt: 2 }}>
           {/* Filter + total count */}
           <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-            <FormControl size="small" sx={{ minWidth: { xs: 220, sm: 260 } }}>
-              <InputLabel id="campaign-filter-label">Lọc theo chiến dịch </InputLabel>
+            <FormControl size="small" sx={{ minWidth: { xs: 220, sm: 260 }, ml: { xs: 2, sm: 15 }  }}>
+              <InputLabel id="campaign-filter-label">{t('volunteers.filterByCampaign', 'Lọc theo chiến dịch')}</InputLabel>
               <Select
                 labelId="campaign-filter-label"
                 id="campaign-filter"
-                label="Lọc theo chiến dịch"
+                label={t('volunteers.filterByCampaign', 'Lọc theo chiến dịch')}
                 value={campaignFilter}
                 onChange={(e) => { setCampaignFilter(e.target.value); setPage(0); }}
               >
-                <MenuItem value="all">Tất cả</MenuItem>
+                <MenuItem value="all">{t('common.all', 'Tất cả')}</MenuItem>
                 {myCampaigns.map(ev => (
                   <MenuItem key={ev.id} value={ev.id}>{ev.title || ev.name || `Sự kiện #${ev.id}`}</MenuItem>
                 ))}
@@ -215,131 +212,162 @@ const ShowVolunteer = () => {
                   ))}
               </Select>
             </FormControl>
-            <Typography sx={{ fontSize: { xs: '.9rem', sm: '1rem' }, color: '#334155' }}>
-              Tổng: <strong>{filteredRegs.length}</strong>
-            </Typography>
+            <Typography sx={{ fontSize: { xs: '.9rem', sm: '1rem' },mr: { xs: 2, sm: 15 } , color: '#334155' }}>{t('common.total', 'Tổng')}: <strong>{filteredRegs.length}</strong></Typography>
           </Box>
           {loading ? (
             <Box sx={{ py: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
               <CircularProgress size={22} />
-              <Typography>Đang tải...</Typography>
+              <Typography>{t('common.loading', 'Đang tải...')}</Typography>
             </Box>
           ) : error ? (
             <Typography color="error">{error}</Typography>
-          ) : filteredRegs.length === 0 ? (
-            <Typography>Không có tình nguyện viên nào đang tham gia.</Typography>
           ) : (
-            <List>
-              {filteredRegs.slice(page * pageSize, page * pageSize + pageSize).map((r) => {
-                const volunteerName = r.user?.username;
-                const eventTitle = r.event?.title || r.event?.name || `Sự kiện #${r.event_id}`;
-                const banner = r.event?.banner_url || '';
-                return (
-                  <React.Fragment key={r.id}>
-                    <ListItem sx={{ py: { xs: 1.25, sm: 1.5 } }} className={`scj-item scj-${(r.status || '').toLowerCase()}`}>
-                      <Box sx={{
-                        display: 'flex',
-                        flexDirection: { xs: 'column', sm: 'row' },
-                        alignItems: { xs: 'stretch', sm: 'center' },
-                        justifyContent: 'space-between',
-                        width: '100%',
-                        gap: { xs: 1, sm: 2 },
-                      }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, flexWrap: 'wrap', flex: 1 }}>
-                          <Avatar src={banner || undefined} alt="banner" variant="rounded" sx={{ width: 70, height: 70, borderRadius: '50%' }} />
-                          <Typography sx={{ fontWeight: 700, fontSize: '1rem' }}>{eventTitle}</Typography>
-                          <Typography sx={{ color: '#475569' }}>→</Typography>
-                          <Typography sx={{ fontWeight: 700, fontSize: '1rem' }}>{volunteerName}</Typography>
-                          <Chip size="small" label={'Đang tham gia'} color={'success'} variant={'filled'} sx={{ fontWeight: 500 }} />
-                        </Box>
-                        <Box sx={{
-                          display: 'grid',
-                          gridTemplateColumns: { xs: '1fr 1fr', sm: 'auto auto auto' },
-                          columnGap: 0.75,
-                          rowGap: 0.75,
-                          alignItems: 'center',
-                          justifyContent: { xs: 'stretch', sm: 'flex-end' },
-                          minWidth: { sm: 340 }
-                        }}>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            onClick={() => openEventDetail(r.event)}
-                            startIcon={<VisibilityIcon />}
-                            sx={{
-                              bgcolor: '#16a34a',
-                              textTransform: 'none',
-                              fontWeight: 700,
-                              boxShadow: 'none',
-                              '&:hover': { bgcolor: '#14532d', boxShadow: 'none' },
-                              minWidth: { xs: '100%', sm: 160 }
-                            }}
-                          >
-                            Chi tiết sự kiện
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            onClick={() => openUserDetail(r.user)}
-                            startIcon={<VisibilityIcon />}
-                            sx={{ textTransform: 'none', fontWeight: 600, minWidth: { xs: '100%', sm: 180 } }}
-                          >
-                            Chi tiết tình nguyện viên
-                          </Button>
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color="error"
-                            onClick={() => openKickConfirm(r)}
-                            startIcon={<CloseIcon />}
-                            sx={{ textTransform: 'none', fontWeight: 600, minWidth: { xs: '100%', sm: 60 } }}
-                          >
-                            Kick
-                          </Button>
-                        </Box>
-                      </Box>
-                    </ListItem>
-                  </React.Fragment>
-                );
-              })}
-            </List>
+            <div className="container mx-auto mt-6">
+              {/* Desktop table */}
+              <div className="hidden md:block p-4">
+                <div className="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
+                  <table className="min-w-full border-collapse bg-white">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-pink-600 to-purple-600 text-white text-sm uppercase tracking-wide">
+                        <th className="px-4 py-3 text-left rounded-tl-xl">#</th>
+                        <th className="px-4 py-3 text-left">{t('volunteers.headers.campaign', 'Chiến dịch')}</th>
+                        <th className="px-4 py-3 text-left">{t('volunteers.headers.volunteer', 'Tình nguyện viên')}</th>
+                        <th className="px-4 py-3 text-left">{t('volunteers.headers.status', 'Trạng thái')}</th>
+                        <th className="px-4 py-3 text-left">{t('volunteers.headers.joinedAt', 'Tham gia lúc')}</th>
+                        <th className="px-4 py-3 text-center rounded-tr-xl">{t('volunteers.headers.actions', 'Thao tác')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredRegs.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="px-4 py-6 text-center text-gray-600">{t('volunteers.empty', 'Không có tình nguyện viên nào đang tham gia.')}</td>
+                        </tr>
+                      ) : filteredRegs.slice(page * pageSize, page * pageSize + pageSize).map((r, idx) => {
+                        const volunteerName = r.user?.username;
+                        const eventTitle = r.event?.title || r.event?.name || `Sự kiện #${r.event_id}`;
+                        return (
+                          <React.Fragment key={r.id}>
+                            <tr className="border-b border-gray-200 hover:bg-gray-50 transition duration-200">
+                              <td className="px-4 py-3 font-medium text-gray-700 text-left">{page * pageSize + idx + 1}</td>
+                              <td className="px-4 py-3 font-semibold text-gray-800 text-left">{eventTitle}</td>
+                              <td className="px-4 py-3 text-gray-700 text-left">{volunteerName}</td>
+                              <td className="px-4 py-3 text-gray-700 text-left">{t('volunteers.status.participating', 'Đang tham gia')}</td>
+                              <td className="px-4 py-3 text-gray-700 text-left">{r.created_at ? new Date(r.created_at).toLocaleString('vi-VN') : '—'}</td>
+                              <td className="px-4 py-3 text-center whitespace-nowrap">
+                                <div className="flex flex-nowrap items-center justify-center gap-2 whitespace-nowrap overflow-x-auto">
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    onClick={() => openEventDetail(r.event)}
+                                    sx={{bgcolor: '#16a34a', textTransform: 'none', fontWeight: 600, boxShadow: 'none', '&:hover': { bgcolor: '#15803d', boxShadow: 'none' } }}
+                                  >
+                                    {t('volunteers.buttons.eventDetail', 'Chi tiết sự kiện')}
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    onClick={() => openUserDetail(r.user)}
+                                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                                  >
+                                    {t('volunteers.buttons.userDetail', 'Chi tiết TNV')}
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    color="error"
+                                    onClick={() => openKickConfirm(r)}
+                                    startIcon={<CloseIcon />}
+                                    sx={{ textTransform: 'none', fontWeight: 600 }}
+                                  >
+                                    {t('volunteers.buttons.kick', 'Kick')}
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          </React.Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              {/* Mobile compact table */}
+              <div className="md:hidden">
+                <div className="overflow-x-auto">
+                  <table className="table border-collapse border border-gray-400">
+                    <thead>
+                      <tr className="text-white raleway text-base bg-[#DE00DF]">
+                        <th>{t('volunteers.headers.campaign', 'Chiến dịch')}</th>
+                        <th>{t('volunteers.headers.volunteerShort', 'TNV')}</th>
+                        <th>{t('volunteers.headers.details', 'Chi tiết')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredRegs.length === 0 ? (
+                        <tr>
+                          <td colSpan={3} className="px-4 py-4 text-center">{t('volunteers.empty', 'Không có tình nguyện viên nào đang tham gia.')}</td>
+                        </tr>
+                      ) : filteredRegs.slice(page * pageSize, page * pageSize + pageSize).map((r) => {
+                        const volunteerName = r.user?.username;
+                        const eventTitle = r.event?.title || r.event?.name || `Sự kiện #${r.event_id}`;
+                        return (
+                          <tr className="border border-gray-300" key={`m-${r.id}`}>
+                            <td>{eventTitle}</td>
+                            <td>{volunteerName}</td>
+                            <td>
+                              <Button
+                                size="small"
+                                variant="contained"
+                                onClick={() => openEventDetail(r.event)}
+                                sx={{ bgcolor: '#16a34a', textTransform: 'none', fontWeight: 600, boxShadow: 'none', '&:hover': { bgcolor: '#15803d', boxShadow: 'none' } }}
+                              >
+                                {t('common.viewDetails', 'Xem chi tiết')}
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           )}
         </Box>
+        {/* Bottom pagination */}
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, py: 1.5 }}>
-          <IconButton size="small" onClick={() => setPage(p => Math.max(p - 1, 0))} disabled={page === 0} aria-label="Trang trước">
+          <IconButton size="small" onClick={() => setPage(p => Math.max(p - 1, 0))} disabled={page === 0} aria-label={t('common.prevPage', 'Trang trước')}>
             <KeyboardArrowLeftIcon />
           </IconButton>
           <Box sx={{ px: 1, py: 0.5, borderRadius: 1}}>
-            <Typography sx={{ fontSize: { xs: '.85rem', sm: '.9rem' } }}>
-              Trang {page + 1} / {Math.max(1, Math.ceil(filteredRegs.length / pageSize))}
-            </Typography>
+            <Typography sx={{ fontSize: { xs: '.85rem', sm: '.9rem' } }}>{t('common.page', 'Trang')} {page + 1} / {Math.max(1, Math.ceil(filteredRegs.length / pageSize))}</Typography>
           </Box>
-          <IconButton size="small" onClick={() => setPage(p => (p + 1 < Math.ceil(filteredRegs.length / pageSize) ? p + 1 : p))} disabled={page + 1 >= Math.ceil(filteredRegs.length / pageSize)} aria-label="Trang sau">
+          <IconButton size="small" onClick={() => setPage(p => (p + 1 < Math.ceil(filteredRegs.length / pageSize) ? p + 1 : p))} disabled={page + 1 >= Math.ceil(filteredRegs.length / pageSize)} aria-label={t('common.nextPage', 'Trang sau')}>
             <KeyboardArrowRightIcon />
           </IconButton>
         </Box>
-      </Paper>
+      </div>
 
       {/* Event detail dialog */}
       <Dialog open={eventDetailOpen} onClose={closeEventDetail} fullWidth maxWidth="md">
-        <DialogTitle sx={{ bgcolor: '#2563eb', color: '#fff', px: 2, pt: 2.5, pb: 2 , fontWeight: 700}}>Chi tiết sự kiện</DialogTitle>
+        <DialogTitle sx={{ bgcolor: '#2563eb', color: '#fff', px: 2, pt: 2.5, pb: 2 , fontWeight: 700}}>{t('volunteers.eventDetailTitle', 'Chi tiết sự kiện')}</DialogTitle>
         <DialogContent sx={{ pt: 2 }}>
           {selectedEvent ? (
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1.5 }}>
               <Typography variant="subtitle2" sx={{ mt: 1, color: '#1f2937' }}>
-                Tiêu đề: <strong>{selectedEvent.title || selectedEvent.name || '—'}</strong>
+                {t('volunteers.fields.title', 'Tiêu đề')}: <strong>{selectedEvent.title || selectedEvent.name || '—'}</strong>
               </Typography>
               <Typography variant="subtitle2" sx={{ mt: 1, color: '#1f2937' }}>
-                Thể loại: <strong>{selectedEvent.category?.name || selectedEvent.category_name || (selectedEvent.category_id ? `#${selectedEvent.category_id}` : '—')}</strong>
+                {t('volunteers.fields.category', 'Thể loại')}: <strong>{selectedEvent.category?.name || selectedEvent.category_name || (selectedEvent.category_id ? `#${selectedEvent.category_id}` : '—')}</strong>
               </Typography>
               <Typography variant="subtitle2" sx={{ mt: 1, color: '#1f2937' }}>
-                Bắt đầu: <strong>{selectedEvent.start_time ? new Date(selectedEvent.start_time).toLocaleString('vi-VN') : '—'}</strong>
+                {t('volunteers.fields.start', 'Bắt đầu')}: <strong>{selectedEvent.start_time ? new Date(selectedEvent.start_time).toLocaleString('vi-VN') : '—'}</strong>
               </Typography>
               <Typography variant="subtitle2" sx={{ mt: 1, color: '#1f2937' }}>
-                Kết thúc: <strong>{selectedEvent.end_time ? new Date(selectedEvent.end_time).toLocaleString('vi-VN') : '—'}</strong>
+                {t('volunteers.fields.end', 'Kết thúc')}: <strong>{selectedEvent.end_time ? new Date(selectedEvent.end_time).toLocaleString('vi-VN') : '—'}</strong>
               </Typography>
               <Typography variant="subtitle2" sx={{ mt: 1, color: '#1f2937' }}>
-                Số lượng: <strong>{selectedEvent.capacity+selectedEvent.total_joined ?? '—'}</strong>
+                {t('volunteers.fields.capacity', 'Số lượng')}: <strong>{selectedEvent.capacity+selectedEvent.total_joined ?? '—'}</strong>
               </Typography>
               <Typography variant="subtitle2" sx={{ mt: 1, color: '#1f2937', gridColumn: { sm: '1 / -1' } }}>
                 {(() => {
@@ -352,12 +380,12 @@ const ShowVolunteer = () => {
                   const parts = [name, address, district, province, country].filter(p => !!String(p).trim());
                   const combined = parts.length ? parts.join(', ') : '—';
                   return (
-                    <>Địa điểm: <strong>{combined}</strong></>
+                    <>{t('volunteers.fields.location', 'Địa điểm')}: <strong>{combined}</strong></>
                   );
                 })()}
               </Typography>
               <Typography variant="subtitle2" sx={{ gridColumn: { sm: '1 / -1' }, mt: 1, color: '#1f2937' }}>
-                Mô tả: <span style={{ fontWeight: 600, color: '#111827' }}>{selectedEvent.description || '—'}</span>
+                {t('volunteers.fields.description', 'Mô tả')}: <span style={{ fontWeight: 600, color: '#111827' }}>{selectedEvent.description || '—'}</span>
               </Typography>
               <Box sx={{ gridColumn: { sm: '1 / -1' }, mt: 1 }}>
                 {selectedEvent.banner_url ? (
@@ -368,47 +396,41 @@ const ShowVolunteer = () => {
           ) : null}
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeEventDetail} variant='contained'>Đóng</Button>
+          <Button onClick={closeEventDetail} variant='contained'>{t('common.close', 'Đóng')}</Button>
         </DialogActions>
       </Dialog>
 
       {/* Volunteer detail dialog */}
       <Dialog open={userDetailOpen} onClose={closeUserDetail}>
-        <DialogTitle sx={{ bgcolor: '#2563eb', color: '#ffffff', fontWeight: 700, py: 3 }}>
-          Thông tin tình nguyện viên
-        </DialogTitle>
+        <DialogTitle sx={{ bgcolor: '#2563eb', color: '#ffffff', fontWeight: 700, py: 3 }}>{t('volunteers.userDetailTitle', 'Thông tin tình nguyện viên')}</DialogTitle>
         <DialogContent dividers>
           {selectedUser ? (
             <Box sx={{ minWidth: 320, pt: 0.5 }}>
-              <Typography><strong>Họ tên:</strong> {selectedUser.full_name || '—'}</Typography>
-              <Typography><strong>Tên đăng nhập:</strong> {selectedUser.username || '—'}</Typography>
-              <Typography><strong>Email:</strong> {selectedUser.email || '—'}</Typography>
-              <Typography><strong>Số điện thoại:</strong> {selectedUser.phone || '—'}</Typography>
+              <Typography><strong>{t('volunteers.userFields.fullName', 'Họ tên')}:</strong> {selectedUser.full_name || '—'}</Typography>
+              <Typography><strong>{t('volunteers.userFields.username', 'Tên đăng nhập')}:</strong> {selectedUser.username || '—'}</Typography>
+              <Typography><strong>{t('volunteers.userFields.email', 'Email')}:</strong> {selectedUser.email || '—'}</Typography>
+              <Typography><strong>{t('volunteers.userFields.phone', 'Số điện thoại')}:</strong> {selectedUser.phone || '—'}</Typography>
               {selectedUser.created_at ? (
-                <Typography><strong>Tạo lúc:</strong> {new Date(selectedUser.created_at).toLocaleString('vi-VN')}</Typography>
+                <Typography><strong>{t('volunteers.userFields.createdAt', 'Tạo lúc')}:</strong> {new Date(selectedUser.created_at).toLocaleString('vi-VN')}</Typography>
               ) : null}
-              <Box sx={{ gridColumn: { sm: '1 / -1' }, mt: 1 }}>
-                {selectedUser.avatar_url ? (
-                  <Box component="img" src={selectedUser.avatar_url} alt="avatar" sx={{ maxWidth: '100%', height: 'auto', borderRadius: 1.5, border: '1px solid #e5e7eb' }} />
-                ) : null}
-              </Box>
+              
             </Box>
           ) : null}
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeUserDetail} variant="contained" sx={{ textTransform: 'none' }}>Đóng</Button>
+          <Button onClick={closeUserDetail} variant="contained" sx={{ textTransform: 'none' }}>{t('common.close', 'Đóng')}</Button>
         </DialogActions>
       </Dialog>
 
       {/* Kick confirm dialog */}
       <Dialog open={confirmKickOpen} onClose={closeKickConfirm}>
-        <DialogTitle>Xác nhận kick</DialogTitle>
+        <DialogTitle>{t('volunteers.kickConfirmTitle', 'Xác nhận kick')}</DialogTitle>
         <DialogContent dividers>
-          Bạn có xác nhận kick tình nguyện viên này khỏi sự kiện không?
+          {t('volunteers.kickConfirmDesc', 'Bạn có xác nhận kick tình nguyện viên này khỏi sự kiện không?')}
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeKickConfirm}>Hủy</Button>
-          <Button onClick={kickVolunteer} color="error" variant="contained">Kick</Button>
+          <Button onClick={closeKickConfirm}>{t('common.cancel', 'Hủy')}</Button>
+          <Button onClick={kickVolunteer} color="error" variant="contained">{t('volunteers.buttons.kick', 'Kick')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

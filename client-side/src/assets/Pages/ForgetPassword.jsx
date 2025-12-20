@@ -4,6 +4,7 @@ import { IonIcon } from '@ionic/react';
 import { mail, call, lockClosed } from 'ionicons/icons';
 import { useNavigate } from 'react-router-dom';
 import { Box, Grid, TextField, InputAdornment, Button, Snackbar, Alert, Slide, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 
 function SlideFromTop(props) {
 	return <Slide {...props} direction="down" timeout={600} />;
@@ -11,6 +12,7 @@ function SlideFromTop(props) {
 
 const ForgetPassword = () => {
 	const navigate = useNavigate();
+	const { t } = useTranslation();
 	const [animateForm, setAnimateForm] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState('');
@@ -130,15 +132,15 @@ const ForgetPassword = () => {
 			</Snackbar>
 			<div className={`wrapper auth-animate ${animateForm ? 'in-view' : ''}`}>
 				<div className="form-box login">
-					<h2>Quên mật khẩu</h2>
+					  <h2>{t('auth.forgot.title', 'Quên mật khẩu')}</h2>
 					{verifiedToken == null ? (
 						<Box component="form" onSubmit={submitVerify} sx={{ mt: 2 }}>
 							<Grid container spacing={3} direction="column">
 								<Grid item xs={12}>
-									<TextField
+										<TextField
 										fullWidth
 										name="email"
-										label="Email"
+											label={t('auth.login.email', 'Email')}
 										type="email"
 										value={verifyForm.email}
 										onChange={handleVerifyChange}
@@ -154,10 +156,10 @@ const ForgetPassword = () => {
 									/>
 								</Grid>
 								<Grid item xs={12}>
-									<TextField
+										<TextField
 										fullWidth
 										name="phone"
-										label="Số điện thoại"
+											label={t('auth.register.phone', 'Số điện thoại')}
 										type="tel"
 										value={verifyForm.phone}
 										onChange={handleVerifyChange}
@@ -175,7 +177,7 @@ const ForgetPassword = () => {
 								</Grid>
 								<Grid item xs={12}>
 									<Button type="submit" variant="contained" fullWidth className="btn" disabled={loading}>
-										Xác thực
+										{t('auth.forgot.verify', 'Xác thực')}
 									</Button>
 								</Grid>
 							</Grid>
@@ -184,10 +186,10 @@ const ForgetPassword = () => {
 						<Box component="form" onSubmit={submitReset} sx={{ mt: 2 }}>
 							<Grid container spacing={3} direction="column">
 								<Grid item xs={12}>
-									<TextField
+										<TextField
 										fullWidth
 										name="password"
-										label="Mật khẩu mới"
+											label={t('auth.forgot.newPassword', 'Mật khẩu mới')}
 										type="password"
 										value={resetForm.password}
 										onChange={handleResetChange}
@@ -203,10 +205,10 @@ const ForgetPassword = () => {
 									/>
 								</Grid>
 								<Grid item xs={12}>
-									<TextField
+										<TextField
 										fullWidth
 										name="confirm"
-										label="Xác nhận mật khẩu mới"
+											label={t('auth.forgot.confirmNewPassword', 'Xác nhận mật khẩu mới')}
 										type="password"
 										value={resetForm.confirm}
 										onChange={handleResetChange}
@@ -223,7 +225,7 @@ const ForgetPassword = () => {
 								</Grid>
 								<Grid item xs={12}>
 									<Button type="submit" variant="contained" fullWidth className="btn" disabled={loading}>
-										Đặt lại mật khẩu
+										{t('auth.forgot.submit', 'Đặt lại mật khẩu')}
 									</Button>
 								</Grid>
 							</Grid>
@@ -232,12 +234,12 @@ const ForgetPassword = () => {
 				</div>
 			</div>
 			<Dialog open={successOpen} onClose={() => setSuccessOpen(false)}>
-				<DialogTitle>Đặt lại mật khẩu thành công</DialogTitle>
+				<DialogTitle>{t('auth.forgot.successTitle', 'Đặt lại mật khẩu thành công')}</DialogTitle>
 				<DialogContent dividers>
-					Bạn sẽ được chuyển đến trang đăng nhập trong giây lát.
+					{t('auth.forgot.successDesc', 'Bạn sẽ được chuyển đến trang đăng nhập trong giây lát.')}
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={() => { setSuccessOpen(false); navigate('/login', { replace: true }); }} variant="contained">Về đăng nhập</Button>
+					<Button onClick={() => { setSuccessOpen(false); navigate('/login', { replace: true }); }} variant="contained">{t('auth.login.title', 'Đăng nhập')}</Button>
 				</DialogActions>
 			</Dialog>
 		</div>

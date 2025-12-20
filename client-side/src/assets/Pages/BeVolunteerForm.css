@@ -4,9 +4,7 @@
   justify-content: center;
   padding: 32px 16px;
   /* Background image behind the form */
-  background:
-    linear-gradient(135deg, rgba(245,247,250,0.68), rgba(226,236,247,0.68)),
-    url('../image/community.jpg');
+  
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;

@@ -1,30 +1,33 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Paper, Typography, Chip, Button, CircularProgress, List, ListItem, ListItemText, Snackbar, Alert, Fade, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Typography, Button, CircularProgress, Snackbar, Alert, Fade, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import DoneAllIcon from '@mui/icons-material/DoneAll';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import './ShowCampaignJoin.css';
+import { isTokenExpired, clearAuth } from '../utils/auth';
+import { useTranslation } from 'react-i18next';
 
-function statusLabel(status) {
+function statusLabel(status, t) {
   switch (status) {
     case 'approved':
-      return { text: 'Đã tham gia', color: 'success', variant: 'filled', icon: <CheckCircleIcon fontSize="small" /> };
+      return { text: t('join.status.approved', 'Đã tham gia'), color: 'success', variant: 'filled', icon: <CheckCircleIcon fontSize="small" /> };
     case 'pending':
-      return { text: 'Đang chờ duyệt', color: 'warning', variant: 'filled' };
+      return { text: t('join.status.pending', 'Đang chờ duyệt'), color: 'warning', variant: 'filled' };
     case 'rejected':
-      return { text: 'Bị từ chối', color: 'error', variant: 'filled' };
+      return { text: t('join.status.rejected', 'Bị từ chối'), color: 'error', variant: 'filled' };
     case 'completed':
-      return { text: 'Hoàn thành', color: 'success', variant: 'contained', icon: <DoneAllIcon fontSize="small" /> };
+      return { text: t('join.status.completed', 'Hoàn thành'), color: 'success', variant: 'contained', icon: <DoneAllIcon fontSize="small" /> };
     case 'Absent':
-      return { text: 'Vắng mặt', color: 'error', variant: 'outlined' };
+      return { text: t('join.status.absent', 'Vắng mặt'), color: 'error', variant: 'outlined' };
     default:
-      return { text: status || 'Không xác định', color: 'default', variant: 'outlined' };
+      return { text: status || t('join.status.unknown', 'Không xác định'), color: 'default', variant: 'outlined' };
   }
 }
 
 const ShowCampaignJoin = () => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [registrations, setRegistrations] = useState([]);
@@ -36,7 +39,7 @@ const ShowCampaignJoin = () => {
   const [confirmTarget, setConfirmTarget] = useState(null);
   const [canceling, setCanceling] = useState(false);
   const [page, setPage] = useState(0);
-  const pageSize = 5;
+  const pageSize = 10;
   const [statusFilter, setStatusFilter] = useState('');
   const navigate = useNavigate();
   const location = useLocation();
@@ -55,6 +58,11 @@ const ShowCampaignJoin = () => {
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
     if (!token || !userStr) {
+      navigate('/login', { replace: true });
+      return;
+    }
+    if (isTokenExpired(token)) {
+      clearAuth();
       navigate('/login', { replace: true });
       return;
     }
@@ -78,7 +86,7 @@ const ShowCampaignJoin = () => {
       }
     })
       .then(res => {
-        if (!res.ok) throw new Error('Không lấy được danh sách tham gia');
+        if (!res.ok) throw new Error(t('join.fetchError', 'Không lấy được danh sách tham gia'));
         return res.json();
       })
       .then(data => {
@@ -96,12 +104,12 @@ const ShowCampaignJoin = () => {
   const normalized = (s) => String(s || '').toLowerCase();
   const statusFilterLabel = (val) => {
     switch (val) {
-      case 'pending': return 'Đang chờ duyệt';
-      case 'approved': return 'Đã tham gia';
-      case 'rejected': return 'Bị từ chối';
-      case 'completed': return 'Hoàn thành';
-      case 'absent': return 'Vắng mặt';
-      default: return 'Tất cả';
+      case 'pending': return t('join.status.pending', 'Đang chờ duyệt');
+      case 'approved': return t('join.status.approved', 'Đã tham gia');
+      case 'rejected': return t('join.status.rejected', 'Bị từ chối');
+      case 'completed': return t('join.status.completed', 'Hoàn thành');
+      case 'absent': return t('join.status.absent', 'Vắng mặt');
+      default: return t('common.all', 'Tất cả');
     }
   };
   const filteredRegs = registrations.filter((r) => {
@@ -132,7 +140,7 @@ const ShowCampaignJoin = () => {
       const delay = new Promise((resolve) => setTimeout(resolve, 2000));
       const [res] = await Promise.all([cancelReq, delay]);
       if (!res.ok) {
-        let msg = 'Hủy thất bại';
+        let msg = t('join.cancelFailed', 'Hủy thất bại');
         try {
           const errBody = await res.json();
           msg = errBody?.error || msg;
@@ -157,11 +165,11 @@ const ShowCampaignJoin = () => {
       }
       setConfirmOpen(false);
       setConfirmTarget(null);
-      setSnackbarMsg('Hủy đăng ký thành công');
+      setSnackbarMsg(t('join.cancelSuccess', 'Hủy đăng ký thành công'));
       setSnackbarSeverity('success');
       setSnackbarOpen(true);
     } catch (e) {
-      setSnackbarMsg('Lỗi khi hủy đăng ký');
+      setSnackbarMsg(t('join.cancelError', 'Lỗi khi hủy đăng ký'));
       setSnackbarSeverity('error');
       setSnackbarOpen(true);
     } finally {
@@ -181,7 +189,7 @@ const ShowCampaignJoin = () => {
   };
 
   return (
-    <Box className={`campaign-join-page`} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: 'calc(100vh - 66px)' }}>
+    <Box className={"campaign-join-page py-16 font-qs"} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', minHeight: 'calc(100vh - 66px)' }}>
       {/* Snackbar for feedback */}
       <Snackbar
         open={snackbarOpen}
@@ -196,127 +204,170 @@ const ShowCampaignJoin = () => {
           {snackbarMsg}
         </Alert>
       </Snackbar>
-      <Paper sx={{ p: 0, borderRadius: 2, maxWidth: 1200, width: '100%', mx: 'auto' }} className={`bvf-animate ${mounted ? 'in-view' : ''}`}>
-        <Typography
-          variant="h4"
-          sx={{
-            backgroundColor: '#16a34a',
-            color: '#ffffff',
-            minHeight: '100px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8,
-            m: 0
-          }}
-        >
-          Sự kiện đã đăng ký
-        </Typography>
+      <div
+        data-aos="fade-left"
+        data-aos-anchor-placement="top-bottom"
+        data-aos-easing="linear"
+        data-aos-duration="1500"
+        className="container mx-auto mb-6"
+      >
+        <h2 className="text-2xl md:text-5xl font-bold text-center ">
+          {t('join.title', 'Các chiến dịch bạn đã đăng ký')}
+        </h2>
+        <p className="w-2/3 mx-auto md:text-lg mt-4 text-center leading-relaxed ">
+          {t('join.subtitle', 'Các chiến dịch bạn đã đăng ký sẽ được hiển thị ở đây. Bạn có thể xem trạng thái tham gia của mình và hủy đăng ký nếu cần.')}
+        </p>
+      </div>
+      
+      <div className={`bvf-animate ${mounted ? 'in-view' : ''}`}>
         {/* Filter row: left status filter, right total */}
         <Box sx={{ px: { xs: 1.5, sm: 2 }, mt: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-          <FormControl size="small" sx={{ minWidth: 220 }}>
+          <FormControl size="small" sx={{ minWidth: 220, ml: { xs: 2, sm: 15 } }}>
             <InputLabel id="status-filter-label" shrink>
-              Lọc theo trạng thái
+              {t('join.filterByStatus', 'Lọc theo trạng thái')}
             </InputLabel>
             <Select
               labelId="status-filter-label"
-              label="Lọc theo trạng thái"
+              label={t('join.filterByStatus', 'Lọc theo trạng thái')}
               value={statusFilter}
               displayEmpty
               renderValue={(value) => statusFilterLabel(value)}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <MenuItem value="">Tất cả</MenuItem>
-              <MenuItem value="pending">Đang chờ duyệt</MenuItem>
-              <MenuItem value="approved">Đã tham gia</MenuItem>
-              <MenuItem value="completed">Hoàn thành</MenuItem>
-              <MenuItem value="absent">Vắng mặt</MenuItem>
-              <MenuItem value="rejected">Bị từ chối</MenuItem>
+              <MenuItem value="">{t('common.all', 'Tất cả')}</MenuItem>
+              <MenuItem value="pending">{t('join.status.pending', 'Đang chờ duyệt')}</MenuItem>
+              <MenuItem value="approved">{t('join.status.approved', 'Đã tham gia')}</MenuItem>
+              <MenuItem value="completed">{t('join.status.completed', 'Hoàn thành')}</MenuItem>
+              <MenuItem value="absent">{t('join.status.absent', 'Vắng mặt')}</MenuItem>
+              <MenuItem value="rejected">{t('join.status.rejected', 'Bị từ chối')}</MenuItem>
             </Select>
           </FormControl>
-          <Typography sx={{ fontWeight: 600 }}>
-            Tổng: {filteredRegs.length} chiến dịch
+          <Typography sx={{ fontWeight: 600, mr: { xs: 2, sm: 15 } }}>
+            {t('common.total', 'Tổng')}: {filteredRegs.length} {t('join.campaigns', 'chiến dịch')}
           </Typography>
         </Box>
         <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
         {loading ? (
           <Box sx={{ py: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
             <CircularProgress size={22} />
-            <Typography>Đang tải...</Typography>
+            <Typography>{t('common.loading', 'Đang tải...')}</Typography>
           </Box>
         ) : error ? (
           <Typography color="error">{error}</Typography>
         ) : registrations.length === 0 ? (
-          <Typography>Chưa có sự kiện nào.</Typography>
+          <Typography>{t('join.noEvents', 'Chưa có sự kiện nào.')}</Typography>
         ) : (
-          <List>
+          <div className="container mx-auto mt-6">
             {filteredRegs.length === 0 ? (
-              <Typography sx={{ px: 2, py: 1 }}>Không có sự kiện nào mà bạn {statusFilterLabel(statusFilter)}</Typography>
+              <Typography sx={{ px: 2, py: 1 }}>{t('join.emptyForStatus', 'Không có sự kiện nào mà bạn')} {statusFilterLabel(statusFilter)}</Typography>
             ) : (
-              filteredRegs
-              .slice(page * pageSize, page * pageSize + pageSize)
-              .map((reg) => {
-              const st = statusLabel(reg.status);
-              const title = reg.event?.title || reg.event?.name || `Sự kiện #${reg.event_id}`;
-              const locationName = reg.event?.location?.name || '';
-              return (
-                <React.Fragment key={`${reg.event_id}-${reg.id || reg.status}`}>
-                  <ListItem
-                    className={`scj-item scj-${reg.status}`}
-                    secondaryAction={
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <Button
-                          size="small"
-                          variant="contained"
-                          onClick={() => navigate(`/events/${reg.event_id}`)}
-                          sx={{ bgcolor: '#16a34a', textTransform: 'none', fontWeight: 600, boxShadow: 'none', '&:hover': { bgcolor: '#15803d', boxShadow: 'none' } }}
-                        >
-                          Xem chi tiết
-                        </Button>
-                        {(String(reg.status || '').toLowerCase() === 'pending' || (new Date(reg.event.start_time) > new Date() && reg.status !== "rejected")) && (
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color="error"
-                            onClick={() => openCancelConfirm(reg.event_id)}
-                            sx={{ textTransform: 'none', fontWeight: 600 }}
-                          >
-                            Hủy đăng ký
-                          </Button>
-                        )}
-                      </Box>
-                    }
-                  >
-                    <ListItemText
-                      primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.2, flexWrap: 'wrap' }}>
-                          {reg.event?.banner_url ? (
-                            <Box component="img" src={reg.event.banner_url} alt={title} sx={{ width: 80, height: 80, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }} />
-                          ) : (
-                            <Box sx={{ width: 44, height: 44, borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#334155', fontWeight: 700, border: '1px solid #e2e8f0' }} aria-label="no-thumbnail">
-                              {String(title).trim().charAt(0).toUpperCase()}
-                            </Box>
-                          )}
-                          <Typography sx={{ fontWeight: 700, fontSize: '1rem' }}>{title}</Typography>
-                          <Chip size="small" label={st.text} color={st.color} variant={st.variant} icon={st.icon} sx={{ fontWeight: 500 }} />
-                        </Box>
-                      }
-                      secondary={
-                        locationName ? (
-                          <Typography sx={{ color: '#475569', mt: 0.25, fontSize: '.84rem' }}>
-                            Địa điểm: <strong>{locationName}</strong>
-                            {reg.event?.start_time ? <span>{' — vào '}{fmtStartTime(reg.event.start_time)}</span> : null}
-                          </Typography>
-                        ) : undefined
-                      }
-                    />
-                  </ListItem>
-                </React.Fragment>
-              );
-              })
+              <>
+                <div className="hidden md:block p-2">
+                  <div className="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
+                    <table className="min-w-full border-collapse bg-white">
+                      <thead>
+                        <tr className="bg-gradient-to-r from-pink-600 to-purple-600 text-white text-sm uppercase tracking-wide">
+                          <th className="px-4 py-3 text-left rounded-tl-xl">#</th>
+                          <th className="px-4 py-3 text-left">{t('join.headers.event', 'Sự kiện')}</th>
+                          <th className="px-4 py-3 text-left">{t('join.headers.status', 'Trạng thái')}</th>
+                          <th className="px-4 py-3 text-left">{t('join.headers.time', 'Thời gian')}</th>
+                          <th className="px-4 py-3 text-left">{t('join.headers.location', 'Địa điểm')}</th>
+                          <th className="px-4 py-3 text-center rounded-tr-xl">{t('join.headers.actions', 'Thao tác')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredRegs
+                          .slice(page * pageSize, page * pageSize + pageSize)
+                          .map((reg, i) => {
+                            const st = statusLabel(reg.status, t);
+                            const title = reg.event?.title || reg.event?.name || `Sự kiện #${reg.event_id}`;
+                            const locationName = reg.event?.location?.name || '';
+                            return (
+                              <tr key={`${reg.event_id}-${reg.id || reg.status}`} className="border-b border-gray-200 hover:bg-gray-50 transition duration-200">
+                                <td className="px-4 py-3 font-medium text-gray-700 text-left">
+                                  {page * pageSize + i + 1}
+                                </td>
+                                <td className="px-4 py-3 font-semibold text-gray-800 text-left">
+                                  {title}
+                                </td>
+                                <td className="px-4 py-3 text-gray-700 text-left">
+                                  {st.text}
+                                </td>
+                                <td className="px-4 py-3 text-gray-700 text-left">
+                                  {reg.event?.start_time ? fmtStartTime(reg.event.start_time) : ''}
+                                </td>
+                                <td className="px-4 py-3 text-gray-700 text-left">
+                                  {locationName}
+                                </td>
+                                <td className="px-4 py-3">
+                                  <div className="flex items-center justify-center gap-2">
+                                    <Link to={`/events/${reg.event_id}`}>
+                                      <button
+                                        type="button"
+                                        sx = {{width: '100%'}}
+                                        className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 active:bg-green-800 transition"
+                                      >
+                                        {t('common.viewDetails', 'Xem chi tiết')}
+                                      </button>
+                                    </Link>
+                                    {(String(reg.status || '').toLowerCase() === 'pending' || (new Date(reg.event.start_time) > new Date() && reg.status !== "rejected")) && (
+                                      <button
+                                        type="button"
+                                        onClick={() => openCancelConfirm(reg.event_id)}
+                                        className="rounded-md bg-red-600 px-4 py-2 text-sm font-medium text-white shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300 active:bg-red-800 transition"
+                                      >
+                                        {t('join.buttons.cancel', 'Hủy đăng ký')}
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                {/* Small (mobile) */}
+                <div className="md:hidden">
+                  <div className="overflow-x-auto">
+                    <table className="table border-collapse border border-gray-400">
+                      <thead>
+                        <tr className="text-white raleway text-base bg-[#DE00DF]">
+                          <th>{t('join.headers.event', 'Sự kiện')}</th>
+                          <th>{t('join.headers.time', 'Thời gian')}</th>
+                          <th>{t('join.headers.details', 'Chi tiết')}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredRegs
+                          .slice(page * pageSize, page * pageSize + pageSize)
+                          .map((reg) => {
+                            const title = reg.event?.title || reg.event?.name || `Sự kiện #${reg.event_id}`;
+                            return (
+                              <tr className="border border-gray-300" key={`${reg.event_id}-${reg.id || reg.status}-m`}>
+                                <td>{title}</td>
+                                <td>{reg.event?.start_time ? fmtStartTime(reg.event.start_time) : ''}</td>
+                                <td>
+                                  <Link to={`/events/${reg.event_id}`}>
+                                    <button
+                                      type="button"
+                                      className="inline-block rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-300 active:bg-green-800"
+                                    >
+                                      {t('common.viewDetails', 'Xem chi tiết')}
+                                    </button>
+                                  </Link>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
             )}
-          </List>
+          </div>
         )}
         </Box>
         {/* Bottom pagination controls */}
@@ -325,35 +376,35 @@ const ShowCampaignJoin = () => {
             size="small"
             onClick={() => setPage((p) => Math.max(p - 1, 0))}
             disabled={page === 0}
-            aria-label="Trang trước"
+            aria-label={t('common.prevPage', 'Trang trước')}
           >
             <KeyboardArrowLeftIcon />
           </IconButton>
           <Box sx={{ px: 1, py: 0.5, borderRadius: 1 }}>
             <Typography sx={{ fontSize: { xs: '.85rem', sm: '.9rem' } }}>
-              Trang {page + 1} / {Math.max(1, Math.ceil(filteredRegs.length / pageSize))}
+              {t('common.page', 'Trang')} {page + 1} / {Math.max(1, Math.ceil(filteredRegs.length / pageSize))}
             </Typography>
           </Box>
           <IconButton
             size="small"
             onClick={() => setPage((p) => (p + 1 < Math.ceil(filteredRegs.length / pageSize) ? p + 1 : p))}
             disabled={page + 1 >= Math.ceil(filteredRegs.length / pageSize)}
-            aria-label="Trang sau"
+            aria-label={t('common.nextPage', 'Trang sau')}
           >
             <KeyboardArrowRightIcon />
           </IconButton>
         </Box>
-      </Paper>
+      </div>
       {/* Confirm cancel dialog */}
       <Dialog open={confirmOpen} onClose={closeCancelConfirm} maxWidth="xs" fullWidth>
-        <DialogTitle>Hủy đăng ký</DialogTitle>
+        <DialogTitle>{t('join.dialog.title', 'Hủy đăng ký')}</DialogTitle>
         <DialogContent>
-          <Typography>Bạn có chắc chắn muốn hủy đăng ký không?</Typography>
+          <Typography>{t('join.dialog.desc', 'Bạn có chắc chắn muốn hủy đăng ký không?')}</Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={closeCancelConfirm} disabled={canceling}>Hủy</Button>
+          <Button onClick={closeCancelConfirm} disabled={canceling}>{t('common.cancel', 'Hủy')}</Button>
           <Button onClick={() => cancelRegistration(confirmTarget)} color="error" variant="contained" disabled={canceling}>
-            {canceling ? <CircularProgress size={18} color="inherit" /> : 'Xác nhận'}
+            {canceling ? <CircularProgress size={18} color="inherit" /> : t('join.dialog.confirm', 'Xác nhận')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -220,9 +220,12 @@ export async function updateEvent(id: number, managerId: number, data: any) {
 export async function deleteEvent(id: number, managerId: number) {
   const event = await prisma.events.findUnique({ where: { id } });
   if (!event) throw new Error("Sự kiện không tồn tại");
-  if (event.manager_id !== managerId)
+  const role = await prisma.users.findUnique({
+    where: { id: managerId },
+    include: { roles: { include: { role: true } } },
+  });
+  if (event.manager_id !== managerId && !role?.roles.some(r => r.role.name === "ADMIN"))
     throw new Error("Bạn không có quyền xóa sự kiện này");
-
   await prisma.event_approvals.deleteMany({ where: { event_id: id } });
   await prisma.events.delete({ where: { id } });
   return { message: "Xóa sự kiện thành công" };

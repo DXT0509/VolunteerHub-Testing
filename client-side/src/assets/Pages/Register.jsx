@@ -4,11 +4,13 @@ import { IonIcon } from "@ionic/react";
 import { mail, lockClosed, person, call } from "ionicons/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Checkbox, FormControlLabel, TextField, InputAdornment, Box, Grid, Alert, Slide, Snackbar, Dialog, DialogTitle, DialogContent, DialogActions, Typography } from "@mui/material";
+import { useTranslation } from 'react-i18next';
 function SlideFromTop(props) {
   // Always slide in from the top ('down'); on exit, MUI slides in the opposite direction -> up
   return <Slide {...props} direction="down" timeout={600} />;
 }
 const Register = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   // Local state for future integration with API (optional enhancement)
   const [form, setForm] = useState({
@@ -45,10 +47,32 @@ const Register = () => {
     const t = requestAnimationFrame(() => setAnimateForm(true));
     return () => cancelAnimationFrame(t);
   }, []);
+  // Helper to check JWT expiration (exp in seconds)
+  const isTokenValid = (token) => {
+    try {
+      const parts = String(token).split('.');
+      if (parts.length !== 3) return false;
+      const base64Url = parts[1];
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      while (base64.length % 4) base64 += '=';
+      const json = atob(base64);
+      const payload = JSON.parse(json);
+      if (!payload || typeof payload.exp !== 'number') return false;
+      return payload.exp * 1000 > Date.now();
+    } catch {
+      return false;
+    }
+  };
   useEffect(() => {
-    const check = localStorage.getItem('token');
-    if (check) {
-      navigate('/', { replace: true });
+    const token = localStorage.getItem('token');
+    if (token) {
+      if (isTokenValid(token)) {
+        navigate('/', { replace: true });
+        return;
+      }
+      // Clear stale token if expired/invalid
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
     }
   }, [navigate]);
   const handleSubmit = async(e) => {
@@ -128,7 +152,7 @@ const Register = () => {
           </Snackbar>
       <div className={`wrapper auth-animate ${animateForm ? 'in-view' : ''}`}>
         <div className="form-box register">
-          <h2>Đăng ký</h2>
+          <h2>{t('auth.register.title', 'Đăng ký')}</h2>
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <Grid container spacing={3} direction="column">
               
@@ -136,7 +160,7 @@ const Register = () => {
                 <TextField
                   fullWidth
                   name="full_name"
-                  label="Họ và Tên"
+                  label={t('auth.register.fullName', 'Họ và Tên')}
                   value={form.full_name}
                   onChange={handleChange}
                   required
@@ -154,13 +178,13 @@ const Register = () => {
                 <TextField
                   fullWidth
                   name="phone"
-                  label="Số điện thoại"
+                  label={t('auth.register.phone', 'Số điện thoại')}
                   type="tel"
                   value={form.phone}
                   onChange={handleChange}
                   inputProps={{ pattern: "^[0-9]{9,12}$" }}
                   placeholder={phonePlaceholder}
-                  onFocus={() => setPhonePlaceholder("VD: 0912345678")}
+                  onFocus={() => setPhonePlaceholder(t('auth.register.phoneExample', 'VD: 0912345678'))}
                   onBlur={() => setPhonePlaceholder("")}
                   required
                   variant="outlined"
@@ -177,7 +201,7 @@ const Register = () => {
                 <TextField
                   fullWidth
                   name="email"
-                  label="Email"
+                  label={t('auth.register.email', 'Email')}
                   type="email"
                   value={form.email}
                   onChange={handleChange}
@@ -196,7 +220,7 @@ const Register = () => {
                 <TextField
                   fullWidth
                   name="password"
-                  label="Mật khẩu"
+                  label={t('auth.register.password', 'Mật khẩu')}
                   type="password"
                   value={form.password}
                   onChange={handleChange}
@@ -228,7 +252,7 @@ const Register = () => {
                     }
                     label={
                       <span>
-                        Tôi đồng ý với <span style={{ color: '#2563eb', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setTermsOpen(true)}>điều khoản & điều kiện</span>
+                        {t('auth.register.agreePrefix', 'Tôi đồng ý với')} <span style={{ color: '#2563eb', cursor: 'pointer', textDecoration: 'underline' }} onClick={() => setTermsOpen(true)}>{t('auth.register.terms', 'điều khoản & điều kiện')}</span>
                       </span>
                     }
                   />
@@ -236,13 +260,13 @@ const Register = () => {
               </Grid>
               <Grid item xs={12}>
                 <Button type="submit" variant="contained" fullWidth className="btn">
-                  Đăng ký
+                  {t('auth.register.submit', 'Đăng ký')}
                 </Button>
               </Grid>
               <Grid item xs={12} >
                 <div className="login-register">
                   <p>
-                    Đã có tài khoản? <Link to="/login" className="login-link">Đăng nhập</Link>
+                    {t('auth.register.hasAccount', 'Đã có tài khoản?')} <Link to="/login" className="login-link">{t('auth.register.login', 'Đăng nhập')}</Link>
                   </p>
                 </div>
               </Grid>
@@ -253,7 +277,7 @@ const Register = () => {
         </div>
       </div>
       <Dialog open={termsOpen} onClose={() => setTermsOpen(false)} fullWidth maxWidth="sm">
-        <DialogTitle>Các điều khoản & điều kiện</DialogTitle>
+        <DialogTitle>{t('auth.register.termsTitle', 'Các điều khoản & điều kiện')}</DialogTitle>
         <DialogContent dividers>
           <Typography component="div" sx={{ whiteSpace: 'pre-line' }}>
   {`Các điều khoản và điều kiện người dùng phải chấp nhận:
@@ -265,7 +289,7 @@ const Register = () => {
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setTermsOpen(false)} variant="contained">Đóng</Button>
+          <Button onClick={() => setTermsOpen(false)} variant="contained">{t('common.close', 'Đóng')}</Button>
         </DialogActions>
       </Dialog>
     </div>

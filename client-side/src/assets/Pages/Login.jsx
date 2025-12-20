@@ -5,12 +5,14 @@ import { mail, lockClosed } from "ionicons/icons";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Button, Checkbox, FormControlLabel, TextField, InputAdornment, Box, Grid, Alert, Slide, Fade, Snackbar } from "@mui/material";
+import { useTranslation } from 'react-i18next';
 function SlideFromTop(props) {
   // Always slide in from the top ('down'); on exit, MUI slides in the opposite direction -> up
   return <Slide {...props} direction="down" timeout={600} />;
 }
 const Login = () => {
     const navigate = useNavigate();
+  const { t } = useTranslation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [showAlert, setShowAlert] = useState(false);
@@ -24,10 +26,33 @@ const Login = () => {
       const t = requestAnimationFrame(() => setAnimateForm(true));
       return () => cancelAnimationFrame(t);
     }, []);
+    // Helper to check JWT expiration (exp in seconds)
+    const isTokenValid = (token) => {
+      try {
+        const parts = String(token).split('.');
+        if (parts.length !== 3) return false;
+        const base64Url = parts[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        while (base64.length % 4) base64 += '=';
+        const json = atob(base64);
+        const payload = JSON.parse(json);
+        if (!payload || typeof payload.exp !== 'number') return false;
+        return payload.exp * 1000 > Date.now();
+      } catch {
+        return false;
+      }
+    };
+
     useEffect(() => {
-        const check = localStorage.getItem('token');
-        if (check) {
-          navigate('/', { replace: true });
+        const token = localStorage.getItem('token');
+        if (token) {
+          if (isTokenValid(token)) {
+            navigate('/', { replace: true });
+            return;
+          }
+          // Clear stale token if expired/invalid
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
         // Load remembered credentials if present
         const rem = localStorage.getItem('rememberMe') === 'true';
@@ -116,14 +141,14 @@ const Login = () => {
                   </Snackbar>
       <div className={`wrapper auth-animate ${animateForm ? 'in-view' : ''}`}>
         <div className="form-box login">
-          <h2>Đăng nhập</h2>
+          <h2>{t('auth.login.title', 'Đăng nhập')}</h2>
               <Box component="form" onSubmit={handleLogin} sx={{ mt: 2 }}>
                 <Grid container spacing={3} direction="column">
                   <Grid item xs={12}>
                     <TextField
                       fullWidth
                       name="email"
-                      label="Email"
+                      label={t('auth.login.email', 'Email')}
                       type="email"
                       required
                       variant="outlined"
@@ -142,7 +167,7 @@ const Login = () => {
                     <TextField
                       fullWidth
                       name="password"
-                      label="Mật khẩu"
+                      label={t('auth.login.password', 'Mật khẩu')}
                       type="password"
                       required
                       variant="outlined"
@@ -161,20 +186,20 @@ const Login = () => {
                     <div className="remember-forgot">
                       <FormControlLabel
                         control={<Checkbox color="success" size="small" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)} />}
-                        label="Ghi nhớ đăng nhập"
+                        label={t('auth.login.remember', 'Ghi nhớ đăng nhập')}
                       />
-                      <a href="/forget-password">Quên mật khẩu?</a>
+                      <a href="/forget-password">{t('auth.login.forgot', 'Quên mật khẩu?')}</a>
                     </div>
                   </Grid>
                   <Grid item xs={12}>
                     <Button type="submit" variant="contained" fullWidth className="btn">
-                      Đăng nhập
+                      {t('auth.login.submit', 'Đăng nhập')}
                     </Button>
                   </Grid>
                   <Grid item xs={12}>
                     <div className="login-register">
                       <p>
-                        Chưa có tài khoản? <Link to="/register" className="register-link" >Đăng ký</Link>
+                        {t('auth.login.noAccount', 'Chưa có tài khoản?')} <Link to="/register" className="register-link" >{t('auth.login.register', 'Đăng ký')}</Link>
                       </p>
                     </div>
                     <div id="noti" style={{ color: "red", marginTop: "6px", minHeight: "18px" }}></div>

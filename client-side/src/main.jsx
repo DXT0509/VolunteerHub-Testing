@@ -1,47 +1,18 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import './index.css'
-import { App } from './App.jsx'
-import Login from './assets/Pages/Login.jsx'
-import Register from './assets/Pages/Register.jsx'
-import RegisterSuccess from './assets/Pages/RegisterSuccess.jsx'
-import MainLayout from './assets/Layouts/MainLayout/MainLayout.jsx'
-import ShowCampaignDetail from './assets/Pages/ShowCampaignDetail.jsx'
-import BeVolunteerForm from './assets/Pages/BeVolunteerForm.jsx'
-import ShowChannel from './assets/Pages/ShowChannel.jsx'
-import RegistrationSuccess from './assets/Pages/RegistrationSuccess.jsx'
-import ShowCampaignJoin from './assets/Pages/ShowCampaignJoin.jsx'
-import ControlUser from './assets/Pages/ControlUser.jsx'
-import ManageMyCampaign from './assets/Pages/ManageMyCampaign.jsx'
-import ManagePendingCampaign from './assets/Pages/ManagePendingCampaign.jsx'
-import ManagePendingRegistration from './assets/Pages/ManagePendingRegistration.jsx'
-import ForgetPassword from './assets/Pages/ForgetPassword.jsx'
-import ShowVolunteer from './assets/Pages/ShowVolunteer.jsx'
-import CheckOutVolunteer from './assets/Pages/CheckOutVolunteer.jsx'
-createRoot(document.getElementById('root')).render(
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { RouterProvider } from "react-router-dom";
+import "./index.css";
+import router from "./assets/Routes/Routes.jsx";
+import './i18n';
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+AOS.init({
+  duration: 800,
+  easing: 'ease-in-out',
+  once: true,
+});
+createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<MainLayout />}>
-          <Route index element={<App />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/register-success" element={<RegisterSuccess />} />
-          <Route path = '/events/:id' element={<ShowCampaignDetail />} />
-          <Route path = '/bevolunteer/:id' element={<BeVolunteerForm />} />
-          <Route path="/registration-success" element={<RegistrationSuccess />} />
-          <Route path = '/exchange-channel/:id' element={<ShowChannel />} />
-          <Route path='/mycampaigns' element={<ShowCampaignJoin />} />
-          <Route path='/control-users' element={<ControlUser />} />
-          <Route path='/manage-my-campaigns' element={<ManageMyCampaign />} />
-          <Route path='/manage-pending-campaigns' element={<ManagePendingCampaign />} />
-          <Route path='/manage-pending-registrations' element={<ManagePendingRegistration />} />
-          <Route path='/forget-password' element={<ForgetPassword />} />
-          <Route path='/show-volunteers' element={<ShowVolunteer />} />
-          <Route path='/check-out-volunteer' element={<CheckOutVolunteer />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <RouterProvider router={router} />
   </StrictMode>
-)
+);

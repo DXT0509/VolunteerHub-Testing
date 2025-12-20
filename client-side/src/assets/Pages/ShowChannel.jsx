@@ -14,12 +14,35 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import './ShowChannel.css';
+import { isTokenExpired, clearAuth } from '../utils/auth';
+import { useTranslation } from 'react-i18next';
+// Normalize avatar URLs saved in local uploads to absolute URLs
+const API_BASE = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_URL) || 'http://localhost:4000';
+const normalizeAvatarUrl = (url) => {
+    if (!url) return '';
+    const s = String(url);
+    if (s.startsWith('http://') || s.startsWith('https://')) return s;
+    // Ensure path begins with /uploads
+    let path = s;
+    if (path.startsWith('/')) {
+        // already an absolute path on server, just prefix host
+        return `${API_BASE}${path}`;
+    }
+    // handle cases like 'uploads/filename.jpg' or just 'filename.jpg'
+    if (path.toLowerCase().startsWith('uploads/')) {
+        path = `/${path}`;
+    } else {
+        path = `/uploads/${path}`;
+    }
+    return `${API_BASE}${path}`;
+};
 // Stable transition component defined outside so MUI can properly animate exit
 const SlideFromTop = React.forwardRef(function SlideFromTop(props, ref) {
     return <Slide ref={ref} {...props} direction="down" timeout={{ enter: 400, exit: 350 }} />;
 });
 
 function ShowChannel() {
+    const { t } = useTranslation();
     const [data, setData] = useState(null);
     const [openCreate, setOpenCreate] = useState(false);
     const [content, setContent] = useState('');
@@ -41,11 +64,17 @@ function ShowChannel() {
     const [page, setPage] = useState(1);
     const pageSize = 10;
 
-    // Redirect to login if not authenticated
+    // Redirect to login if not authenticated or token expired
     useEffect(() => {
         const token = localStorage.getItem('token');
         if (!token) {
             navigate('/login', { replace: true, state: { from: `/exchange-channel/${id}` } });
+            return;
+        }
+        if (isTokenExpired(token)) {
+            clearAuth();
+            navigate('/login', { replace: true, state: { from: `/exchange-channel/${id}` } });
+            return;
         }
     }, [id, navigate]);
 
@@ -158,7 +187,7 @@ function ShowChannel() {
         if (!content.trim() && (!filesToSend || filesToSend.length === 0)) {
             // Client-side early validation matches backend rule
             setAlertType('warning');
-            setAlertMessage('Bài viết phải có nội dung hoặc ít nhất một tệp đính kèm');
+            setAlertMessage(t('channel.alert.postNeedsContentOrFile', 'Bài viết phải có nội dung hoặc ít nhất một tệp đính kèm'));
             setShowAlert(true);
             return;
         }
@@ -177,25 +206,25 @@ function ShowChannel() {
             });
         } catch (err) {
             setAlertType('warning');
-            setAlertMessage('Lỗi khi tải lên ảnh');
+            setAlertMessage(t('channel.alert.uploadError', 'Lỗi khi tải lên ảnh'));
             setShowAlert(true);
             return;
         }
 
         if (res.ok) {
             setAlertType('success');
-            setAlertMessage('Đăng bài thành công');
+            setAlertMessage(t('channel.alert.postSuccess', 'Đăng bài thành công'));
             setShowAlert(true);
         } else {
             try {
                 const data = await res.json();
-                const msg = data?.error || 'Đăng bài thất bại';
+                const msg = data?.error || t('channel.alert.postFailed', 'Đăng bài thất bại');
                 setAlertType('warning');
                 setAlertMessage(msg);
                 setShowAlert(true);
             } catch {
                 setAlertType('warning');
-                setAlertMessage('Đăng bài thất bại');
+                setAlertMessage(t('channel.alert.postFailed', 'Đăng bài thất bại'));
                 setShowAlert(true);
             }
             return; // Don't refresh/close modal on failure
@@ -379,17 +408,17 @@ function ShowChannel() {
                     'Content-Type': 'application/json'
                 }
             });
-            if (!res.ok) throw new Error('Xóa bài viết thất bại');
+            if (!res.ok) throw new Error(t('channel.alert.deletePostFailed', 'Xóa bài viết thất bại'));
             // Refresh current page to keep counts and pagination in sync
             fetchPostsPaged(page);
             setSelectedPost(prev => (prev && prev.id === deletePostId) ? null : prev);
             setOpenComments(prev => (prev && deletePostId) ? false : prev);
             setAlertType('success');
-            setAlertMessage('Xóa bài viết thành công');
+            setAlertMessage(t('channel.alert.deletePostSuccess', 'Xóa bài viết thành công'));
             setShowAlert(true);
         } catch (e) {
             setAlertType('warning');
-            setAlertMessage(e?.message || 'Xóa bài viết thất bại');
+            setAlertMessage(e?.message || t('channel.alert.deletePostFailed', 'Xóa bài viết thất bại'));
             setShowAlert(true);
         } finally {
             closeDeleteConfirm();
@@ -474,18 +503,18 @@ function ShowChannel() {
                     boxShadow: 'none'
                 }}
             >
-                Bạn viết gì đi
+                {t('channel.writePrompt', 'Bạn viết gì đi')}
             </Box>
 
             {/* Create Post Modal */}
             <Dialog open={openCreate} onClose={closeForm} fullWidth maxWidth="sm">
                 <DialogTitle>
-                    <Typography variant="h6" fontWeight={700}>Tạo bài viết</Typography>
+                    <Typography variant="h6" fontWeight={700}>{t('channel.createTitle', 'Tạo bài viết')}</Typography>
                 </DialogTitle>
                 <DialogContent>
                     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
                         <TextField
-                            label="Nội dung"
+                            label={t('channel.contentLabel', 'Nội dung')}
                             name="content"
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
@@ -495,7 +524,7 @@ function ShowChannel() {
                         />
                         {/* Removed manual File URL fields - users upload images from their machine using the input below */}
                         <Box sx={{ mt: 1 }}>
-                            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>Tải ảnh từ máy tính</Typography>
+                            <Typography variant="subtitle2" sx={{ mb: 0.5 }}>{t('channel.uploadFromComputer', 'Tải ảnh từ máy tính')}</Typography>
                             {/* hidden native input */}
                             <input
                                 id="file-input"
@@ -517,11 +546,11 @@ function ShowChannel() {
                                     onClick={() => document.getElementById('file-input')?.click()}
                                     sx={{ textTransform: 'none' }}
                                 >
-                                    Thêm tệp
+                                    {t('channel.addFiles', 'Thêm tệp')}
                                 </Button>
                                 
                                 {selectedFiles.length > 0 && (
-                                    <Button variant="text" onClick={() => setSelectedFiles([])} sx={{ textTransform: 'none', ml: 'auto' }}>Xóa tất cả</Button>
+                                    <Button variant="text" onClick={() => setSelectedFiles([])} sx={{ textTransform: 'none', ml: 'auto' }}>{t('channel.deleteAll', 'Xóa tất cả')}</Button>
                                 )}
                             </Box>
 
@@ -558,10 +587,10 @@ function ShowChannel() {
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={closeForm} variant="contained" sx={{ bgcolor: '#9ca3af', '&:hover': { bgcolor: '#6b7280' }, textTransform: 'none' }}>
-                        Hủy
+                        {t('common.cancel', 'Hủy')}
                     </Button>
                     <Button onClick={handleSubmit} variant="contained" sx={{ bgcolor: '#16a34a', '&:hover': { bgcolor: '#15803d' }, textTransform: 'none' }}>
-                        Đăng bài
+                        {t('channel.postSubmit', 'Đăng bài')}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -579,13 +608,13 @@ function ShowChannel() {
 
             {/* Pagination controls */}
             <Box sx={{ mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-                <IconButton aria-label="prev-page" onClick={() => !isFirstPage && setPage(p => Math.max(1, p - 1))} disabled={isFirstPage}>
+                <IconButton aria-label={t('common.prevPage', 'Trang trước')} onClick={() => !isFirstPage && setPage(p => Math.max(1, p - 1))} disabled={isFirstPage}>
                     <NavigateBeforeIcon />
                 </IconButton>
                 <Typography variant="body2" sx={{ minWidth: 100, textAlign: 'center' }}>
-                    Trang {page}{totalPages ? ` / ${totalPages}` : ''}
+                    {t('common.page', 'Trang')} {page}{totalPages ? ` / ${totalPages}` : ''}
                 </Typography>
-                <IconButton aria-label="next-page" onClick={() => !isLastPage && setPage(p => p + 1)} disabled={isLastPage}>
+                <IconButton aria-label={t('common.nextPage', 'Trang sau')} onClick={() => !isLastPage && setPage(p => p + 1)} disabled={isLastPage}>
                     <NavigateNextIcon />
                 </IconButton>
             </Box>
@@ -630,16 +659,16 @@ function ShowChannel() {
 
             {/* Confirm delete dialog */}
             <Dialog open={deleteOpen} onClose={closeDeleteConfirm}>
-                <DialogTitle>Xác nhận xóa bài viết</DialogTitle>
+                <DialogTitle>{t('channel.deletePost.title', 'Xác nhận xóa bài viết')}</DialogTitle>
                 <DialogContent>
-                    Bạn có chắc chắn muốn xóa bài viết này? Hành động không thể hoàn tác.
+                    {t('channel.deletePost.desc', 'Bạn có chắc chắn muốn xóa bài viết này? Hành động không thể hoàn tác.')}
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={closeDeleteConfirm} variant="contained" sx={{ bgcolor: '#9ca3af', '&:hover': { bgcolor: '#6b7280' }, textTransform: 'none' }}>
-                        Hủy
+                        {t('common.cancel', 'Hủy')}
                     </Button>
                     <Button onClick={confirmDeletePost} variant="contained" sx={{ bgcolor: '#dc2626', '&:hover': { bgcolor: '#b91c1c' }, textTransform: 'none' }}>
-                        Xác nhận
+                        {t('common.confirm', 'Xác nhận')}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -649,6 +678,7 @@ function ShowChannel() {
 
 // Memoized list of posts to avoid re-rendering while typing in other inputs
 const PostsList = React.memo(function PostsList({ items, onToggleLike, onOpenComments, formatRelative, currentUserId, isEventManager, onRequestDelete }) {
+    const { t } = useTranslation();
     return (
         <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', px: { xs: 1, sm: 0 } }}>
             {items?.map((post) => (
@@ -657,13 +687,13 @@ const PostsList = React.memo(function PostsList({ items, onToggleLike, onOpenCom
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
                             <Avatar
-                                src={post.author?.avatar_url || ''}
+                                src={normalizeAvatarUrl(post.author?.avatar_url)}
                                 alt={post.author?.full_name || 'User'}
                                 sx={{ width: 36, height: 36 }}
                             />
                             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                                 <Typography sx={{ fontWeight: 700, color: '#111827', lineHeight: 1.2 }}>
-                                    {post.author?.full_name || 'Người dùng'}
+                                    {post.author?.full_name || t('channel.user', 'Người dùng')}
                                 </Typography>
                                 <Typography variant="caption" sx={{ color: '#6b7280' }}>
                                     {formatRelative(post.created_at)}
@@ -671,7 +701,7 @@ const PostsList = React.memo(function PostsList({ items, onToggleLike, onOpenCom
                             </Box>
                         </Box>
                         {(post.author?.id === currentUserId || isEventManager) && (
-                            <Tooltip title="Xóa bài">
+                            <Tooltip title={t('channel.actions.deletePost', 'Xóa bài')}>
                                 <IconButton size="small" onClick={(e) => { e.stopPropagation(); onRequestDelete(post.id); }}>
                                     <DeleteOutlineIcon sx={{ color: '#6b7280' }} />
                                 </IconButton>
@@ -752,10 +782,10 @@ const PostsList = React.memo(function PostsList({ items, onToggleLike, onOpenCom
                     {/* Stats: left likes, right comments */}
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
                         <Typography variant="body2" sx={{ color: '#6b7280' }}>
-                            {post._count?.likes || 0} lượt thích
+                            {post._count?.likes || 0} {t('channel.stats.likes', 'lượt thích')}
                         </Typography>
                         <Typography variant="body2" sx={{ color: '#6b7280' }}>
-                            {post._count?.comments || 0} bình luận
+                            {post._count?.comments || 0} {t('channel.stats.comments', 'bình luận')}
                         </Typography>
                     </Box>
                     {/* Actions: like left, comment right */}
@@ -766,7 +796,7 @@ const PostsList = React.memo(function PostsList({ items, onToggleLike, onOpenCom
                             onClick={(e) => { e.stopPropagation(); onToggleLike(post.id); }}
                             sx={{ textTransform: 'none', color: '#374151' }}
                         >
-                            Thích
+                            {t('channel.actions.like', 'Thích')}
                         </Button>
                         <Button
                             variant="text"
@@ -774,17 +804,17 @@ const PostsList = React.memo(function PostsList({ items, onToggleLike, onOpenCom
                             sx={{ textTransform: 'none', color: '#374151' }}
                             onClick={(e) => { e.stopPropagation(); onOpenComments(post); }}
                         >
-                            Bình luận
+                            {t('channel.actions.comment', 'Bình luận')}
                         </Button>
                     </Box>
                 </Box>
             ))}
         </Box>
-    );
-});
-
+    
+        );});
 // Memoized dialog for comments with internal state and memoized computations
 const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose, onTogglePostLike, onToggleCommentLike, onApplyNewComment, onSuccess, formatRelative, currentUserId, isEventManager, onNotify, onApplyDeleteComment }) {
+    const { t } = useTranslation();
     const [commentsToShow, setCommentsToShow] = useState(5);
     const [newComment, setNewComment] = useState('');
     const [commentLoading, setCommentLoading] = useState(false);
@@ -841,7 +871,7 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
         }
         if (!c && (!filesToSend || filesToSend.length === 0)) {
             setAlertType('warning');
-            setAlertMessage('Bình luận phải có nội dung hoặc ít nhất một tệp đính kèm');
+            setAlertMessage(t('channel.alert.commentNeedsContentOrFile', 'Bình luận phải có nội dung hoặc ít nhất một tệp đính kèm'));
             setShowAlert(true);
             return;
         }
@@ -863,7 +893,7 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
             onApplyNewComment(post.id, cmt);
             setNewComment('');
             setCommentsToShow(v => v + 1);
-            onSuccess('Bình luận thành công');
+            onSuccess(t('channel.alert.commentSuccess', 'Bình luận thành công'));
             // cleanup comment files and previews
             setCommentFiles([]);
             setCommentPreviews([]);
@@ -893,11 +923,11 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
                     'Content-Type': 'application/json'
                 }
             });
-            if (!res.ok) throw new Error('Xóa bình luận thất bại');
+            if (!res.ok) throw new Error(t('channel.alert.deleteCommentFailed', 'Xóa bình luận thất bại'));
             onApplyDeleteComment(post.id, deleteCommentId);
-            onNotify('success', 'Đã xóa bình luận');
+            onNotify('success', t('channel.alert.deleteCommentSuccess', 'Đã xóa bình luận'));
         } catch (e) {
-            onNotify('warning', e?.message || 'Xóa bình luận thất bại');
+            onNotify('warning', e?.message || t('channel.alert.deleteCommentFailed', 'Xóa bình luận thất bại'));
         } finally {
             closeDeleteComment();
         }
@@ -909,10 +939,10 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
             <DialogTitle sx={{ pb: 1 }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-                    <Avatar src={post.author?.avatar_url || ''} sx={{ width: 36, height: 36 }} />
+                    <Avatar src={normalizeAvatarUrl(post.author?.avatar_url)} sx={{ width: 36, height: 36 }} />
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <Typography sx={{ fontWeight: 700, color: '#111827', lineHeight: 1.2 }}>
-                            {post.author?.full_name || 'Người dùng'}
+                            {post.author?.full_name || t('channel.user', 'Người dùng')}
                         </Typography>
                         <Typography variant="caption" sx={{ color: '#6b7280' }}>
                             {formatRelative(post.created_at)}
@@ -942,10 +972,10 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
                 )}
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                     <Typography variant="body2" sx={{ color: '#6b7280' }}>
-                        {post._count?.likes || 0} lượt thích
+                        {post._count?.likes || 0} {t('channel.stats.likes', 'lượt thích')}
                     </Typography>
                     <Typography variant="body2" sx={{ color: '#6b7280' }}>
-                        {post._count?.comments || 0} bình luận
+                        {post._count?.comments || 0} {t('channel.stats.comments', 'bình luận')}
                     </Typography>
                 </Box>
                 {/* Focused actions */}
@@ -956,14 +986,14 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
                         onClick={() => onTogglePostLike(post.id)}
                         sx={{ textTransform: 'none', color: '#374151' }}
                     >
-                        Thích
+                        {t('channel.actions.like', 'Thích')}
                     </Button>
                     <Button
                         variant="text"
                         startIcon={<ChatBubbleOutlineIcon />}
                         sx={{ textTransform: 'none', color: '#374151' }}
                     >
-                        Bình luận
+                        {t('channel.actions.comment', 'Bình luận')}
                     </Button>
                 </Box>
                 <Divider sx={{ mb: 1.25 }} />
@@ -973,11 +1003,11 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
                         <Box key={c.id}>
                             {/* Row: avatar + bubble */}
                             <Box sx={{ display: 'flex', gap: 1 }}>
-                                <Avatar src={c.author?.avatar_url || ''} sx={{ width: 28, height: 28, mt: 0.25 }} />
+                                <Avatar src={normalizeAvatarUrl(c.author?.avatar_url)} sx={{ width: 28, height: 28, mt: 0.25 }} />
                                 <Box sx={{ background: '#f3f4f6', borderRadius: 2, px: 1, py: 0.75, flex: 1, position: 'relative' }}>
                                     <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75 }}>
-                                        <Typography sx={{ fontWeight: 600, color: '#111827' }} variant="body2">
-                                            {c.author?.full_name || 'Người dùng'}
+                                            <Typography sx={{ fontWeight: 600, color: '#111827' }} variant="body2">
+                                                {c.author?.full_name || t('channel.user', 'Người dùng')}
                                         </Typography>
                                         <Typography variant="caption" sx={{ color: '#6b7280' }}>
                                             {formatRelative(c.created_at)}
@@ -1020,17 +1050,17 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
                                     onClick={() => onToggleCommentLike(c.id)}
                                     sx={{ textTransform: 'none', color: '#374151' }}
                                 >
-                                    Thích
+                                    {t('channel.actions.like', 'Thích')}
                                 </Button>
                                 <Typography variant="caption" sx={{ color: '#6b7280' }}>
-                                    {(c._count?.likes || 0)} lượt thích
+                                    {(c._count?.likes || 0)} {t('channel.stats.likes', 'lượt thích')}
                                 </Typography>
                             </Box>
                         </Box>
                     ))}
                     {(post.comments?.length || 0) > commentsToShow && (
                         <Button variant="text" sx={{ alignSelf: 'center', textTransform: 'none' }} onClick={() => setCommentsToShow(v => v + 5)}>
-                            Xem thêm bình luận
+                            {t('channel.comments.viewMore', 'Xem thêm bình luận')}
                         </Button>
                     )}
                 </Box>
@@ -1040,7 +1070,7 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
                     <TextField
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Viết bình luận..."
+                        placeholder={t('channel.comments.placeholder', 'Viết bình luận...')}
                         fullWidth
                         size="small"
                     />
@@ -1072,7 +1102,7 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
                             ))}
                         </Box>
                         <Button onClick={handleAddComment} disabled={commentLoading || (!newComment.trim() && (!commentFiles || commentFiles.length === 0))} variant="contained" sx={{ textTransform: 'none' }}>
-                            Gửi
+                            {t('common.send', 'Gửi')}
                         </Button>
                     </Box>
                 </Box>
@@ -1088,11 +1118,11 @@ const CommentsDialog = React.memo(function CommentsDialog({ open, post, onClose,
             </Dialog>
             {/* Delete comment confirm dialog */}
             <Dialog open={deleteCommentOpen} onClose={closeDeleteComment} maxWidth="xs" fullWidth>
-                <DialogTitle>Xác nhận xóa bình luận</DialogTitle>
-                <DialogContent>Bạn có chắc chắn muốn xóa bình luận này? Hành động không thể hoàn tác.</DialogContent>
+                <DialogTitle>{t('channel.deleteComment.title', 'Xác nhận xóa bình luận')}</DialogTitle>
+                <DialogContent>{t('channel.deleteComment.desc', 'Bạn có chắc chắn muốn xóa bình luận này? Hành động không thể hoàn tác.')}</DialogContent>
                 <DialogActions>
-                    <Button onClick={closeDeleteComment} variant="contained" sx={{ bgcolor: '#9ca3af', '&:hover': { bgcolor: '#6b7280' }, textTransform: 'none' }}>Hủy</Button>
-                    <Button onClick={confirmDeleteComment} variant="contained" sx={{ bgcolor: '#dc2626', '&:hover': { bgcolor: '#b91c1c' }, textTransform: 'none' }}>Xác nhận</Button>
+                    <Button onClick={closeDeleteComment} variant="contained" sx={{ bgcolor: '#9ca3af', '&:hover': { bgcolor: '#6b7280' }, textTransform: 'none' }}>{t('common.cancel', 'Hủy')}</Button>
+                    <Button onClick={confirmDeleteComment} variant="contained" sx={{ bgcolor: '#dc2626', '&:hover': { bgcolor: '#b91c1c' }, textTransform: 'none' }}>{t('common.confirm', 'Xác nhận')}</Button>
                 </DialogActions>
             </Dialog>
         </Dialog>

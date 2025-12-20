@@ -13,10 +13,10 @@ export async function getProfile(userId: number) {
 
 //All
 export async function updateProfile(userId: number, data: any) {
-  const { full_name, phone, avatar_url } = data;
+  const { full_name, phone, avatar_url, username } = data;
   return prisma.users.update({
     where: { id: userId },
-    data: { full_name, phone, avatar_url },
+    data: { full_name, phone, avatar_url, username },
   });
 }
 

@@ -5,6 +5,8 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from 'react';
 import './ShowCampaignDetail.css';
+import { isTokenExpired, clearAuth } from '../utils/auth';
+import { useTranslation } from 'react-i18next';
 /**
  * ShowCampaignDetail
  * Props: { title, category, location, deadline, capacity, manager_name, manager_mail, banner_url }
@@ -15,8 +17,9 @@ const SlideFromTop = React.forwardRef(function SlideFromTop(props, ref) {
 });
 
 function ShowCampaignDetail() {
+  const { t } = useTranslation();
   const fmtDeadline = (d) => {
-    if (!d) return 'Không có thời hạn';
+    if (!d) return t('event.noDeadline', 'Không có thời hạn');
     const dt = d instanceof Date ? d : new Date(d);
     if (Number.isNaN(dt.getTime())) return String(d);
     const weekday = dt.toLocaleDateString('vi-VN', { weekday: 'long' });
@@ -25,7 +28,7 @@ function ShowCampaignDetail() {
     return `${weekday}, ${hour} giờ, ${dateStr}`;
   };
   const fmtStartTime = (d) => {
-    if (!d) return 'Không có thời gian bắt đầu';
+    if (!d) return t('event.noStart', 'Không có thời gian bắt đầu');
     const dt = d instanceof Date ? d : new Date(d);
     if (Number.isNaN(dt.getTime())) return String(d);
     const weekday = dt.toLocaleDateString('vi-VN', { weekday: 'long' });
@@ -55,6 +58,11 @@ function ShowCampaignDetail() {
     if (!token || !user) {
       navigate('/login', { replace: true });
     } else {
+      if (isTokenExpired(token)) {
+        clearAuth();
+        navigate('/login', { replace: true });
+        return;
+      }
       setAllowed(true);
       
     }
@@ -158,7 +166,7 @@ function ShowCampaignDetail() {
 
   const bannerFallback = (
     <div className="scd-fallback">
-      <span>Không có ảnh</span>
+      <span>{t('event.noImage', 'Không có ảnh')}</span>
     </div>
   );
   // use the top-level forwardRef SlideFromTop for Snackbar transitions
@@ -184,7 +192,7 @@ function ShowCampaignDetail() {
 
   if (!allowed) return null;
   if (!event) {
-    return <div>Đang tải...</div>;
+    return <div>{t('common.loading', 'Đang tải...')}</div>;
   }
 
   return (
@@ -219,7 +227,7 @@ function ShowCampaignDetail() {
           {warnMsg}
         </Alert>
       </Snackbar>
-      <title>Campaign Details</title>
+      <title>{t('event.detailsTitle', 'Chi tiết sự kiện')}</title>
       <div ref={leftRef} className="scd-left scd-animate">
         {event.banner_url ? (
           <img src={event.banner_url} alt={event.title} className="scd-img" />
@@ -229,46 +237,73 @@ function ShowCampaignDetail() {
       </div>
       <div ref={rightRef} className="scd-right scd-animate">
         <div>
-          <h1 className="scd-title">{event.title}</h1>
-          <div className="scd-category">
-            <h4>Thể loại: <strong>{event.category?.name}</strong></h4>
-          </div>
-          <div className="scd-desc">
-            <span>{event.description}</span>
-          </div>
-          <h5 className="scd-location">Địa điểm: <span ><strong>{event.location?.name}</strong></span></h5>
-          <span className = "scd-location">
-            <span>{event.location?.address_line}, {event.location?.district}, {event.location?.province}, {event.location?.country}</span>
+         <h1 className="scd-title text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          {event.title}
+        </h1>
+
+        <div className="scd-category mb-3">
+          <h4 className="text-base md:text-lg text-gray-700">
+            {t('event.categoryLabel', 'Thể loại')}:{" "}
+            <strong>
+              {event.category?.name}
+            </strong>
+          </h4>
+        </div>
+
+        <div className="scd-desc mb-4">
+          <span className="text-gray-700 leading-relaxed block">
+            {event.description}
           </span>
-          <div className="scd-start-time" style={{ marginTop: '16px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ color: '#000', fontWeight: 600 }}>Có mặt:</span>
-            <span className="scd-start-time-box">{fmtStartTime(event.start_time)}</span>
-          </div>
+        </div>
+
+        <h5 className="scd-location text-base md:text-lg text-gray-800 mb-1">
+          {t('event.locationLabel', 'Địa điểm')}:{" "}
+          <span>
+            <strong>
+              {event.location?.name}
+            </strong>
+          </span>
+        </h5>
+
+        <span className="scd-location block text-sm md:text-base text-gray-600 mb-4">
+          {event.location?.address_line}, {event.location?.district},{" "}
+          {event.location?.province}, {event.location?.country}
+        </span>
+
+        <div className="scd-start-time mt-4 flex items-center gap-2">
+          <span className="text-gray-900 font-semibold">
+            {t('event.arrive', 'Có mặt')}
+          </span>
+          <span className="scd-start-time-box px-3 py-1 rounded bg-blue-100 text-blue-700 font-medium">
+            {fmtStartTime(event.start_time)}
+          </span>
+        </div>
+
           <div className="scd-details">
             {/* Two-column grid: col 1 = Deadline & Contact, col 2 = Capacity & Manager */}
             <div className="scd-grid">
               {/* Row 1 */}
               <div>
-                <div style={{ color: '#000', fontWeight: 600 }}>Ra về:</div>
+                <div style={{ color: '#000', fontWeight: 600 }}>{t('event.leave', 'Ra về')}:</div>
                 <div className="scd-start-time-box">{fmtDeadline(event.end_time)}</div>
               </div>
               <div>
-                <div className="scd-label">Số TNV còn thiếu</div>
+                <div className="scd-label">{t('event.missingVolunteers', 'Số TNV còn thiếu')}</div>
                 <div className="scd-capacity-row">
                   <div className="scd-badge" title="Total volunteers">
                     {typeof event.capacity === 'number' ? event.capacity : (event.capacity || '—')}
                   </div>
-                  tình nguyện viên
+                  {t('event.volunteersLabel', 'tình nguyện viên')}
                 </div>
               </div>
 
               {/* Row 2 */}
               <div>
-                <div className="scd-label">Người quản lý</div>
+                <div className="scd-label">{t('event.managerLabel', 'Người quản lý')}</div>
                 <div className="scd-value">{event.manager?.full_name ?? '—'}</div>
               </div>
               <div>
-                <div className="scd-label">Liên hệ</div>
+                <div className="scd-label">{t('event.contactLabel', 'Liên hệ')}</div>
                 {event.manager?.email ? (
                   <a href={`mailto:${event.manager.email}`} className="scd-link">{event.manager.email}</a>
                 ) : (
@@ -308,7 +343,7 @@ function ShowCampaignDetail() {
                     '&:hover': { bgcolor: ended ? '#facc15' : '#16a34a' }
                   }}
                 >
-                  {ended ? 'Sự kiện đã kết thúc' : 'Sự kiện đang diễn ra'}
+                  {ended ? t('event.ended', 'Sự kiện đã kết thúc') : t('event.ongoing', 'Sự kiện đang diễn ra')}
                 </Button>
               );
             }
@@ -327,7 +362,7 @@ function ShowCampaignDetail() {
                     '&:hover': { bgcolor: '#facc15' }
                   }}
                 >
-                  Sự kiện đã kết thúc
+                  {t('event.ended', 'Sự kiện đã kết thúc')}
                 </Button>
               );
             }
@@ -345,7 +380,7 @@ function ShowCampaignDetail() {
                     '&:hover': { bgcolor: '#facc15' }
                   }}
                 >
-                  <WarningAmberIcon sx={{ mr: 1 }} /> Đang chờ duyệt đăng ký
+                  <WarningAmberIcon sx={{ mr: 1 }} /> {t('event.pending', 'Đang chờ duyệt đăng ký')}
                 </Button>
               );
             }
@@ -362,7 +397,7 @@ function ShowCampaignDetail() {
                     '&:hover': { bgcolor: '#dc2626' }
                   }}
                 >
-                  <CancelIcon sx={{ mr: 1 }} /> Bạn đã bị từ chối
+                  <CancelIcon sx={{ mr: 1 }} /> {t('event.rejected', 'Bạn đã bị từ chối')}
                 </Button>
               );
             }
@@ -378,7 +413,7 @@ function ShowCampaignDetail() {
                     '&:hover': { bgcolor: '#b91c1c' }
                   }}
                 >
-                  <CancelIcon sx={{ mr: 1 }} /> Đã tham gia, hủy đăng ký
+                  <CancelIcon sx={{ mr: 1 }} /> {t('event.approvedCancel', 'Đã tham gia, hủy đăng ký')}
                 </Button>
               );
             }
@@ -389,7 +424,7 @@ function ShowCampaignDetail() {
                 onClick={() => navigate(`/bevolunteer/${id}`)}
                 sx={{ bgcolor: '#16a34a', textTransform: 'none', '&:hover': { bgcolor: '#15803d' } }}
               >
-                Đăng ký tham gia
+                {t('event.register', 'Đăng ký tham gia')}
               </Button>
             );
           })()}
@@ -407,7 +442,7 @@ function ShowCampaignDetail() {
               } catch {}
               const status = getRegistrationStatus(event.id);
               if (status !== 'approved' && !isPrivileged) {
-                setWarnMsg('Bạn chưa tham gia sự kiện');
+                setWarnMsg(t('event.notJoined', 'Bạn chưa tham gia sự kiện'));
                 setWarnSeverity('warning');
                 setShowWarn(true);
                 return;
@@ -425,28 +460,28 @@ function ShowCampaignDetail() {
               '&:hover': { bgcolor: '#767a7eff' }
             }}
           >
-            <span style={{ fontWeight: 700 }}>→</span> Truy cập kênh trao đổi
+            <span style={{ fontWeight: 700 }}>→</span> {t('event.gotoExchange', 'Truy cập kênh trao đổi')}
           </Button>
         </div>
         {/* Confirm cancellation dialog */}
         <Dialog open={confirmOpen} onClose={closeConfirm}>
-          <DialogTitle>Xác nhận hủy đăng ký tham gia sự kiện</DialogTitle>
+          <DialogTitle>{t('event.confirmCancelTitle', 'Xác nhận hủy đăng ký tham gia sự kiện')}</DialogTitle>
           <DialogContent>
             <DialogContentText>
-              Bạn có chắc chắn muốn hủy đăng ký tham gia sự kiện này không?
+              {t('event.confirmCancelDesc', 'Bạn có chắc chắn muốn hủy đăng ký tham gia sự kiện này không?')}
             </DialogContentText>
           </DialogContent>
           <DialogActions>
             <Button onClick={closeConfirm} disabled={cancelling} variant="contained" sx={{ bgcolor: '#9ca3af', '&:hover': { bgcolor: '#6b7280' }, textTransform: 'none' }}>
-              Hủy
+              {t('common.cancel', 'Hủy')}
             </Button>
             <Button onClick={confirmCancel} disabled={cancelling} variant="contained" sx={{ bgcolor: '#16a34a', '&:hover': { bgcolor: '#15803d' }, textTransform: 'none', display: 'flex', alignItems: 'center', gap: 1 }} autoFocus>
               {cancelling ? (
                 <>
                   <CircularProgress size={18} color="inherit" />
-                  <span>Đang hủy...</span>
+                  <span>{t('event.cancelling', 'Đang hủy...')}</span>
                 </>
-              ) : 'Xác nhận'}
+              ) : t('common.confirm', 'Xác nhận')}
             </Button>
           </DialogActions>
         </Dialog>

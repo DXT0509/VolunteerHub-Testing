@@ -3,6 +3,31 @@ import { rootCertificates } from "tls";
 const prisma = new PrismaClient();
 
 //Volunteer
+export async function getDefaultDashboard() {
+  const [hotEvents] = await Promise.all([
+  prisma.events.findMany({
+      where: { status: "active" },
+      orderBy: [
+        { total_comments: "desc" },
+        { total_likes: "desc" },
+        { total_joined: "desc" },
+      ],
+      select: {
+        id: true,
+        title: true,
+        banner_url: true,
+        start_time: true,
+        total_comments: true,
+        description: true,
+        total_likes: true,
+      },
+    }),
+  ]);
+  return {
+    hot_events: hotEvents,
+  };
+}
+  
 export async function getVolunteerDashboard(userId: number) {
   const [registered, completed, hotEvents] = await Promise.all([
     prisma.registrations.count({ where: { user_id: userId } }),
@@ -16,13 +41,13 @@ export async function getVolunteerDashboard(userId: number) {
         { total_likes: "desc" },
         { total_joined: "desc" },
       ],
-      take: 10,
       select: {
         id: true,
         title: true,
         banner_url: true,
         start_time: true,
         total_comments: true,
+        description: true,
         total_likes: true,
       },
     }),
@@ -51,12 +76,12 @@ export async function getManagerDashboard(userId: number) {
       prisma.events.findMany({
         where: { manager_id: userId },
         orderBy: [{ total_comments: "desc" }, { total_likes: "desc" }],
-        take: 5,
         select: {
           id: true,
           title: true,
           banner_url: true,
           start_time: true,
+          description: true,
           total_comments: true,
           total_likes: true,
         },
@@ -66,7 +91,7 @@ export async function getManagerDashboard(userId: number) {
     total_events: eventCount,
     total_registrations: totalRegistrations,
     total_participants: totalParticipants,
-    top_events: topEvents,
+    hot_events: topEvents,
   };
 }
 
@@ -89,7 +114,6 @@ export async function getAdminDashboard() {
       { total_likes: "desc" },
       { total_joined: "desc" },
     ],
-    take: 10,
     select: {
       id: true,
       title: true,

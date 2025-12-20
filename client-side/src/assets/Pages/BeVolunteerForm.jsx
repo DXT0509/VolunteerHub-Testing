@@ -3,12 +3,15 @@ import { Box, Paper, TextField, Typography, Button, Grid, Divider, CircularProgr
 import { useParams } from 'react-router-dom';
 import './BeVolunteerForm.css';
 import { useNavigate } from 'react-router-dom';
+import { isTokenExpired, clearAuth } from '../utils/auth';
+import { useTranslation } from 'react-i18next';
 /**
  * BeVolunteerForm
  * A registration form for users to apply as volunteers for an event.
  * Fields: eventName, userName, email, phone, note
  */
 const BeVolunteerForm = () => {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     eventName: '',
     userName: '',
@@ -28,14 +31,20 @@ const BeVolunteerForm = () => {
   const [allowed, setAllowed] = useState(false);
   const token = localStorage.getItem('token');
   const userStr = localStorage.getItem('user');
-  // Guard: must be logged in
+  // Guard: must be logged in and token not expired
   useEffect(() => {
-    
-    if (!token || !userStr) {
+    const t = localStorage.getItem('token');
+    const u = localStorage.getItem('user');
+    if (!t || !u) {
       navigate('/login', { replace: true });
-    } else {
-      setAllowed(true);
+      return;
     }
+    if (isTokenExpired(t)) {
+      clearAuth();
+      navigate('/login', { replace: true });
+      return;
+    }
+    setAllowed(true);
   }, [navigate]);
   useEffect(() => {
     
@@ -49,11 +58,11 @@ const BeVolunteerForm = () => {
     setForm(prev => ({ ...prev, userName: userData.full_name || '' , email: userData.email || '' , phone: userData.phone || '' }));
     fetch(`http://localhost:4000/events/${id}`)
       .then(res => {
-        if (!res.ok) throw new Error('Không lấy được dữ liệu sự kiện');
+        if (!res.ok) throw new Error(t('common.fetchError', 'Không lấy được dữ liệu sự kiện'));
         return res.json();
       })
       .then(data => {
-        setForm(prev => ({ ...prev, eventName: data.title || data.name || 'Không xác định' }));
+        setForm(prev => ({ ...prev, eventName: data.title || data.name || t('common.unknown', 'Không xác định') }));
         setLoadError(null);
       })
       .catch(err => setLoadError(err.message))
@@ -74,11 +83,11 @@ const BeVolunteerForm = () => {
   const validate = () => {
     const newErrors = {};
   // eventName được auto-fill và khóa chỉnh sửa, không cần validate bắt buộc
-    if (!form.userName.trim()) newErrors.userName = 'Vui lòng nhập tên người dùng';
-    if (!form.email.trim()) newErrors.email = 'Vui lòng nhập email';
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = 'Email không hợp lệ';
-    if (!form.phone.trim()) newErrors.phone = 'Vui lòng nhập số điện thoại';
-    else if (!/^\+?[0-9]{7,15}$/.test(form.phone)) newErrors.phone = 'Số điện thoại không hợp lệ';
+    if (!form.userName.trim()) newErrors.userName = t('beVolunteerForm.validation.userNameRequired', 'Vui lòng nhập tên người dùng');
+    if (!form.email.trim()) newErrors.email = t('beVolunteerForm.validation.emailRequired', 'Vui lòng nhập email');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = t('beVolunteerForm.validation.emailInvalid', 'Email không hợp lệ');
+    if (!form.phone.trim()) newErrors.phone = t('beVolunteerForm.validation.phoneRequired', 'Vui lòng nhập số điện thoại');
+    else if (!/^\+?[0-9]{7,15}$/.test(form.phone)) newErrors.phone = t('beVolunteerForm.validation.phoneInvalid', 'Số điện thoại không hợp lệ');
     return newErrors;
   };
 
@@ -154,9 +163,9 @@ const BeVolunteerForm = () => {
       </Snackbar>
       <Paper ref={cardRef} elevation={6} className="bvf-paper bvf-animate">
         <Box ref={headerRef} className="bvf-header bvf-animate">
-          <Typography variant="h5" className="bvf-title">Đăng ký Làm Tình Nguyện Viên</Typography>
+          <Typography variant="h5" className="bvf-title">{t('beVolunteerForm.title', 'Đăng ký Làm Tình Nguyện Viên')}</Typography>
           <Typography variant="body2" className="bvf-subtitle">
-            Điền thông tin bên dưới để tham gia hỗ trợ sự kiện.
+            {t('beVolunteerForm.subtitle', 'Điền thông tin bên dưới để tham gia hỗ trợ sự kiện.')}
           </Typography>
         </Box>
         <Box ref={formRef} component="form" onSubmit={handleSubmit} className="bvf-form bvf-animate">
@@ -164,49 +173,49 @@ const BeVolunteerForm = () => {
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Tên sự kiện"
+                label={t('beVolunteerForm.labels.eventName', 'Tên sự kiện')}
                 name="eventName"
                 value={form.eventName}
                 InputProps={{ readOnly: true }}
-                helperText={loadingEvent ? 'Đang tải...' : (loadError ? loadError : 'Tự động điền từ sự kiện')}
+                helperText={loadingEvent ? t('beVolunteerForm.helpers.loading', 'Đang tải...') : (loadError ? loadError : t('beVolunteerForm.helpers.autoFromEvent', 'Tự động điền từ sự kiện'))}
                 variant="outlined"
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Tên người dùng"
+                label={t('beVolunteerForm.labels.userName', 'Tên người dùng')}
                 name="userName"
                 value={form.userName}
                 onChange={handleChange}
                 error={!!errors.userName}
                 InputProps={{ readOnly: true }}
-                helperText={'Tự động điền từ tài khoản'}
+                helperText={t('beVolunteerForm.helpers.autoFromAccount', 'Tự động điền từ tài khoản')}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Email"
+                label={t('beVolunteerForm.labels.email', 'Email')}
                 name="email"
                 type="email"
                 value={form.email}
                 onChange={handleChange}
                 error={!!errors.email}
                 InputProps={{ readOnly: true }}
-                helperText={'Tự động điền từ tài khoản'}
+                helperText={t('beVolunteerForm.helpers.autoFromAccount', 'Tự động điền từ tài khoản')}
               />
             </Grid>
             <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Số điện thoại"
+                label={t('beVolunteerForm.labels.phone', 'Số điện thoại')}
                 name="phone"
                 value={form.phone}
                 onChange={handleChange}
                 error={!!errors.phone}
                 InputProps={{ readOnly: true }}
-                helperText={'Tự động điền từ tài khoản'}
+                helperText={t('beVolunteerForm.helpers.autoFromAccount', 'Tự động điền từ tài khoản')}
               />
             </Grid>
             
@@ -223,14 +232,14 @@ const BeVolunteerForm = () => {
                   {loadingEvent ? (
                     <Box className="bvf-loading">
                       <CircularProgress size={20} color="inherit" />
-                      <span>Đang tải sự kiện...</span>
+                      <span>{t('beVolunteerForm.loadingEvent', 'Đang tải sự kiện...')}</span>
                     </Box>
                   ) : submitting ? (
                     <Box className="bvf-loading">
                       <CircularProgress size={20} color="inherit" />
-                      <span>Đang gửi...</span>
+                      <span>{t('beVolunteerForm.submitting', 'Đang gửi...')}</span>
                     </Box>
-                  ) : 'Gửi đăng ký'}
+                  ) : t('beVolunteerForm.actions.submit', 'Gửi đăng ký')}
                 </Button>
               </Box>
               {submitted}

@@ -3,8 +3,10 @@ import { Box, Button, Paper, Typography } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { useLocation, useNavigate } from 'react-router-dom';
 import '../Pages/Login.css';
+import { useTranslation } from 'react-i18next';
 
 const RegisterSuccess = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [allowed, setAllowed] = useState(false);
@@ -28,10 +30,10 @@ const RegisterSuccess = () => {
     <div className="auth-page">
       <div className="wrapper" style={{ minHeight: 260 }}>
         <div className="form-box" style={{ background: 'linear-gradient(#16a34a 0 90px, #ffffff 90px 100%)', padding: '0 28px 24px' }}>
-          <h2>Thành công</h2>
+          <h2>{t('registrationSuccess.title', 'Thành công')}</h2>
           <Box display="flex" flexDirection="column" alignItems="center" mt={4} gap={3}>
             <Typography variant="h6" align="center" sx={{ fontWeight: 600, color: '#166534' }}>
-                Gửi đơn xin tình nguyện thành công!
+                {t('registrationSuccess.message', 'Gửi đơn xin tình nguyện thành công!')}
             </Typography>
             <Button
               variant="contained"
@@ -41,7 +43,7 @@ const RegisterSuccess = () => {
               className="btn"
               sx={{ mt: 1, fontWeight: 600 }}
             >
-              quay về trang chủ
+              {t('common.takeMeHome', 'Về trang chủ')}
             </Button>
           </Box>
         </div>

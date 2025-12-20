@@ -13,7 +13,16 @@ export async function getMe(req: AuthRequest, res: Response) {
 
 export async function updateMe(req: AuthRequest, res: Response) {
   try {
-    const result = await UserService.updateProfile(req.user!.userId, req.body);
+    const userId = req.user!.userId;
+    const { full_name, phone, username } = req.body as any;
+    // If a file was uploaded, build the public URL path
+    const avatarFile = (req as any).file as Express.Multer.File | undefined;
+    const avatar_url = avatarFile ? `/uploads/${avatarFile.filename}` : undefined;
+
+    const payload: any = { full_name, phone, username };
+    if (avatar_url) payload.avatar_url = avatar_url;
+
+    const result = await UserService.updateProfile(userId, payload);
     res.json(result);
   } catch (err: any) {
     res.status(400).json({ error: err.message });

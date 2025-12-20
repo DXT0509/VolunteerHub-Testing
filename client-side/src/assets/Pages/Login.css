@@ -5,9 +5,7 @@
         align-items: center;
         min-height: calc(100vh - var(--navbar-h, 0px)); /* subtract navbar height */
         padding: 16px 16px; /* reduce vertical padding to avoid overflow */
-        background:
-            linear-gradient(135deg, rgba(245,247,250,0.78), rgba(226,236,247,0.78)),
-            url('../image/community.jpg');
+        
         background-position: center;
         background-size: cover;
         background-repeat: no-repeat;

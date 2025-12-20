@@ -19,6 +19,7 @@ app.use(cors());
 app.use(express.json());
 
 // Serve uploaded files (multer currently saves into src/uploads)
+// Serve uploaded files from src/uploads (or dist/uploads after build)
 app.use(
 	"/uploads",
 	express.static(path.join(__dirname, "uploads"))

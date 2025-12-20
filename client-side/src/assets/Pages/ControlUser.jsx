@@ -10,9 +10,6 @@ import {
   DialogActions,
   Snackbar,
   Alert,
-  List,
-  ListItem,
-  ListItemText
 } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import KeyboardArrowLeftIcon from '@mui/icons-material/KeyboardArrowLeft';
@@ -29,8 +26,11 @@ import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import { useNavigate } from 'react-router-dom';
 import './ControlUser.css';
+import { isTokenExpired, clearAuth } from '../utils/auth';
+import { useTranslation } from 'react-i18next';
 
 function ControlUser() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [users, setUsers] = useState([]);
@@ -45,45 +45,34 @@ function ControlUser() {
   const [searchMode, setSearchMode] = useState('name'); // name | email | phone
   const [searchQuery, setSearchQuery] = useState('');
   const [applySearch, setApplySearch] = useState(false);
-  const exportVolunteersCsv = () => {
+  const exportVolunteersCsv = async () => {
     try {
-      const volunteers = users.filter(u => {
-        const roleName = (u.roles || []).map(r => r?.role?.name)[0];
-        return roleName === 'VOLUNTEER';
-      });
-      const headers = ['ID','Họ tên','Tên đăng nhập','Email','SĐT','Trạng thái','Ngày tạo'];
-      const rows = volunteers.map(u => [
-        u.id,
-        (u.full_name || '').replace(/\n|\r/g, ' ').trim(),
-        (u.username || '').replace(/\n|\r/g, ' ').trim(),
-        (u.email || '').replace(/\n|\r/g, ' ').trim(),
-        (u.phone || '').replace(/\n|\r/g, ' ').trim(),
-        u.is_active ? 'Hiệu lực' : 'Bị khóa',
-        u.created_at ? new Date(u.created_at).toLocaleString('vi-VN') : ''
-      ]);
-      const escapeCsv = (val) => {
-        const s = String(val ?? '');
-        if (/[",\n]/.test(s)) {
-          return '"' + s.replace(/"/g, '""') + '"';
+      const token = localStorage.getItem('token');
+      const res = await fetch(`http://localhost:4000/admin/export?type=users&format=csv`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`
         }
-        return s;
-      };
-      const csv = [headers, ...rows].map(r => r.map(escapeCsv).join(',')).join('\n');
-      // Prepend UTF-8 BOM to fix Vietnamese characters in Excel
-      const csvWithBom = '\uFEFF' + csv;
-      const blob = new Blob([csvWithBom], { type: 'text/csv;charset=utf-8' });
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j?.error || t('manageUser.exportCsv.failed'));
+      }
+      const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      const ts = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
-      a.download = `volunteers-${ts}.csv`;
+      const cd = res.headers.get('Content-Disposition') || '';
+      const m = /filename=([^;]+)$/.exec(cd);
+      const fallback = `users-${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = m ? m[1].replace(/"/g, '') : fallback;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      openSnack('Đã xuất CSV tình nguyện viên','success');
+      openSnack(t('manageUser.exportCsv.success'),'success');
     } catch (e) {
-      openSnack('Xuất CSV thất bại','error');
+      openSnack(e.message || t('manageUser.exportCsv.failed'),'error');
     }
   };
 
@@ -133,6 +122,11 @@ function ControlUser() {
       navigate('/login', { replace: true });
       return () => clearTimeout(t);
     }
+    if (isTokenExpired(token)) {
+      clearAuth();
+      navigate('/login', { replace: true });
+      return () => clearTimeout(t);
+    }
     setLoading(true);
     fetch('http://localhost:4000/admin', {
       headers: {
@@ -143,7 +137,7 @@ function ControlUser() {
       .then(async (res) => {
         if (!res.ok) {
           const j = await res.json().catch(() => ({}));
-          throw new Error(j?.error || 'Không tải được danh sách người dùng');
+          throw new Error(j?.error || t('manageUser.errors.fetch'));
         }
         return res.json();
       })
@@ -177,18 +171,18 @@ function ControlUser() {
       });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
-        throw new Error(j?.error || 'Cập nhật trạng thái thất bại');
+        throw new Error(j?.error || t('manageUser.errors.statusUpdate'));
       }
       const updated = await res.json();
       setUsers(prev => prev.map(u => u.id === updated.id ? { ...u, is_active: updated.is_active } : u));
-      openSnack(updated.is_active ? 'Đã mở khóa tài khoản' : 'Đã khóa tài khoản', 'success');
+      openSnack(updated.is_active ? t('manageUser.success.unlocked') : t('manageUser.success.locked'), 'success');
     } catch (e) {
-      openSnack(e.message || 'Có lỗi xảy ra', 'error');
+      openSnack(e.message || t('manageUser.errors.generic'), 'error');
     }
   };
 
   return (
-    <Box className="control-user-page" sx={{ p: { xs: 1.5, sm: 3 }, display: 'flex', justifyContent: 'center', alignItems: 'flex-start', minHeight: 'calc(100vh - 66px)' }}>
+    <Box className={"campaign-join-page py-16 font-qs"} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', minHeight: 'calc(100vh - 66px)' }}>
       <Snackbar
         open={snack.open}
         autoHideDuration={1200}
@@ -200,260 +194,256 @@ function ControlUser() {
         </Alert>
       </Snackbar>
 
-      <Paper sx={{ p: 0, borderRadius: 2, maxWidth: 1200, width: '100%', mx: 'auto', overflow: 'hidden' }} className={`bvf-animate ${mounted ? 'in-view' : ''}`}>
-        <Typography
-          variant="h4"
-          sx={{
-            backgroundColor: '#16a34a',
-            color: '#ffffff',
-            minHeight: '100px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            borderTopLeftRadius: 8,
-            borderTopRightRadius: 8,
-            m: 0
-          }}
-        >
-          Quản lý người dùng
-        </Typography>
-        {loading ? (
-          <Box sx={{ py: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
-            <CircularProgress size={24} />
-            <Typography>Đang tải...</Typography>
-          </Box>
-        ) : error ? (
-          <Box sx={{ py: 4, textAlign: 'center' }}>
+      <div
+        data-aos="fade-left"
+        data-aos-anchor-placement="top-bottom"
+        data-aos-easing="linear"
+        data-aos-duration="1500"
+        className="container mx-auto mb-6"
+      >
+        <h2 className="text-2xl md:text-5xl font-bold text-center ">{t('manageUser.title')}</h2>
+        <p className="w-2/3 mx-auto md:text-lg mt-4 text-center leading-relaxed ">{t('manageUser.subtitle')}</p>
+      </div>
+
+      <div className={`bvf-animate ${mounted ? 'in-view' : ''}`}>
+        <Box sx={{ px: { xs: 1.5, sm: 2 }, mt: 2 }}>
+          {/* Filters + search + total */}
+          {loading ? (
+            <Box sx={{ py: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+              <CircularProgress size={22} />
+              <Typography>{t('manageUser.loading')}</Typography>
+            </Box>
+          ) : error ? (
             <Typography color="error">{error}</Typography>
-          </Box>
-        ) : (
-          <Box sx={{ p: { xs: 1, sm: 2 } }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1.5, flexWrap: 'wrap', mb: 1 }}>
-              <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 240 }, flex: { xs: '1 1 100%', sm: '0 0 auto' } }}>
-                <InputLabel id="user-filter-label">Bộ lọc người dùng</InputLabel>
+          ) : (
+            <Box sx={{ mb: 1.5, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
+              <FormControl size="small" sx={{ minWidth: { xs: 220, sm: 260 }, ml: { xs: 2, sm: 15 } }}>
+                <InputLabel id="user-filter-label">{t('manageUser.filter.label')}</InputLabel>
                 <Select
                   labelId="user-filter-label"
                   id="user-filter"
                   value={filter}
-                  label="Bộ lọc người dùng"
+                  label={t('manageUser.filter.label')}
                   onChange={(e) => { setFilter(e.target.value); setPage(0); }}
                 >
-                  <MenuItem value="all">Tất cả</MenuItem>
-                  <MenuItem value="active">Tài khoản đang hiệu lực</MenuItem>
-                  <MenuItem value="locked">Tài khoản đang bị cấm</MenuItem>
-                  <MenuItem value="role_volunteer">Vai trò: Tình nguyện viên</MenuItem>
-                  <MenuItem value="role_manager">Vai trò: Quản lý sự kiện</MenuItem>
+                  <MenuItem value="all">{t('manageUser.filter.options.all')}</MenuItem>
+                  <MenuItem value="active">{t('manageUser.filter.options.active')}</MenuItem>
+                  <MenuItem value="locked">{t('manageUser.filter.options.locked')}</MenuItem>
+                  <MenuItem value="role_volunteer">{t('manageUser.filter.options.role_volunteer')}</MenuItem>
+                  <MenuItem value="role_manager">{t('manageUser.filter.options.role_manager')}</MenuItem>
                 </Select>
               </FormControl>
-              <Button
-                variant="outlined"
-                color="secondary"
-                onClick={exportVolunteersCsv}
-                sx={{ textTransform: 'none' }}
-              >
-                Xuất CSV tình nguyện viên
+              <Button variant="outlined" color="secondary" onClick={exportVolunteersCsv} sx={{ textTransform: 'none' }}>
+                {t('manageUser.exportCsv.button')}
               </Button>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: { xs: 0, sm: 'auto' }, position: 'relative', width: { xs: '100%', sm: 'auto' } }}>
-                <TextField
-                  size="small"
-                  label="Tìm kiếm người dùng"
-                  value={searchQuery}
-                  onChange={(e) => { setSearchQuery(e.target.value); setApplySearch(false); }}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') { setApplySearch(true); setPage(0); }
-                  }}
-                  sx={{ minWidth: { xs: '100%', sm: 380, md: 420 }, flex: 1 }}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start" sx={{ gap: 0.75 }}>
-                        <Select
-                          value={searchMode}
-                          onChange={(e) => { setSearchMode(e.target.value); setApplySearch(false); setPage(0); }}
-                          variant="standard"
-                          disableUnderline
-                          sx={{ minWidth: { xs: 80, sm: 90 }, fontSize: '.85rem' }}
-                        >
-                          <MenuItem value="name">Họ tên</MenuItem>
-                          <MenuItem value="email">Email</MenuItem>
-                          <MenuItem value="phone">SĐT</MenuItem>
-                        </Select>
-                        <Typography sx={{ color: '#64748b' }}>|</Typography>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-                {suggestedUsers.length > 0 && !applySearch && (
-                  <Paper elevation={3} sx={{ position: 'absolute', top: '40px', right: 0, width: { xs: '100%', sm: 520 }, maxHeight: 300, overflowY: 'auto', zIndex: 10 }}>
-                    <List>
-                      {suggestedUsers.map(su => (
-                        <ListItem
-                          button
-                          key={`suggest-${su.id}`}
-                          onClick={() => { setSearchQuery(makeField(su)); setApplySearch(true); setPage(0); }}
-                        >
-                          <ListItemText
-                            primary={makeField(su)}
-                            secondary={(su.full_name || su.username || `User #${su.id}`)}
-                          />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </Paper>
-                )}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={() => { setApplySearch(true); setPage(0); }}
-                  sx={{ textTransform: 'none', whiteSpace: 'nowrap' }}
-                >
-                  Tìm kiếm
-                </Button>
+              {/* Group search box and total together */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: { xs: 0, sm: 'auto' }, flexWrap: 'nowrap' }}>
+                <Box sx={{ position: 'relative', width: { xs: '100%', sm: 'auto' }, display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    label={t('manageUser.search.label')}
+                    value={searchQuery}
+                    onChange={(e) => { setSearchQuery(e.target.value); setApplySearch(false); }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { setApplySearch(true); setPage(0); } }}
+                    sx={{ minWidth: { xs: '100%', sm: 380, md: 420 }, flex: 1 }}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start" sx={{ gap: 0.75 }}>
+                          <Select
+                            value={searchMode}
+                            onChange={(e) => { setSearchMode(e.target.value); setApplySearch(false); setPage(0); }}
+                            variant="standard"
+                            disableUnderline
+                            sx={{ minWidth: { xs: 80, sm: 90 }, fontSize: '.85rem' }}
+                          >
+                            <MenuItem value="name">{t('manageUser.search.modes.name')}</MenuItem>
+                            <MenuItem value="email">{t('manageUser.search.modes.email')}</MenuItem>
+                            <MenuItem value="phone">{t('manageUser.search.modes.phone')}</MenuItem>
+                          </Select>
+                          <Typography sx={{ color: '#64748b' }}>|</Typography>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                  {suggestedUsers.length > 0 && !applySearch && (
+                    <Paper elevation={3} sx={{ position: 'absolute', top: '40px', right: 0, width: { xs: '100%', sm: 520 }, maxHeight: 300, overflowY: 'auto', zIndex: 10 }}>
+                      {/* Suggestions list kept with MUI Paper for convenience */}
+                      <Box>
+                        {suggestedUsers.map(su => (
+                          <Box key={`suggest-${su.id}`} sx={{ px: 1, py: 0.75, borderBottom: '1px solid #e5e7eb', cursor: 'pointer' }} onClick={() => { setSearchQuery(makeField(su)); setApplySearch(true); setPage(0); }}>
+                            <Typography sx={{ fontSize: '.9rem' }}>{makeField(su)}</Typography>
+                            <Typography sx={{ color: '#64748b', fontSize: '.8rem' }}>{su.full_name || su.username || `User #${su.id}`}</Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Paper>
+                  )}
+                  <Button variant="contained" color="primary" onClick={() => { setApplySearch(true); setPage(0); }} sx={{ textTransform: 'none', whiteSpace: 'nowrap' }}>
+                    {t('manageUser.search.button')}
+                  </Button>
+                </Box>
+                <Typography sx={{ fontSize: { xs: '.9rem', sm: '1rem' }, mr: { xs: 2, sm: 15 },color: '#334155', whiteSpace: 'nowrap' }}>
+                  {t('manageUser.total', { count: searchedUsers.length })}
+                </Typography>
               </Box>
             </Box>
-            <List>
-              {searchedUsers.slice(page * pageSize, page * pageSize + pageSize).map((u) => {
-                const displayName = u.full_name || u.username || `User #${u.id}`;
-                const avatar = u.avatar_url;
-                const isActive = !!u.is_active;
-                const roleName = (u.roles || []).map(r => r?.role?.name)[0] || 'VOLUNTEER';
-                return (
-                  <ListItem
-                    key={u.id}
-                    className={`cu-item ${u.is_active ? 'cu-active' : 'cu-locked'}`}
-                    secondaryAction={
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 1 } }}>
-                        
-                        
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          startIcon={<VisibilityIcon />}
-                          sx={{ textTransform: 'none' }}
-                          onClick={() => handleView(u)}
-                        >
-                          Xem
-                        </Button>
-                        <FormControl size="small" sx={{ minWidth: { xs: 150, sm: 180 } }}>
-                          <InputLabel id={`role-select-label-${u.id}`}>Vai trò</InputLabel>
-                          <Select
-                            labelId={`role-select-label-${u.id}`}
-                            id={`role-select-${u.id}`}
-                            label="Vai trò"
-                            value={roleName}
-                            onChange={async (e) => {
-                              const newRole = e.target.value;
+          )}
 
-                              const token = localStorage.getItem('token');
-                              // Optimistic update
-                              setUsers(prev => prev.map(x => x.id === u.id ? { ...x, roles: [{ role: { name: newRole } }] } : x));
-                              try {
-                                
-                                const res = await fetch(`http://localhost:4000/admin/${u.id}/role`, {
-                                  method: 'PATCH',
-                                  headers: {
-                                    Authorization: `Bearer ${token}`,
-                                    'Content-Type': 'application/json'
-                                  },
-                                  body: JSON.stringify({ new_role: newRole })
-                                });
-                                if (!res.ok) {
-                                  const j = await res.json().catch(() => ({}));
-                                  throw new Error(j?.error || 'Cập nhật vai trò thất bại');
-                                }
-                                const updated = await res.json();
-                                // Ensure local state reflects server response
-                                const updatedRole = (updated.roles || []).map(r => r?.role?.name)[0] || newRole;
-                                setUsers(prev => prev.map(x => x.id === u.id ? { ...x, roles: [{ role: { name: updatedRole } }] } : x));
-                                openSnack('Đã cập nhật vai trò người dùng','success');
-                              } catch (err) {
-                                // Revert on error
-                                setUsers(prev => prev.map(x => x.id === u.id ? { ...x, roles: [{ role: { name: roleName } }] } : x));
-                                openSnack(err.message || 'Có lỗi khi cập nhật vai trò','error');
-                              }
-                            }}
-                          >
-                            <MenuItem value="VOLUNTEER">Tình nguyện viên</MenuItem>
-                            <MenuItem value="EVENT_MANAGER">Quản lý sự kiện</MenuItem>
-                          </Select>
-                        </FormControl>
-                        <Button
-                          size="small"
-                          variant="contained"
-                          color={isActive ? 'error' : 'success'}
-                          startIcon={isActive ? <LockIcon /> : <LockOpenIcon />}
-                          sx={{ textTransform: 'none' }}
-                          onClick={() => handleToggleActive(u)}
-                        >
-                          {isActive ? 'Khóa' : 'Mở'}
-                        </Button>
-                      </Box>
-                    }
-                  >
-                    <ListItemText
-                      primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.75, sm: 1.2 }, flexWrap: 'wrap' }}>
-                          {avatar ? (
-                            <Box component="img" src={avatar} alt={displayName} sx={{ width: { xs: 48, sm: 64 }, height: { xs: 48, sm: 64 }, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }} />
-                          ) : (
-                            <Box sx={{ width: { xs: 48, sm: 64 }, height: { xs: 48, sm: 64 }, borderRadius: '50%', backgroundColor: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#334155', fontWeight: 700, border: '1px solid #e2e8f0' }} aria-label="no-avatar">
-                              {String(displayName).trim().charAt(0).toUpperCase()}
-                            </Box>
-                          )}
-                          <Typography sx={{ fontWeight: 700, fontSize: '1rem' }}>{displayName}</Typography>
-                          <Box
-                            sx={{
-                              ml: 1,
-                              px: 1,
-                              py: 0.25,
-                              borderRadius: '999px',
-                              fontSize: '.78rem',
-                              fontWeight: 700,
-                              color: '#ffffff',
-                              backgroundColor: isActive ? '#16a34a' : '#dc2626',
-                              display: 'inline-flex',
-                              alignItems: 'center'
-                            }}
-                            aria-label={isActive ? 'Hiệu lực' : 'Bị khóa'}
-                          >
-                            {isActive ? 'Hiệu lực' : 'Bị khóa'}
-                          </Box>
-                        </Box>
-                      }
-                      secondary={
-                        <Typography sx={{ color: '#475569', mt: 0.25, fontSize: { xs: '.8rem', sm: '.84rem' } }}>
-                          Email: <strong>{u.email}</strong>
-                          {u.phone ? <span>{' · SĐT: '}{u.phone}</span> : null}
-                        </Typography>
-                      }
-                    />
-                  </ListItem>
-                );
-              })}
-            </List>
-            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 0.5, mt: 2 }}>
-              <IconButton
-                size="small"
-                onClick={() => setPage(p => Math.max(p - 1, 0))}
-                disabled={page === 0}
-                aria-label="Trang trước"
-              >
-                <KeyboardArrowLeftIcon />
-              </IconButton>
-              <Typography sx={{ fontSize: { xs: '.85rem', sm: '.9rem' }, mx: 0.5 }}>
-                Trang {page + 1} / {Math.max(1, Math.ceil(searchedUsers.length / pageSize))}
-              </Typography>
-              <IconButton
-                size="small"
-                onClick={() => setPage(p => (p + 1 < Math.ceil(searchedUsers.length / pageSize) ? p + 1 : p))}
-                disabled={page + 1 >= Math.ceil(searchedUsers.length / pageSize)}
-                aria-label="Trang sau"
-              >
-                <KeyboardArrowRightIcon />
-              </IconButton>
-            </Box>
+          {/* Tables */}
+          {!loading && !error && (
+            <div className="container mx-auto mt-6">
+              {/* Desktop table */}
+              <div className="hidden md:block p-4">
+                <div className="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
+                  <table className="min-w-full border-collapse bg-white">
+                    <thead>
+                      <tr className="bg-gradient-to-r from-pink-600 to-purple-600 text-white text-sm uppercase tracking-wide">
+                        <th className="px-4 py-3 text-left rounded-tl-xl">{t('manageUser.headers.index')}</th>
+                        <th className="px-4 py-3 text-left">{t('manageUser.headers.name')}</th>
+                        <th className="px-4 py-3 text-left">{t('manageUser.headers.email')}</th>
+                        <th className="px-4 py-3 text-left">{t('manageUser.headers.status')}</th>
+                        <th className="px-4 py-3 text-left">{t('manageUser.headers.role')}</th>
+                        <th className="px-4 py-3 text-left">{t('manageUser.headers.createdAt')}</th>
+                        <th className="px-4 py-3 text-center rounded-tr-xl">{t('manageUser.headers.actions')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {searchedUsers.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="px-4 py-6 text-center text-gray-600">{t('manageUser.empty')}</td>
+                        </tr>
+                      ) : searchedUsers.slice(page * pageSize, page * pageSize + pageSize).map((u, idx) => {
+                        const displayName = u.full_name || u.username || `User #${u.id}`;
+                        const isActive = !!u.is_active;
+                        const roleName = (u.roles || []).map(r => r?.role?.name)[0] || 'VOLUNTEER';
+                        const roleLabel = roleName === 'VOLUNTEER' ? t('manageUser.roles.volunteer') : t('manageUser.roles.manager');
+                        return (
+                          <React.Fragment key={u.id}>
+                            <tr className="border-b border-gray-200 hover:bg-gray-50 transition duration-200">
+                              <td className="px-4 py-3 font-medium text-gray-700 text-left">{page * pageSize + idx + 1}</td>
+                              <td className="px-4 py-3 font-semibold text-gray-800 text-left">{displayName}</td>
+                              <td className="px-4 py-3 text-gray-700 text-left">{u.email || '—'}</td>
+                              <td className="px-4 py-3 text-gray-700 text-left">{isActive ? t('manageUser.status.active') : t('manageUser.status.locked')}</td>
+                              <td className="px-4 py-3 text-gray-700 text-left">{roleLabel}</td>
+                              <td className="px-4 py-3 text-gray-700 text-left">{u.created_at ? new Date(u.created_at).toLocaleString('vi-VN') : '—'}</td>
+                              <td className="px-4 py-3 text-center whitespace-nowrap">
+                                <div className="flex flex-nowrap items-center justify-center gap-2 whitespace-nowrap overflow-x-auto">
+                                  <Button size="small" variant="contained" onClick={() => handleView(u)} sx={{ textTransform: 'none', fontWeight: 600 }}>
+                                    {t('manageUser.buttons.view')}
+                                  </Button>
+                                  <FormControl size="small" sx={{ minWidth: 160, mt: 0.7}}>
+                                    <InputLabel id={`role-select-label-${u.id}`}>{t('manageUser.roleSelect.label')}</InputLabel>
+                                    <Select
+                                      labelId={`role-select-label-${u.id}`}
+                                      id={`role-select-${u.id}`}
+                                      label={t('manageUser.roleSelect.label')}
+                                      value={roleName}
+                                      onChange={async (e) => {
+                                        const newRole = e.target.value;
+                                        const token = localStorage.getItem('token');
+                                        setUsers(prev => prev.map(x => x.id === u.id ? { ...x, roles: [{ role: { name: newRole } }] } : x));
+                                        try {
+                                          const res = await fetch(`http://localhost:4000/admin/${u.id}/role`, {
+                                            method: 'PATCH',
+                                            headers: {
+                                              Authorization: `Bearer ${token}`,
+                                              'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({ new_role: newRole })
+                                          });
+                                          if (!res.ok) {
+                                            const j = await res.json().catch(() => ({}));
+                                            throw new Error(j?.error || t('manageUser.errors.roleUpdate'));
+                                          }
+                                          const updated = await res.json();
+                                          const updatedRole = (updated.roles || []).map(r => r?.role?.name)[0] || newRole;
+                                          setUsers(prev => prev.map(x => x.id === u.id ? { ...x, roles: [{ role: { name: updatedRole } }] } : x));
+                                          openSnack(t('manageUser.success.roleUpdate'),'success');
+                                        } catch (err) {
+                                          setUsers(prev => prev.map(x => x.id === u.id ? { ...x, roles: [{ role: { name: roleName } }] } : x));
+                                          openSnack(err.message || t('manageUser.errors.roleUpdate'),'error');
+                                        }
+                                      }}
+                                    >
+                                      <MenuItem value="VOLUNTEER">{t('manageUser.roles.volunteer')}</MenuItem>
+                                      <MenuItem value="EVENT_MANAGER">{t('manageUser.roles.manager')}</MenuItem>
+                                    </Select>
+                                  </FormControl>
+                                  <Button
+                                    size="small"
+                                    variant="contained"
+                                    color={isActive ? 'error' : 'success'}
+                                    startIcon={isActive ? <LockIcon /> : <LockOpenIcon />}
+                                    sx={{ textTransform: 'none', fontWeight: 600, minWidth: 80 }}
+                                    onClick={() => handleToggleActive(u)}
+                                  >
+                                    {isActive ? t('manageUser.buttons.lock') : t('manageUser.buttons.unlock')}
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          </React.Fragment>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Mobile compact table */}
+              <div className="md:hidden">
+                <div className="overflow-x-auto">
+                  <table className="table border-collapse border border-gray-400">
+                    <thead>
+                      <tr className="text-white raleway text-base bg-[#DE00DF]">
+                        <th>{t('manageUser.headers.name')}</th>
+                        <th>{t('manageUser.headers.status')}</th>
+                        <th>{t('manageUser.headers.details')}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {searchedUsers.length === 0 ? (
+                        <tr>
+                          <td colSpan={3} className="px-4 py-4 text-center">{t('manageUser.emptyMobile')}</td>
+                        </tr>
+                      ) : searchedUsers.slice(page * pageSize, page * pageSize + pageSize).map((u) => {
+                        const displayName = u.full_name || u.username || `User #${u.id}`;
+                        const isActive = !!u.is_active;
+                        return (
+                          <tr className="border border-gray-300" key={`m-${u.id}`}>
+                            <td>{displayName}</td>
+                            <td>{isActive ? t('manageUser.status.active') : t('manageUser.status.locked')}</td>
+                            <td>
+                              <Button size="small" variant="contained" onClick={() => handleView(u)} sx={{ textTransform: 'none', fontWeight: 600, minWidth: 70 }}>
+                                {t('manageUser.buttons.view')}
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+        </Box>
+
+        {/* Bottom pagination */}
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 1, py: 1.5 }}>
+          <IconButton size="small" onClick={() => setPage(p => Math.max(p - 1, 0))} disabled={page === 0} aria-label={t('manageUser.pagination.prev')}>
+            <KeyboardArrowLeftIcon />
+          </IconButton>
+          <Box sx={{ px: 1, py: 0.5, borderRadius: 1}}>
+            <Typography sx={{ fontSize: { xs: '.85rem', sm: '.9rem' } }}>
+              {t('manageUser.pagination.pageXofY', { current: page + 1, total: Math.max(1, Math.ceil(searchedUsers.length / pageSize)) })}
+            </Typography>
           </Box>
-        )}
-      </Paper>
+          <IconButton size="small" onClick={() => setPage(p => (p + 1 < Math.ceil(searchedUsers.length / pageSize) ? p + 1 : p))} disabled={page + 1 >= Math.ceil(searchedUsers.length / pageSize)} aria-label={t('manageUser.pagination.next')}>
+            <KeyboardArrowRightIcon />
+          </IconButton>
+        </Box>
+      </div>
 
       <Dialog open={detailOpen} onClose={() => setDetailOpen(false)}>
         <DialogTitle
@@ -465,23 +455,23 @@ function ControlUser() {
             
           }}
         >
-          Thông tin người dùng
+          {t('manageUser.detailDialog.title')}
         </DialogTitle>
         <DialogContent dividers>
           {selected ? (
             <Box sx={{ minWidth: 320, pt: 0.5 }}>
-              <Typography><strong>Họ tên:</strong> {selected.full_name || '—'}</Typography>
-              <Typography><strong>Tên đăng nhập:</strong> {selected.username}</Typography>
-              <Typography><strong>Email:</strong> {selected.email}</Typography>
-              <Typography><strong>Số điện thoại:</strong> {selected.phone || '—'}</Typography>
-              <Typography><strong>Trạng thái:</strong> {selected.is_active ? 'Hiệu lực' : 'Đã khóa'}</Typography>
-              <Typography><strong>Quyền:</strong> {(selected.roles || []).map(r => r?.role?.name).join(', ') || '—'}</Typography>
-              <Typography><strong>Tạo lúc:</strong> {new Date(selected.created_at).toLocaleString('vi-VN')}</Typography>
+              <Typography><strong>{t('manageUser.detailDialog.labels.fullName')}:</strong> {selected.full_name || '—'}</Typography>
+              <Typography><strong>{t('manageUser.detailDialog.labels.username')}:</strong> {selected.username}</Typography>
+              <Typography><strong>{t('manageUser.detailDialog.labels.email')}:</strong> {selected.email}</Typography>
+              <Typography><strong>{t('manageUser.detailDialog.labels.phone')}:</strong> {selected.phone || '—'}</Typography>
+              <Typography><strong>{t('manageUser.detailDialog.labels.status')}:</strong> {selected.is_active ? t('manageUser.status.active') : t('manageUser.status.locked')}</Typography>
+              <Typography><strong>{t('manageUser.detailDialog.labels.roles')}:</strong> {(selected.roles || []).map(r => r?.role?.name).join(', ') || '—'}</Typography>
+              <Typography><strong>{t('manageUser.detailDialog.labels.createdAt')}:</strong> {new Date(selected.created_at).toLocaleString('vi-VN')}</Typography>
             </Box>
           ) : null}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDetailOpen(false)} variant="contained" sx={{ textTransform: 'none' }}>Đóng</Button>
+          <Button onClick={() => setDetailOpen(false)} variant="contained" sx={{ textTransform: 'none' }}>{t('common.close')}</Button>
         </DialogActions>
       </Dialog>
     </Box>

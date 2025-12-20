@@ -170,7 +170,10 @@ export async function exportData(
     };
   } else {
     const parser = new Parser();
-    const csv = parser.parse(data);
-    return { content: csv, contentType: "text/csv" };
+    let csv = parser.parse(data);
+    // Normalize Windows line endings for Excel compatibility
+    // Prepend UTF-8 BOM so Excel correctly renders Vietnamese characters
+    csv = "\uFEFF" + csv;
+    return { content: csv, contentType: "text/csv; charset=utf-8" };
   }
 }
