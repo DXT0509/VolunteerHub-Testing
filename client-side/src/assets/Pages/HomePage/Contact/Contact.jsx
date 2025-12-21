@@ -39,7 +39,7 @@ const Contact = () => {
           },
           publicKey
         );
-        setFeedback(t('home.contact.success') || 'Your message has been sent.');
+        setFeedback('Success.');
         setForm({ name: '', email: '', message: '' });
       } else {
         const subject = encodeURIComponent(`${t('home.contact.subject') || 'New contact message'} - ${form.name}`);

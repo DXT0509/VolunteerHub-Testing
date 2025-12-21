@@ -226,6 +226,18 @@ export async function deleteEvent(id: number, managerId: number) {
   });
   if (event.manager_id !== managerId && !role?.roles.some(r => r.role.name === "ADMIN"))
     throw new Error("Bạn không có quyền xóa sự kiện này");
+  await prisma.event_attendance.deleteMany({
+  where: { registration: { event_id: id } }
+});
+  await prisma.registration_status_history.deleteMany({
+    where: { registration: { event_id: id } }
+  });
+  await prisma.event_channels.deleteMany({where: {event_id: id}});
+  await prisma.registrations.deleteMany({ where: { event_id: id } });
+  await prisma.comments.deleteMany({ where: { post: { event_id: id } } });
+  await prisma.likes.deleteMany({ where: { post: { event_id: id } } });
+  await prisma.attachments.deleteMany({ where: { post: { event_id: id } } });
+  await prisma.posts.deleteMany({ where: { event_id: id } });
   await prisma.event_approvals.deleteMany({ where: { event_id: id } });
   await prisma.events.delete({ where: { id } });
   return { message: "Xóa sự kiện thành công" };

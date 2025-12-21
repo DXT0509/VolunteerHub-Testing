@@ -449,6 +449,12 @@ const resources = {
           delete: 'Campaign deleted successfully',
           update: 'Campaign updated successfully',
         },
+        filter : {
+          eventStatus: 'Event status',
+          ended: 'Ended',
+          ongoing: 'Ongoing',
+          upcoming: 'Upcoming',
+        },
         validate: { capacityTooSmall: 'New capacity cannot be lower than current participants' },
         pagination: { prev: 'Previous page', next: 'Next page', pageXofY: 'Page {{current}} / {{total}}' },
         states: { deleting: 'Deleting...', saving: 'Saving...' },
@@ -946,6 +952,12 @@ const resources = {
         total: 'Tổng: {{count}} chiến dịch',
         loading: 'Đang tải...',
         empty: 'Chưa có chiến dịch nào.',
+        filter : {
+          eventStatus: 'Trạng thái sự kiện',
+          ended: 'Đã kết thúc',
+          ongoing: 'Đang diễn ra',
+          upcoming: 'Sắp diễn ra',
+        },
         headers: {
           number: '#',
           campaign: 'Chiến dịch',

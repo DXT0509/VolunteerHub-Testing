@@ -111,6 +111,29 @@ const ManageMyCampaign = () => {
 	// Pagination: show max 3 events per page
 	const [page, setPage] = useState(0);
 	const pageSize = 10;
+	// Event status filter: all | ended | ongoing | upcoming
+	const [eventFilter, setEventFilter] = useState('all');
+
+	// Derived: campaigns after applying event status filter
+	const filteredCampaigns = (() => {
+		const now = new Date();
+		try {
+			return campaigns.filter((ev) => {
+				const start = ev.start_time ? new Date(ev.start_time) : null;
+				const end = ev.end_time ? new Date(ev.end_time) : null;
+				switch (eventFilter) {
+					case 'ended':
+						return end ? end < now : false;
+					case 'ongoing':
+						return start && end ? start <= now && now <= end : false;
+					case 'upcoming':
+						return start ? start > now : false;
+					default:
+						return true;
+				}
+			});
+		} catch { return campaigns; }
+	})();
 
 	// Delete controls
 	const [deleteOpen, setDeleteOpen] = useState(false);
@@ -597,12 +620,29 @@ const ManageMyCampaign = () => {
 			</div>
 			<div className={`bvf-animate ${mounted ? 'in-view' : ''}`}>
 				{/* Header row: left button + right total */}
-				<Box sx={{ px: { xs: 1.5, sm: 2 }, mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
-					<Button variant="contained" color="primary" onClick={openCreateDialog} startIcon={<PostAddIcon />} sx={{ textTransform: 'none', fontWeight: 600,ml: { xs: 2, sm: 15 } }}>
-						{t('manageMy.actions.create')}
-					</Button>
+				<Box sx={{ px: { xs: 1.5, sm: 2 }, mt: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, ml: { xs: 2, sm: 15 } }}>
+					<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+						<FormControl size="small" sx={{ minWidth: 200, ml: 1 }}>
+							<InputLabel id="event-filter-label">{t('manageMy.filter.eventStatus', 'Event status')}</InputLabel>
+							<Select
+								labelId="event-filter-label"
+								value={eventFilter}
+								onChange={(e) => { setEventFilter(e.target.value); setPage(0); }}
+								label={t('manageMy.filter.eventStatus', 'Event status')}
+							>
+								<MenuItem value="all">{t('common.all', 'All')}</MenuItem>
+								<MenuItem value="ended">{t('manageMy.filter.ended', 'Ended')}</MenuItem>
+								<MenuItem value="ongoing">{t('manageMy.filter.ongoing', 'Ongoing')}</MenuItem>
+								<MenuItem value="upcoming">{t('manageMy.filter.upcoming', 'Upcoming')}</MenuItem>
+							</Select>
+						</FormControl>
+						<Button variant="contained" color="primary" onClick={openCreateDialog} startIcon={<PostAddIcon />} sx={{ textTransform: 'none', fontWeight: 600, ml: { xs: 2, sm: 0 } }}>
+							{t('manageMy.actions.create')}
+						</Button>
+						
+					</Box>
 					<Typography sx={{ fontWeight: 600, mr: { xs: 2, sm: 15 }}}>
-						{t('manageMy.total', { count: campaigns.length })}
+						{t('manageMy.total', { count: filteredCampaigns.length })}
 					</Typography>
 				</Box>
 				<Box sx={{ p: { xs: 1.5, sm: 2 },mt: 0 }}>
@@ -614,7 +654,7 @@ const ManageMyCampaign = () => {
 					</Box>
 				) : error ? (
 					<Typography color="error">{error}</Typography>
-				) : campaigns.length === 0 ? (
+				) : filteredCampaigns.length === 0 ? (
 					<div className="container mx-auto mt-6">
 						<div className="hidden md:block p-2">
 							<div className="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
@@ -675,7 +715,25 @@ const ManageMyCampaign = () => {
 										</tr>
 									</thead>
 									<tbody>
-						{campaigns.slice(page * pageSize, page * pageSize + pageSize).map((ev, idx) => {
+						{(() => {
+							const now = new Date();
+							const filtered = campaigns.filter((ev) => {
+								try {
+									const start = ev.start_time ? new Date(ev.start_time) : null;
+									const end = ev.end_time ? new Date(ev.end_time) : null;
+									switch (eventFilter) {
+										case 'ended':
+											return end ? end < now : false;
+										case 'ongoing':
+											return start && end ? start <= now && now <= end : false;
+										case 'upcoming':
+											return start ? start > now : false;
+										default:
+											return true;
+									}
+								} catch { return true; }
+							});
+							return filtered.slice(page * pageSize, page * pageSize + pageSize).map((ev, idx) => {
 							const rawStatus = ev.approval_status || ev.status;
 							const st = approvalLabel(rawStatus, t);
 							const title = ev.title || ev.name || `Chiến dịch #${ev.id}`;
@@ -859,7 +917,8 @@ const ManageMyCampaign = () => {
 									)}
 								</React.Fragment>
 							);
-						})}
+							});
+						})()}
 									</tbody>
 								</table>
 							</div>
@@ -876,7 +935,7 @@ const ManageMyCampaign = () => {
 										</tr>
 									</thead>
 									<tbody>
-										{campaigns.slice(page * pageSize, page * pageSize + pageSize).map((ev) => {
+										{filteredCampaigns.slice(page * pageSize, page * pageSize + pageSize).map((ev) => {
 											const title = ev.title || ev.name || `Chiến dịch #${ev.id}`;
 											return (
 												<tr className="border border-gray-300" key={`m-${ev.id}`}>
@@ -914,13 +973,13 @@ const ManageMyCampaign = () => {
 				</IconButton>
 				<Box sx={{ px: 1, py: 0.5, borderRadius: 1}}>
 					<Typography sx={{ fontSize: { xs: '.85rem', sm: '.9rem' } }}>
-						{t('manageMy.pagination.pageXofY', { current: page + 1, total: Math.max(1, Math.ceil(campaigns.length / pageSize)) })}
+						{t('manageMy.pagination.pageXofY', { current: page + 1, total: Math.max(1, Math.ceil(filteredCampaigns.length / pageSize)) })}
 					</Typography>
 				</Box>
 				<IconButton
 					size="small"
-					onClick={() => setPage(p => (p + 1 < Math.ceil(campaigns.length / pageSize) ? p + 1 : p))}
-					disabled={page + 1 >= Math.ceil(campaigns.length / pageSize)}
+					onClick={() => setPage(p => (p + 1 < Math.ceil(filteredCampaigns.length / pageSize) ? p + 1 : p))}
+					disabled={page + 1 >= Math.ceil(filteredCampaigns.length / pageSize)}
 					aria-label={t('manageMy.pagination.next')}
 				>
 					<KeyboardArrowRightIcon />
