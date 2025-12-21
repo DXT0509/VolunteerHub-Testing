@@ -321,6 +321,40 @@ const resources = {
         noStart: 'No start time',
         cancelling: 'Cancelling...'
       },
+      faq: {
+        title: 'Frequently Asked Questions',
+        hero: {
+          desc: "First time using VolunteerHub? Don't worry! Here are some frequently asked questions.",
+          community: 'Community Page',
+          youtube: 'YouTube Channel'
+        },
+        heading: 'Facts & Questions',
+        lead: 'Sample text. Click to select the text box.',
+        sections: {
+          'getting-started': {
+            title: 'Getting Started',
+            items: [
+              { q: 'How do I register an account?', a: 'Click Register, fill in your information and confirm.' },
+              { q: 'How do I sign up as a volunteer?', a: 'Choose a campaign on the homepage, open details and click Register. Fill the registration form there.' },
+              { q: 'What if I forget my password?', a: 'On the login page click "Forgot password" and enter the email and phone number used for the account. If correct, you will be able to reset your password.' }
+            ]
+          },
+          features: {
+            title: 'Features',
+            items: [
+              { q: 'What is the "Access exchange channel" feature?', a: 'This feature allows volunteers who joined the event, event managers and admins to exchange information, share files and discuss in a private channel. You can post, comment and like posts.' },
+              { q: 'What is the notification bell?', a: 'The notification bell helps you receive the latest notifications related to your account, such as new posts, new comments, registration status updates, and other important alerts.' },
+              { q: 'Is there direct contact with admin?', a: 'Yes, you can contact the admin directly through the contact form on the main homepage, or you can click the "Contact" button in the title bar to be redirected to the contact form. Here, you fill in the necessary information and submit it; we will try to respond as soon as possible. You can also contact us by scrolling to the bottom of the page and contacting us via social media.' }
+            ]
+          },
+          'more-info': {
+            title: 'More Questions?',
+            items: [
+              { q: 'Still have questions not listed here?', a: 'If you have any other questions or need more information, please contact us via the contact page or social channels provided on the site. We will respond as soon as possible.' }
+            ]
+          }
+        }
+      },
       channel: {
         writePrompt: 'Write something...',
         createTitle: 'Create Post',
@@ -677,11 +711,46 @@ const resources = {
       },
       footer: {
         product: { title: 'Sản phẩm', features: 'Tính năng', integrations: 'Tích hợp', faq: 'Hỏi đáp' },
+        
         company: { title: 'Công ty', privacy: 'Bảo mật', tos: 'Điều khoản dịch vụ' },
         contact: { title: 'Liên hệ', phone: '+88 01761624031', email: 'nahidbinwadood@gmail.com', location: 'Dhaka, Bangladesh' },
         social: { title: 'Mạng xã hội' },
         copyright: '© 2025 Đội ngũ VolunteerHub. Các thành viên trong nhóm: Đào Xuân Thao, Nguyễn Phú Thái, Nguyễn Anh Hào',
       },
+      faq: {
+          title: 'Câu hỏi thường gặp',
+          hero: {
+            desc: 'Bạn lần đầu sử dụng VolunteerHub? Đừng lo! Dưới đây là một số câu hỏi thường gặp.',
+            community: 'Trang cộng đồng',
+            youtube: 'Kênh Youtube'
+          },
+          heading: 'Sự thật & Câu hỏi',
+          lead: 'Ví dụ văn bản. Nhấp chuột để chọn hộp văn bản.',
+          sections: {
+            'getting-started': {
+              title: 'Bắt đầu',
+              items: [
+                { q: 'Cách đăng ký tài khoản?', a: 'Nhấp vào mục đăng ký, điền thông tin và xác nhận.' },
+                { q: 'Cách đăng ký làm tình nguyện viên?', a: 'Chọn một chiến dịch bạn muốn đăng ký ở trang chủ, nhấn xem chi tiết, ở đó có nút đăng ký. Bạn nhấn vào đó và điền thông tin cần thiết vào form đăng ký.' },
+                { q: 'Quên mật khẩu xử lý thế nào?', a: 'Ở trang đăng nhập, nhấn vào "Quên mật khẩu" và nhập email và số điện thoại bạn sử dụng cho tài khoản. Nếu nhập đúng, bạn sẽ được đặt lại mật khẩu.' }
+              ]
+            },
+            features: {
+              title: 'Tính năng',
+              items: [
+                { q: 'Tính năng "Truy cập kênh trao đổi" là gì?', a: 'Tính năng này cho phép các tình nguyện viên đã tham gia sự kiện, các quản lý sự kiện và admin trao đổi thông tin, chia sẻ tài liệu và thảo luận về sự kiện trong một kênh riêng biệt. Bạn có thể đăng bài viết, bình luận và thích các bài viết trong kênh này.' },
+                { q: 'Chuông nhận thông báo là gì?', a: 'Chuông thông báo sẽ giúp bạn nhận được các thông báo mới nhất liên quan đến tài khoản của bạn, như thông báo về bài viết mới, bình luận mới, trạng thái của các đơn đăng ký và các thông báo quan trọng khác.' },
+                { q: 'Có hỗ trợ liên hệ trực tiếp với admin không?', a: 'Có, bạn có thể liên hệ trực tiếp với admin thông qua form liên hệ trên trang chủ chính, hoặc bạn có thể nhấn vào nút "Liên hệ" trên thanh tiêu đề để được chuyển đến form liên hệ. Ở đây, bạn điền các thông tin cần thiết và gửi, chúng tôi sẽ cố gắng trả lời trong thời gian sớm nhất. Bạn cũng có thể liên hệ với chúng tôi bằng cách lướt xuống cuối trang và liên hệ với chúng tôi qua các mạng xã hội.' }
+              ]
+            },
+            'more-info': {
+              title: 'Bạn còn thắc mắc?',
+              items: [
+                { q: 'Vẫn còn thắc mắc nhưng không được nêu rõ ở đây?', a: 'Nếu bạn có bất kỳ câu hỏi nào khác hoặc cần thêm thông tin, đừng ngần ngại liên hệ với chúng tôi qua trang liên hệ hoặc qua các kênh mạng xã hội được cung cấp trên trang web. Chúng tôi sẽ cung cấp thông tin bạn cần chính xác và sớm nhất có thể.' }
+              ]
+            }
+          }
+        },
       common: {
         language: 'Ngôn ngữ',
         english: 'Tiếng Anh',

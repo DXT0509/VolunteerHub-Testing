@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from 'react-i18next';
 
 import bg1 from '../../../images/banner/10.jpg'
 // Simple intersection observer hook to reveal elements with transitions
@@ -88,7 +89,7 @@ function AccordionItem({ id, title, children, defaultOpen = false }) {
   );
 }
 
-export default function FaqPage({ title = "FAQ 1" }) {
+export default function FaqPage({ title = "FAQ" }) {
   const heroBg = useMemo(
     () =>
       `url(${bg1})`,
@@ -101,33 +102,18 @@ export default function FaqPage({ title = "FAQ 1" }) {
   const leftBtnReveal = useReveal({ threshold: 0.15 });
   const rightBtnReveal = useReveal({ threshold: 0.15 });
 
+  const { t } = useTranslation();
   const faqSections = [
-    {
-      id: "getting-started",
-      title: "Getting Started",
-      items: [
-        { id: 1, q: "Cách đăng ký tài khoản?", a: "Nhấp vào mục đăng ký, điền thông tin và xác nhận." },
-        { id: 2, q: "Cách đăng ký làm tình nguyện viên?", a: "Nội dung trả lời..." },
-        { id: 3, q: "Quên mật khẩu xử lý thế nào?", a: "Nội dung trả lời..." },
-      ],
-    },
-    {
-      id: "features",
-      title: "Tính năng",
-      items: [
-        { id: 4, q: "Tính năng A là gì?", a: "Nội dung trả lời..." },
-        { id: 5, q: "Cách dùng tính năng B?", a: "Nội dung trả lời..." },
-        { id: 6, q: "Có hỗ trợ C không?", a: "Nội dung trả lời..." },
-        { id: 7, q: "Giới hạn sử dụng?", a: "Nội dung trả lời..." },
-      ],
-    },
+    { id: 'getting-started' },
+    { id: 'features' },
+    { id: 'more-info' }
   ];
 
   useEffect(() => {
-    if (title && typeof document !== "undefined") {
-      document.title = title;
+    if (typeof document !== "undefined") {
+      document.title = t('faq.title', title || 'FAQ');
     }
-  }, [title]);
+  }, [title, t]);
 
   return (
     <div className="w-full text-gray-900">
@@ -149,113 +135,61 @@ export default function FaqPage({ title = "FAQ 1" }) {
           <div className="relative z-10 w-full max-w-[1100px] mx-auto px-4">
             <h1
               ref={h1Reveal.ref}
-              className={[
-                "font-bold text-3xl sm:text-4xl md:text-5xl",
-                "transition duration-1000",
-                h1Reveal.visible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 -translate-y-8",
-              ].join(" ")}
+              className={`font-bold text-3xl sm:text-4xl md:text-5xl transition duration-1000 ${h1Reveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-8'}`}
             >
-              Câu hỏi thường gặp
+              {t('faq.title', 'FAQ')}
             </h1>
             <p
               ref={pReveal.ref}
-              className={[
-                "mt-5 mx-auto max-w-[340px] sm:max-w-[540px] md:max-w-[720px] xl:max-w-[910px]",
-                "text-base sm:text-lg",
-                "transition duration-1000",
-                pReveal.visible
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-6",
-              ].join(" ")}
+              className={`mt-5 mx-auto max-w-[340px] sm:max-w-[540px] md:max-w-[720px] xl:max-w-[910px] text-base sm:text-lg transition duration-1000 ${pReveal.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
             >
-              First time using VolunteerHub? Don't worry! Here are some frequently asked questions.
-              <a
-                href="https://www.freepik.com/"
-                target="_blank"
-                rel="noreferrer"
-                className="ml-1 underline text-primary hover:opacity-90"
-              >
-                
-              </a>
+              {t('faq.hero.desc', "First time using VolunteerHub? Don't worry! Here are some frequently asked questions.")}
             </p>
 
-            <div
-              className="mt-8 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-4 max-w-[562px] mx-auto"
-            >
+            <div className="mt-8 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-4 max-w-[562px] mx-auto">
               <div ref={leftBtnReveal.ref}>
-                <a
-                  href="https://www.facebook.com/thainguyenzeno"
-                  className={[
-                    "inline-block",
-                    "uppercase tracking-wide font-bold text-sm",
-                    "px-6 py-3 rounded-full border-2",
-                    "bg-primary border-primary text-white",
-                    "transition duration-700",
-                    leftBtnReveal.visible
-                      ? "opacity-100 -translate-x-0"
-                      : "opacity-0 -translate-x-8",
-                  ].join(" ")}
-                >
-                  Trang cộng đồng
+                <a href="https://www.facebook.com/thainguyenzeno" className={`inline-block uppercase tracking-wide font-bold text-sm px-6 py-3 rounded-full border-2 bg-primary border-primary text-white transition duration-700 ${leftBtnReveal.visible ? 'opacity-100 -translate-x-0' : 'opacity-0 -translate-x-8'}`}>
+                  {t('faq.hero.community', 'Community Page')}
                 </a>
               </div>
               <div ref={rightBtnReveal.ref} className="text-left sm:text-left">
-                <a
-                  href="https://www.youtube.com/@xt-aorongmobile9890"
-                  className={[
-                    "inline-block",
-                    "uppercase tracking-wide font-bold text-sm",
-                    "px-6 py-3 rounded-full border-2",
-                    "border-white text-white hover:bg-white hover:text-black",
-                    "transition duration-700",
-                    rightBtnReveal.visible
-                      ? "opacity-100 translate-x-0"
-                      : "opacity-0 translate-x-8",
-                  ].join(" ")}
-                >
-                  Kênh Youtube
+                <a href="https://www.youtube.com/@xt-aorongmobile9890" className={`inline-block uppercase tracking-wide font-bold text-sm px-6 py-3 rounded-full border-2 border-white text-white hover:bg-white hover:text-black transition duration-700 ${rightBtnReveal.visible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'}`}>
+                  {t('faq.hero.youtube', 'YouTube Channel')}
                 </a>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+            </div>
+        </section>
 
       {/* FAQ Section */}
       <section className="bg-gray-100">
         <div className="max-w-5xl mx-auto px-4 py-16">
           <h2 className="text-3xl font-semibold text-center">
-            Sự thật &amp; Câu hỏi
+            {t('faq.heading', 'Facts & Questions')}
           </h2>
 
           <p className="text-center mt-5 max-w-[864px] mx-auto text-gray-700">
-            Ví dụ văn bản. Nhấp chuột để chọn hộp văn bản.
+            {t('faq.lead', 'Sample text. Click to select the text box.')}
           </p>
 
           <div className="mt-10 space-y-10">
-            {faqSections.map((section) => (
-              <div key={section.id}>
-                {/* Tiêu đề đầu mục */}
-                <h3 className="text-xl font-semibold mb-4">
-                  {section.title}
-                </h3>
-
-                {/* Danh sách câu hỏi */}
-                <div className="space-y-4">
-                  {section.items.map((item) => (
-                    <AccordionItem
-                      key={item.id}
-                      id={item.id}
-                      title={item.q}
-                    >
-                      <p>{item.a}</p>
-                    </AccordionItem>
-                  ))}
+            {faqSections.map((section) => {
+              const title = t(`faq.sections.${section.id}.title`);
+              const items = t(`faq.sections.${section.id}.items`, { returnObjects: true }) || [];
+              return (
+                <div key={section.id}>
+                  <h3 className="text-xl font-semibold mb-4">{title}</h3>
+                  <div className="space-y-4">
+                    {items.map((item, idx) => (
+                      <AccordionItem key={idx} id={`${section.id}-${idx}`} title={item.q}>
+                        <p>{item.a}</p>
+                      </AccordionItem>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
