@@ -615,7 +615,49 @@ const ManageMyCampaign = () => {
 				) : error ? (
 					<Typography color="error">{error}</Typography>
 				) : campaigns.length === 0 ? (
-					<Typography>{t('manageMy.empty')}</Typography>
+					<div className="container mx-auto mt-6">
+						<div className="hidden md:block p-2">
+							<div className="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
+								<table className="min-w-full border-collapse bg-white">
+									<thead>
+										<tr className="bg-gradient-to-r from-pink-600 to-purple-600 text-white text-sm uppercase tracking-wide">
+											<th className="px-4 py-3 text-left rounded-tl-xl">{t('manageMy.headers.number')}</th>
+											<th className="px-4 py-3 text-left">{t('manageMy.headers.campaign')}</th>
+											<th className="px-4 py-3 text-left">{t('manageMy.headers.status')}</th>
+											<th className="px-4 py-3 text-left">{t('manageMy.headers.time')}</th>
+											<th className="px-4 py-3 text-left">{t('manageMy.headers.location')}</th>
+											<th className="px-4 py-3 text-left">{t('manageMy.headers.joined')}</th>
+											<th className="px-4 py-3 text-center rounded-tr-xl">{t('manageMy.headers.actions')}</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td colSpan={7} className="px-4 py-6 text-center text-gray-600">{t('manageMy.empty')}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						{/* Mobile compact table */}
+						<div className="md:hidden">
+							<div className="overflow-x-auto">
+								<table className="table border-collapse border border-gray-400">
+									<thead>
+										<tr className="text-white raleway text-base bg-[#DE00DF]">
+											<th>{t('manageMy.headers.campaign')}</th>
+											<th>{t('manageMy.headers.time')}</th>
+											<th>{t('manageMy.buttons.viewDetails')}</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td colSpan={3} className="px-4 py-4 text-center">{t('manageMy.empty')}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
 				) : (
 					<div className="container mx-auto mt-6">
 						<div className="hidden md:block p-4">

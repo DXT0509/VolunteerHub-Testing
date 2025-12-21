@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
+import bg1 from '../../../images/banner/10.jpg'
 // Simple intersection observer hook to reveal elements with transitions
 function useReveal(options) {
   const ref = useRef(null);
@@ -90,7 +91,7 @@ function AccordionItem({ id, title, children, defaultOpen = false }) {
 export default function FaqPage({ title = "FAQ 1" }) {
   const heroBg = useMemo(
     () =>
-      "url('https://assets.nicepagecdn.com/d2cc3eaa/6317754/images/medium-shot-smiley-kids-posing-together4.jpg')",
+      `url(${bg1})`,
     []
   );
 

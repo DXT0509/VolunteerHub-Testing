@@ -255,7 +255,48 @@ const ShowCampaignJoin = () => {
         ) : error ? (
           <Typography color="error">{error}</Typography>
         ) : registrations.length === 0 ? (
-          <Typography>{t('join.noEvents', 'Chưa có sự kiện nào.')}</Typography>
+          <div className="container mx-auto mt-6">
+            <div className="hidden md:block p-2">
+              <div className="overflow-x-auto rounded-xl shadow-lg border border-gray-200">
+                <table className="min-w-full border-collapse bg-white">
+                  <thead>
+                    <tr className="bg-gradient-to-r from-pink-600 to-purple-600 text-white text-sm uppercase tracking-wide">
+                      <th className="px-4 py-3 text-left rounded-tl-xl">#</th>
+                      <th className="px-4 py-3 text-left">{t('join.headers.event', 'Sự kiện')}</th>
+                      <th className="px-4 py-3 text-left">{t('join.headers.status', 'Trạng thái')}</th>
+                      <th className="px-4 py-3 text-left">{t('join.headers.time', 'Thời gian')}</th>
+                      <th className="px-4 py-3 text-left">{t('join.headers.location', 'Địa điểm')}</th>
+                      <th className="px-4 py-3 text-center rounded-tr-xl">{t('join.headers.actions', 'Thao tác')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colSpan={6} className="px-4 py-6 text-center text-gray-600">{t('join.noEvents', 'Chưa có sự kiện nào.')}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            {/* Mobile compact table */}
+            <div className="md:hidden">
+              <div className="overflow-x-auto">
+                <table className="table border-collapse border border-gray-400">
+                  <thead>
+                    <tr className="text-white raleway text-base bg-[#DE00DF]">
+                      <th>{t('join.headers.event', 'Sự kiện')}</th>
+                      <th>{t('join.headers.time', 'Thời gian')}</th>
+                      <th>{t('join.headers.details', 'Chi tiết')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td colSpan={3} className="px-4 py-4 text-center">{t('join.noEvents', 'Chưa có sự kiện nào.')}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         ) : (
           <div className="container mx-auto mt-6">
             {filteredRegs.length === 0 ? (

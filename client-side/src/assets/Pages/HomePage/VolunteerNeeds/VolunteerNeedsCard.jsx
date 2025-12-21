@@ -12,7 +12,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import ThumbUpOffAltIcon from '@mui/icons-material/ThumbUpOffAlt';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import { Link } from 'react-router-dom';
 import * as React from 'react';
@@ -84,7 +84,7 @@ export default function VolunteerNeedsCard({ volunteer }) {
       <CardActions sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', px: 2 }}>
         <Stack direction="row" spacing={2} alignItems="center">
           <Stack direction="row" spacing={0.5} alignItems="center" sx={{ color: 'text.secondary' }}>
-            <FavoriteBorderIcon fontSize="small" />
+            <ThumbUpOffAltIcon fontSize="small" />
             <Typography variant="body2">{likes}</Typography>
           </Stack>
           <Stack direction="row" spacing={0.5} alignItems="center" sx={{ color: 'text.secondary' }}>

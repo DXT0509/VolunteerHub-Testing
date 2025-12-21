@@ -141,10 +141,10 @@ const Contact = () => {
                     />
                     <div className="ml-4">
                       <p className="text-base font-semibold text-white">
-                        Thao Dao
+                        Thao Dao feedback
                       </p>
                       <p className="mt-px text-sm text-gray-400">
-                        Professor
+                        
                       </p>
                     </div>
                   </div>

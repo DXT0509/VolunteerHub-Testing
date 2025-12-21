@@ -16,9 +16,10 @@ async function assertChannelAccess(userId: number, eventId: number) {
   if (!event) throw new Error("Sự kiện không tồn tại");
   if (event.status !== "active")
     throw new Error("Kênh chỉ mở sau khi sự kiện đang hoạt động");
-
+  const user = await prisma.users.findUnique({ where: { id: userId }, include: { roles: { include: { role: true } } } });
+  if (!user) throw new Error("Người dùng không tồn tại");
   if (event.manager_id === userId) return { event };
-
+  if (user.roles[0].role.name === "ADMIN" || user.roles[0].role.name === "EVENT_MANAGER") return { event };
   const registered = await prisma.registrations.findFirst({
     where: { user_id: userId, event_id: eventId, status: "approved" },
   });

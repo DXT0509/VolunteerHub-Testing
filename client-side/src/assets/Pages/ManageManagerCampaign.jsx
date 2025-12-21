@@ -42,6 +42,12 @@ const ManageManagerCampaign = () => {
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [statusFilter, setStatusFilter] = useState('all'); // all | pending | active | rejected
+  // Search + suggestions (like NeedVolunteer)
+  const [search, setSearch] = useState('');
+  const [searchText, setSearchText] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
 
   // Role guard: only allow ADMIN to access
   useEffect(() => {
@@ -146,9 +152,31 @@ const ManageManagerCampaign = () => {
       case 'rejected':
         return arr.filter(ev => normalized(ev.approval_status || ev.status) === 'rejected');
       default:
+        // apply search filter if present
+        if (search && String(search).trim() !== '') {
+          const q = String(search).trim().toLowerCase();
+          return arr.filter(ev => (String(ev.title || ev.name || '')).toLowerCase().includes(q));
+        }
         return arr;
     }
-  }, [events, statusFilter]);
+  }, [events, statusFilter, search]);
+
+  // Build suggestions based on events titles when user types
+  useEffect(() => {
+    const q = (searchText || '').trim().toLowerCase();
+    if (!q) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      setActiveSuggestionIndex(-1);
+      return;
+    }
+    const pool = Array.isArray(events) ? events : [];
+    const uniqueTitles = Array.from(new Set(pool.map((v) => (v.title || v.name || '').trim()).filter(Boolean)));
+    const hits = uniqueTitles.filter((t) => t.toLowerCase().includes(q)).slice(0, 8);
+    setSuggestions(hits);
+    setShowSuggestions(hits.length > 0);
+    setActiveSuggestionIndex(hits.length > 0 ? 0 : -1);
+  }, [searchText, events]);
 
   // Reset page when filter changes
   useEffect(() => { setPage(0); }, [statusFilter]);
@@ -292,9 +320,74 @@ const ManageManagerCampaign = () => {
                 {t('manageManager.buttons.exportCsv')}
               </Button>
             </Box>
-            <Typography sx={{ fontSize: { xs: '.9rem', sm: '1rem' }, color: '#334155', mr: { xs: 2, sm: 15 } }}>
-              {t('manageManager.total', { count: filteredEvents.length })}
-            </Typography>
+            <div className="flex items-center gap-4 mr-4">
+              <div className="relative flex p-1 border rounded-lg focus-within:ring focus-within:ring-opacity-40 focus-within:border-blue-400 focus-within:ring-blue-300">
+                <input
+                  className="px-6 py-2 border-none text-gray-700 placeholder-gray-500 bg-white outline-none focus:placeholder-transparent"
+                  type="text"
+                  onChange={(e) => setSearchText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (!showSuggestions || suggestions.length === 0) return;
+                    if (e.key === 'ArrowDown') {
+                      e.preventDefault();
+                      setActiveSuggestionIndex((prev) => Math.min(prev + 1, suggestions.length - 1));
+                    } else if (e.key === 'ArrowUp') {
+                      e.preventDefault();
+                      setActiveSuggestionIndex((prev) => Math.max(prev - 1, 0));
+                    } else if (e.key === 'Enter') {
+                      if (activeSuggestionIndex >= 0 && activeSuggestionIndex < suggestions.length) {
+                        e.preventDefault();
+                        const val = suggestions[activeSuggestionIndex];
+                        setSearchText(val);
+                        setSearch(val);
+                        setShowSuggestions(false);
+                        setActiveSuggestionIndex(-1);
+                      }
+                    } else if (e.key === 'Escape') {
+                      setShowSuggestions(false);
+                      setActiveSuggestionIndex(-1);
+                    }
+                  }}
+                  onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
+                  onBlur={() => { setTimeout(() => setShowSuggestions(false), 100); }}
+                  value={searchText}
+                  name="search"
+                  placeholder={t('manageManager.searchPlaceholder')}
+                  aria-label="Search events"
+                />
+
+                <button
+                  onClick={() => { setSearch(searchText); setShowSuggestions(false); setActiveSuggestionIndex(-1); }}
+                  type="button"
+                  className="inline-block rounded-lg bg-blue-600 px-6 py-2 text-sm font-medium uppercase leading-normal text-white shadow transition duration-150 ease-in-out hover:bg-blue-700 focus:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 active:bg-blue-800"
+                >
+                  {t('manageManager.searchButton')}
+                </button>
+
+                {showSuggestions && suggestions.length > 0 && (
+                  <ul className="absolute left-0 right-0 top-full mt-2 z-10 max-h-64 overflow-auto rounded-lg border border-gray-200 bg-white shadow">
+                    {suggestions.map((s, idx) => (
+                      <li
+                        key={`${s}-${idx}`}
+                        className={(idx === activeSuggestionIndex ? 'bg-blue-50' : 'bg-white') + ' cursor-pointer px-4 py-2 text-sm text-gray-700 hover:bg-blue-50'}
+                        onMouseDown={() => {
+                          setSearchText(s);
+                          setSearch(s);
+                          setShowSuggestions(false);
+                          setActiveSuggestionIndex(-1);
+                        }}
+                      >
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <Typography sx={{ fontSize: { xs: '.9rem', sm: '1rem' }, color: '#334155', mr: { xs: 2, sm: 15 } }}>
+                {t('manageManager.total', { count: filteredEvents.length })}
+              </Typography>
+            </div>
           </Box>
 
           {/* Tables */}

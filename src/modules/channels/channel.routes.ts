@@ -52,7 +52,7 @@ router.delete(
 router.post(
   "/posts/:postId/comments",
   authenticate,
-  authorize(["VOLUNTEER", "EVENT_MANAGER"]),
+  authorize(["VOLUNTEER", "EVENT_MANAGER", "ADMIN"]),
   upload.array("files", 10),
   createComment
 );
@@ -66,7 +66,7 @@ router.delete(
 router.post(
   "/like",
   authenticate,
-  authorize(["VOLUNTEER", "EVENT_MANAGER"]),
+  authorize(["VOLUNTEER", "EVENT_MANAGER", "ADMIN"]),
   toggleLike
 );
 

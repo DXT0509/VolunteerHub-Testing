@@ -70,9 +70,10 @@ const resources = {
       home: {
         volunteerNeeds: {
           title: 'Volunteer Needs Now',
+          title1: 'Highlight Events You Manage',
           desc:
             'Volunteer Needs Now is the pulse of our community engagement. This section highlights current opportunities where your time and skills can make an immediate impact.',
-          seeAll: 'SEE ALL',
+          seeAll: 'SEE ALL CAMPAIGNS',
           needVolunteer: {
             headerTitle: 'Join Our Community: Volunteer Opportunities',
             headerDesc: 'Discover meaningful ways to contribute to our mission. Explore diverse volunteer roles and make a difference in your community. Join us in creating positive change today.',
@@ -489,6 +490,8 @@ const resources = {
       manageManager: {
         title: 'Event Management',
         subtitle: 'Approve, view, and delete events in the system.',
+        searchPlaceholder: 'Search events',
+        searchButton: 'Search',
         filter: {
           label: 'Filter by status',
           options: { all: 'All events', pending: 'Pending events', active: 'Approved events', rejected: 'Rejected events' },
@@ -588,10 +591,11 @@ const resources = {
       },
       home: {
         volunteerNeeds: {
-          title: 'Nhu Cầu Tình Nguyện Hiện Tại',
+          title: 'Chiến Dịch Nổi Bật Hiện Tại',
+          title1: 'Chiến Dịch Nổi Bật Bạn Quản Lý',
           desc:
             'Mạch đập của cộng đồng nằm ở đây. Mục này nêu bật các cơ hội hiện tại nơi thời gian và kỹ năng của bạn tạo ra tác động ngay lập tức.',
-          seeAll: 'XEM TẤT CẢ',
+          seeAll: 'XEM TẤT CẢ CHIẾN DỊCH',
           needVolunteer: {
             headerTitle: 'Cộng Đồng Cần Bạn: Cơ Hội Tình Nguyện',
             headerDesc: 'Khám phá những cách ý nghĩa để đóng góp cho sứ mệnh của chúng tôi. Tìm kiếm vai trò tình nguyện đa dạng và tạo nên sự khác biệt cho cộng đồng. Hãy cùng nhau tạo ra thay đổi tích cực ngay hôm nay.',
@@ -1007,6 +1011,8 @@ const resources = {
       manageManager: {
         title: 'Quản lý sự kiện',
         subtitle: 'Duyệt, xem và xóa sự kiện trong hệ thống.',
+        searchPlaceholder: 'Tìm kiếm sự kiện',
+        searchButton: 'Tìm kiếm',
         filter: {
           label: 'Lọc theo trạng thái',
           options: { all: 'Tất cả sự kiện', pending: 'Sự kiện chờ duyệt', active: 'Sự kiện đã duyệt', rejected: 'Sự kiện đã từ chối' },

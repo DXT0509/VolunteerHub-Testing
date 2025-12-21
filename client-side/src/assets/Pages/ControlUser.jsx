@@ -118,6 +118,20 @@ function ControlUser() {
     const t = setTimeout(() => setMounted(true), 30);
     const token = localStorage.getItem('token');
     const userStr = localStorage.getItem('user');
+    // Nếu user không phải ADMIN thì chuyển về trang chủ
+    try {
+      if (userStr) {
+        const raw = JSON.parse(userStr);
+        const rolesArr = raw?.roles || [];
+        const names = rolesArr.map(r => String(r?.role?.name || r?.name || '').toUpperCase());
+        if (!names.some(n => n.includes('ADMIN'))) {
+          navigate('/', { replace: true });
+          return () => clearTimeout(t);
+        }
+      }
+    } catch (e) {
+      // nếu parse lỗi, tiếp tục flow (sẽ redirect tới login nếu token/user thiếu)
+    }
     if (!token || !userStr) {
       navigate('/login', { replace: true });
       return () => clearTimeout(t);

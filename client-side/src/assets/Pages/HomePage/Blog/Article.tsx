@@ -1,5 +1,5 @@
 // Article.tsx
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect } from "react";
 import { useTranslation } from 'react-i18next';
 import { useParams } from "react-router-dom";
 
@@ -65,14 +65,20 @@ const Article: React.FC = () => {
     const article = useMemo(() => {
         return ARTICLES.find((a) => a.id === id) ?? ARTICLES[0];
     }, [id]);
-
+    useEffect(() => {
+        try {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+          // ignore in non-browser environments
+        }
+      }, []);
     const titleKey = `home.article.items.${article.id}.title`;
     const paragraphKeyPrefix = `home.article.items.${article.id}.content.`;
     const localizedTitle = t(titleKey, { defaultValue: article.title });
     const localizedParagraphs = article.content.map((p, idx) =>
         t(`${paragraphKeyPrefix}${idx}`, { defaultValue: p })
     );
-
+    
     return (
         <div className="max-w-3xl mx-auto p-6 bg-white shadow-md rounded-lg mt-8 text-left">
             <h1 className="text-3xl font-bold mb-2 text-gray-900">{localizedTitle}</h1>

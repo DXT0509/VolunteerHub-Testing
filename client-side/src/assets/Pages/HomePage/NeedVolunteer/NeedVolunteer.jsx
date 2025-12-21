@@ -34,6 +34,14 @@ const NeedVolunteer = ({ title }) => {
 
     return () => clearTimeout(timer);
   }, []);
+  // Scroll to top when entering this page
+  useEffect(() => {
+    try {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e) {
+      // ignore in non-browser environments
+    }
+  }, []);
   useEffect(() => {
     const getData = async () => {
       setShowLoader(true);
@@ -59,6 +67,9 @@ const NeedVolunteer = ({ title }) => {
           thumbnail: ev?.banner_url || '',
           description: ev?.description || '',
           posted_by: ev?.manager?.full_name || '—',
+          likes: ev?.total_likes || 0,
+          comments: ev?.total_comments || 0,
+          
         }));
         setAllVolunteers(normalized);
         // Lọc theo từ khoá tìm kiếm (client-side)

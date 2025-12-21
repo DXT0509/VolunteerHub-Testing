@@ -16,7 +16,13 @@ export async function registerUser(
   if (exists) {
     throw new Error("Email đã được sử dụng");
   }
-
+  
+  const phoneExists = phone
+    ? await prisma.users.findFirst({ where: { phone } })
+    : null;
+  if (phoneExists) {
+    throw new Error("Số điện thoại đã được sử dụng");
+  }
   const hash = await bcrypt.hash(password, 10);
 
   const role = await prisma.roles.findUnique({ where: { name: roleName } });

@@ -8,6 +8,18 @@ import { useTranslation } from 'react-i18next';
 const VolunteerNeeds = () => {
   const MAX_SHOW = 6;
   const { t } = useTranslation();
+  // Determine if current user is an event manager (read from localStorage user)
+  const isEventManager = (() => {
+    try {
+      const u = localStorage.getItem('user');
+      if (!u) return false;
+      const parsed = JSON.parse(u);
+      const roleName = String(parsed?.roles?.[0]?.role?.name || parsed?.roles?.[0] || parsed?.role?.name || parsed?.role || '');
+      return roleName.includes('EVENT_MANAGER');
+    } catch {
+      return false;
+    }
+  })();
   const [volunteers, setVolunteers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -84,7 +96,7 @@ const VolunteerNeeds = () => {
         className="container mx-auto"
       >
         <h2 className="text-3xl md:text-5xl font-bold text-center ">
-          {t('home.volunteerNeeds.title', 'Volunteer Needs Now')}
+          {isEventManager ? t('home.volunteerNeeds.title1', 'Highlight Events You Manage') : t('home.volunteerNeeds.title', 'Volunteer Needs Now')}
         </h2>
         <p className="w-2/3 mx-auto mt-4 text-center leading-relaxed text-gray-600">
           {t(
@@ -97,7 +109,7 @@ const VolunteerNeeds = () => {
         {volunteers.slice(0, MAX_SHOW).map((volunteer) => (
           <VolunteerNeedsCard volunteer={volunteer} key={volunteer._id} />
         ))}
-        {volunteers.length > MAX_SHOW && (
+        {(
           <div className="flex justify-center mt-2 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 col-span-full">
             <Link to="/need-volunteer">
               <Button
