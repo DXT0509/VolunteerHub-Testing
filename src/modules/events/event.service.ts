@@ -224,7 +224,7 @@ export async function deleteEvent(id: number, managerId: number) {
     where: { id: managerId },
     include: { roles: { include: { role: true } } },
   });
-  if (event.manager_id !== managerId && !role?.roles.some(r => r.role.name === "ADMIN"))
+  if (event.manager_id !== managerId && !role?.roles.some((r: any) => r.role.name === "ADMIN"))
     throw new Error("Bạn không có quyền xóa sự kiện này");
   await prisma.event_attendance.deleteMany({
   where: { registration: { event_id: id } }

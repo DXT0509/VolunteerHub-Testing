@@ -2,51 +2,44 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-function randomItem<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
-
 async function main() {
-  // Lấy tất cả event hợp lệ để đăng ký
-    await prisma.registration_status_history.deleteMany(); // nếu có FK
+  // 1. Dọn dẹp registrations cũ (đúng thứ tự FK để không lỗi database)
+  await prisma.registration_status_history.deleteMany();
+  await prisma.registrations.deleteMany();
 
-  await prisma.registrations.deleteMany(); // nếu có FK
+  // 2. Lấy tất cả event hợp lệ (Sắp xếp theo ID để máy nào cũng ra thứ tự giống nhau)
   const events = await prisma.events.findMany({
     where: {
-      status: "active",
-      start_time: { gt: new Date() },
+      status: "active", // Đảm bảo ở file seed event bạn đã để status là active
+      // Bỏ start_time: { gt: new Date() } để tránh việc dữ liệu biến mất khi thời gian trôi qua
     },
+    orderBy: { id: 'asc' }
   });
 
   if (events.length === 0) {
-    throw new Error("Không có event ACTIVE nào để đăng ký");
+    console.log("⚠️ Cảnh báo: Không có event ACTIVE nào. Hãy chạy file seed Event trước!");
+    return;
   }
 
-  // Lấy volunteer
+  // 3. Lấy danh sách volunteer (Sắp xếp theo ID cố định)
   const volunteers = await prisma.users.findMany({
     where: {
       roles: { some: { role: { name: "VOLUNTEER" } } },
     },
+    orderBy: { id: 'asc' }
   });
 
   if (volunteers.length === 0) {
-    throw new Error("Không có VOLUNTEER nào");
+    throw new Error("Không có VOLUNTEER nào trong hệ thống");
   }
 
-  // Clear registrations cũ (đúng thứ tự FK)
-  await prisma.registration_status_history.deleteMany();
-  await prisma.registrations.deleteMany();
+  // 4. Seed dữ liệu cố định
+  // Quy luật: Mỗi event sẽ lấy 5 người đầu tiên trong danh sách volunteers (nếu đủ 5 người)
+  const NUM_REGS_PER_EVENT = 5;
 
-  // Mỗi event có 5–10 người đăng ký
   for (const event of events) {
-    const numberOfRegs = Math.min(
-      volunteers.length,
-      Math.floor(Math.random() * 6) + 5
-    );
-
-    const picked = volunteers
-      .sort(() => 0.5 - Math.random())
-      .slice(0, numberOfRegs);
+    // Lấy tối đa 5 người đầu tiên để đăng ký
+    const picked = volunteers.slice(0, Math.min(volunteers.length, NUM_REGS_PER_EVENT));
 
     for (const user of picked) {
       const reg = await prisma.registrations.create({
@@ -67,7 +60,7 @@ async function main() {
     }
   }
 
-  console.log("Seeded registrations cho các events ACTIVE");
+  console.log(`✅ Đã seed cố định ${NUM_REGS_PER_EVENT} registrations cho mỗi event.`);
 }
 
 main()

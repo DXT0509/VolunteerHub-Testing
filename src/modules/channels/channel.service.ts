@@ -72,7 +72,7 @@ export async function getEventPosts(
     page,
     pageSize,
     total,
-    items: items.map((p) => ({
+    items: items.map((p: any) => ({
       ...p,
       liked: p.likes.length > 0,
       likes: undefined,

@@ -36,7 +36,7 @@ export async function sendNotification(
 
   await Promise.allSettled(
     //Giúp chạy song song, không bị dừng bởi lỗi
-    subs.map(async (sub) => {
+    subs.map(async (sub: any) => {
       try {
         await webpush.sendNotification(
           {
