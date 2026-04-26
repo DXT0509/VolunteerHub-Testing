@@ -3,95 +3,78 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Dọn dẹp data cũ theo thứ tự bảng CON trước bảng CHA
   await prisma.event_approvals.deleteMany();
   await prisma.event_channels.deleteMany();
   await prisma.event_attendance.deleteMany();
   await prisma.events.deleteMany();
   await prisma.locations.deleteMany();
 
-  // 2. Lấy danh sách Manager và sắp xếp theo ID để đảm bảo thứ tự luôn giống nhau
   const managers = await prisma.users.findMany({
-    where: {
-      roles: { some: { role: { name: "EVENT_MANAGER" } } },
-    },
-    orderBy: { id: 'asc' } // Quan trọng: Luôn lấy theo thứ tự ID
+    where: { roles: { some: { role: { name: "EVENT_MANAGER" } } } },
+    orderBy: { id: 'asc' }
   });
 
-  if (managers.length === 0) {
-    throw new Error("Không có EVENT_MANAGER nào trong database. Hãy tạo user trước!");
-  }
-
   const categories = await prisma.categories.findMany();
-  const catMap: Record<string, number> = Object.fromEntries(
-    categories.map((c: { id: number; name: string }) => [c.name, c.id])
-  );
+  const catMap: Record<string, number> = Object.fromEntries(categories.map((c: any) => [c.name, c.id]));
+  
+  // Mốc thời gian thực tế của bạn
+  // ... (Phần đầu file giữ nguyên)
 
-  const data = [
-    {
-      title: "Ngay hoi hien mau tinh nguyen", // Dùng title không dấu để làm slug cho sạch
-      displayTitle: "Ngày hội hiến máu tình nguyện",
-      description: "Lan tỏa tinh thần nhân ái trong cộng đồng.",
-      category: "Từ thiện",
-      banner: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b",
-      location: { name: "Nhà Văn Hóa Thanh Niên", address: "4 Phạm Ngọc Thạch", district: "Quận 1" },
-    },
-    {
-      title: "Chien dich lam sach bai bien",
-      displayTitle: "Chiến dịch làm sạch bãi biển",
-      description: "Bảo vệ môi trường biển và hệ sinh thái.",
-      category: "Môi trường",
-      banner: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e",
-      location: { name: "Bãi biển Vũng Tàu", address: "Thùy Vân", district: "TP. Vũng Tàu" },
-    },
-    // ... các sự kiện khác giữ nguyên nội dung nhưng thêm displayTitle nếu cần
-  ];
+  const TODAY = new Date("2026-04-26T10:00:00Z");
+  const JULY_LATE = new Date("2026-07-31T23:59:59Z");
 
-  // Mốc thời gian cố định: 2026-05-01
-  const FIXED_START_DATE = new Date("2026-05-01T08:00:00Z");
+  for (let m = 0; m < managers.length; m++) {
+    const manager = managers[m];
 
-  for (let i = 0; i < data.length; i++) {
-    // Tạo địa điểm
-    const loc = await prisma.locations.create({
-      data: {
-        name: data[i].location.name,
-        address_line: data[i].location.address,
-        district: data[i].location.district,
-        province: "TP. Hồ Chí Minh",
-        country: "Việt Nam",
-      },
-    });
+    for (let e = 1; e <= 12; e++) {
+      const loc = await prisma.locations.create({
+        data: {
+          name: `Địa điểm ${e} - Mgr ${manager.id}`,
+          address_line: "144 Xuân Thủy",
+          district: "Cầu Giấy", province: "Hà Nội", country: "Việt Nam",
+        },
+      });
 
-    // Tính toán thời gian cố định: Mỗi sự kiện cách nhau 1 ngày
-    const start = new Date(FIXED_START_DATE);
-    start.setDate(start.getDate() + i);
-    const end = new Date(start);
-    end.setHours(end.getHours() + 4);
+      let start: Date, end: Date, status: string, titleSuffix: string;
 
-    // PHÂN VIỆC CỐ ĐỊNH: Manager 1 làm các event chẵn, Manager 2 làm các event lẻ (nếu có 2 người)
-    const manager = managers[i % managers.length];
+      if (e <= 2) { // PAST: Đã xong
+        start = new Date(TODAY); start.setDate(TODAY.getDate() - 10);
+        end = new Date(TODAY); end.setDate(TODAY.getDate() - 5);
+        status = "active"; titleSuffix = "PAST";
+      } else if (e <= 5) { // ONGOING: Bắt đầu rồi, tháng 7 mới hết
+        start = new Date(TODAY); start.setDate(TODAY.getDate() - 2);
+        end = new Date(JULY_LATE); 
+        status = "active"; titleSuffix = "ONGOING";
+      } else if (e <= 9) { // FUTURE: Tháng 7 mới bắt đầu
+        start = new Date("2026-07-01T08:00:00Z"); start.setDate(1 + e);
+        end = new Date(start); end.setHours(start.getHours() + 4);
+        status = "active"; titleSuffix = "FUTURE";
+      } else if (e === 10) { // PENDING
+        start = new Date("2026-08-01T08:00:00Z"); end = new Date(start);
+        status = "pending"; titleSuffix = "WAITING";
+      } else { // REJECT
+        start = new Date("2026-08-10T08:00:00Z"); end = new Date(start);
+        status = "rejected"; titleSuffix = "REJECTED";
+      }
 
-    await prisma.events.create({
-      data: {
-        title: data[i].displayTitle || data[i].title,
-        slug: data[i].title.toLowerCase().replace(/ /g, "-") + `-fixed-${i}`,
-        description: data[i].description,
-        category_id: catMap[data[i].category],
-        location_id: loc.id,
-        start_time: start,
-        end_time: end,
-        capacity: 100,
-        banner_url: data[i].banner,
-        manager_id: manager.id,
-        status: "pending", // Mặc định tất cả là chờ duyệt để Admin có cái mà làm
-      },
-    });
+      await prisma.events.create({
+        data: {
+          title: `Sự kiện ${e} (${titleSuffix}) - Mgr ${manager.id}`,
+          slug: `event-${e}-mgr-${manager.id}-${Date.now()}-${e}`,
+          description: `Sự kiện test logic.`,
+          category_id: categories[e % categories.length].id,
+          location_id: (await prisma.locations.create({ data: { name: `Sảnh ${e}`, address_line: "144 Xuân Thủy", district: "Cầu Giấy", province: "Hà Nội", country: "Việt Nam" } })).id,
+          start_time: start,
+          end_time: end,
+          capacity: 100,
+          manager_id: manager.id,
+          status: status,
+        },
+      });
+    }
   }
-
-  console.log(`✅ Đã seed ${data.length} events cố định.`);
-  console.log(`🔗 Các event đã được phân bổ đều cho ${managers.length} managers.`);
+// ... (Phần cuối giữ nguyên)
+  console.log("✅ Seed Event thành công với đủ loại: Past, Ongoing, Future, Pending, Reject.");
 }
 
-main()
-  .catch((err: any) => console.error(err))
-  .finally(() => prisma.$disconnect());
+main().catch(console.error).finally(() => prisma.$disconnect());
