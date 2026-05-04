@@ -31,7 +31,7 @@ export async function getUserNotifications(req: AuthRequest, res: Response) {
 
 export async function markAsRead(req: AuthRequest, res: Response) {
   try {
-    const id = parseInt(req.params.id);
+    const id = parseInt(String(req.params.id));
     const result = await NotificationService.markAsRead(req.user!.userId, id);
     res.json(result);
   } catch (err: any) {

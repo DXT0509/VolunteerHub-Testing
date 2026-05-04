@@ -6,7 +6,7 @@ export async function registerEvent(req: AuthRequest, res: Response) {
   try {
     const result = await RegistrationService.registerEvent(
       req.user!.userId,
-      parseInt(req.params.eventId)
+      parseInt(String(req.params.eventId))
     );
     res.json(result);
   } catch (err: any) {
@@ -18,7 +18,7 @@ export async function cancelRegistration(req: AuthRequest, res: Response) {
   try {
     const result = await RegistrationService.cancelRegistration(
       req.user!.userId,
-      parseInt(req.params.eventId)
+      parseInt(String(req.params.eventId))
     );
     res.json(result);
   } catch (err: any) {
@@ -66,7 +66,7 @@ export async function updateRegistrationStatus(
   try {
     const result = await RegistrationService.updateRegistrationStatus(
       req.user!.userId,
-      parseInt(req.params.regId),
+      parseInt(String(req.params.regId)),
       req.body.status
     );
     res.json(result);
@@ -79,7 +79,7 @@ export async function finalizeRegistration(req: AuthRequest, res: Response) {
   try {
     const result = await RegistrationService.finalizeRegistration(
       req.user!.userId,
-      parseInt(req.params.regId),
+      parseInt(String(req.params.regId)),
       req.body.status
     );
     res.json(result);
@@ -91,7 +91,7 @@ export async function finalizeRegistration(req: AuthRequest, res: Response) {
 export async function checkIn(req: Request, res: Response) {
   try {
     const result = await RegistrationService.checkIn(
-      parseInt(req.params.regId)
+      parseInt(String(req.params.regId))
     );
     res.json(result);
   } catch (err: any) {
@@ -102,7 +102,7 @@ export async function checkIn(req: Request, res: Response) {
 export async function checkOut(req: Request, res: Response) {
   try {
     const result = await RegistrationService.checkOut(
-      parseInt(req.params.regId)
+      parseInt(String(req.params.regId))
     );
     res.json(result);
   } catch (err: any) {
@@ -114,7 +114,7 @@ export async function getEventRegistrations(req: AuthRequest, res: Response) {
   try {
     const result = await RegistrationService.getEventRegistrations(
       req.user!.userId,
-      parseInt(req.params.eventId)
+      parseInt(String(req.params.eventId))
     );
     res.json(result);
   } catch (err: any) {
