@@ -124,8 +124,8 @@ test.describe("Register Page – Luồng Đăng ký", () => {
     await page.locator('button[type="submit"]').click();
 
     // Login should succeed → redirect to home
-    await page.waitForURL(/localhost:5173\/?$/, { timeout: 10_000 });
-    await expect(page).toHaveURL(/localhost:5173\/?$/);
+    await page.waitForURL(/localhost:4173\/?$/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/localhost:4173\/?$/);
 
     // Token must be present
     const token = await page.evaluate(() => localStorage.getItem("token"));

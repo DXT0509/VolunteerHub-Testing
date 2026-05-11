@@ -393,8 +393,8 @@ test.describe("Forget Password – Stage 3: Post-reset Login", () => {
     await page.locator('input[name="password"]').fill(NEW_PASSWORD);
     await page.locator('button[type="submit"]').click();
 
-    await page.waitForURL(/localhost:5173\/?$/, { timeout: 10_000 });
-    await expect(page).toHaveURL(/localhost:5173\/?$/);
+    await page.waitForURL(/localhost:4173\/?$/, { timeout: 10_000 });
+    await expect(page).toHaveURL(/localhost:4173\/?$/);
 
     const token = await page.evaluate(() => localStorage.getItem("token"));
     expect(token).toBeTruthy();
