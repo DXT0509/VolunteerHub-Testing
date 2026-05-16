@@ -29,3 +29,5 @@ client-side/src/assets/uploads/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+*.md
