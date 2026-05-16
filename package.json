@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@material-tailwind/react": "^2.1.10",
-    "@prisma/client": "^6.17.1",
+    "@prisma/client": "^6.19.3",
     "axios": "^1.13.2",
     "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
@@ -31,7 +31,7 @@
     "web-push": "^3.6.7"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
+    "@playwright/test": "^1.60.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/json2csv": "^5.0.7",
@@ -40,7 +40,7 @@
     "@types/node": "^24.8.1",
     "@types/web-push": "^3.6.4",
     "nodemon": "^3.1.10",
-    "prisma": "^6.17.1",
+    "prisma": "^6.19.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
