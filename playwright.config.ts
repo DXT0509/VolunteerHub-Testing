@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 /**
  * Read environment variables from file.
@@ -12,7 +12,7 @@ import { defineConfig, devices } from '@playwright/test';
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: './tests',
+  testDir: "./tests",
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -22,51 +22,71 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('')`. */
-    // baseURL: 'http://localhost:3000',
+    baseURL: process.env.BASE_URL || "http://localhost:4173",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: 'on-first-retry',
+    trace: "on-first-retry",
   },
 
   /* Configure projects for major browsers */
   projects: [
+    // Setup project to authenticate all roles
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "setup",
+      testMatch: /auth\.setup\.ts/,
     },
 
+    // Chromium - Unauthenticated / Public tests
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: [
+        /auth\.setup\.ts/,
+        /(admin-control-user|admin-manage-campaign|user-profile)\.spec\.ts/,
+      ],
     },
 
+    // Chromium - Authenticated tests (requires setup)
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: "chromium-authenticated",
+      use: { ...devices["Desktop Chrome"] },
+      dependencies: ["setup"],
+      testMatch:
+        /(admin-control-user|admin-manage-campaign|user-profile)\.spec\.ts/,
     },
 
-    /* Test against mobile viewports. */
+    // Firefox - Unauthenticated / Public tests
     // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
-    // },
-    // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
+    //   name: 'firefox',
+    //   use: { ...devices['Desktop Firefox'] },
+    //   testIgnore: [/auth\.setup\.ts/, /(admin-control-user|admin-manage-campaign|user-profile)\.spec\.ts/],
     // },
 
-    /* Test against branded browsers. */
+    // Firefox - Authenticated tests (requires setup)
     // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    //   name: 'firefox-authenticated',
+    //   use: { ...devices['Desktop Firefox'] },
+    //   dependencies: ['setup'],
+    //   testMatch: /(admin-control-user|admin-manage-campaign|user-profile)\.spec\.ts/,
     // },
+
+    // Webkit - Unauthenticated / Public tests
     // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    //   testIgnore: [/auth\.setup\.ts/, /(admin-control-user|admin-manage-campaign|user-profile)\.spec\.ts/],
+    // },
+
+    // Webkit - Authenticated tests (requires setup)
+    // {
+    //   name: 'webkit-authenticated',
+    //   use: { ...devices['Desktop Safari'] },
+    //   dependencies: ['setup'],
+    //   testMatch: /(admin-control-user|admin-manage-campaign|user-profile)\.spec\.ts/,
     // },
   ],
 

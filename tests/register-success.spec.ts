@@ -30,17 +30,9 @@ const NEW_PASSWORD = "test123456";
 
 test.describe("Register Success Page – Positive", () => {
   test.beforeEach(async ({ page }) => {
-    // ------------------------------------------------------------------
-    // Navigate to /register, clear any stale auth, fill the form,
-    // submit successfully, and land on /register-success.
-    // ------------------------------------------------------------------
+    // Clear localStorage once before navigating to avoid stale auth redirects.
     await page.context().addInitScript(() => {
-      const origin = window.location.origin || window.location.href;
-      const flagKey = `__test_reg_init_${origin}`;
-      if (!sessionStorage.getItem(flagKey)) {
-        localStorage.clear();
-        sessionStorage.setItem(flagKey, "1");
-      }
+      localStorage.clear();
     });
 
     await page.goto(`${BASE}/register`);

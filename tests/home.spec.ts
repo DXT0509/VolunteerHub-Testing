@@ -35,10 +35,22 @@ test.describe("Home page", () => {
       }),
     );
 
+    // Intercept the image request to prevent loading error and state fallback
+    await page.route("https://example.com/img.jpg", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "image/png",
+        body: Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+          "base64"
+        ),
+      })
+    );
+
     await page.goto(BASE);
 
     // VolunteerNeeds component uses a fallback string 'Volunteer Needs Now'
-    await expect(page.locator("text=Volunteer Needs Now")).toBeVisible({
+    await expect(page.getByRole('heading', { name: 'Volunteer Needs Now', exact: true })).toBeVisible({
       timeout: 5000,
     });
 
@@ -52,20 +64,6 @@ test.describe("Home page", () => {
   test("contact form fills and submits without navigating", async ({
     page,
   }) => {
-    // Prevent navigation triggered by mailto / changing window.location
-    await page.addInitScript(() => {
-      try {
-        // @ts-ignore
-        delete window.location;
-      } catch (e) {}
-      // @ts-ignore
-      window.location = {
-        href: "",
-        assign: () => {},
-        replace: () => {},
-      } as any;
-    });
-
     // Provide empty dashboard data to avoid noise
     await page.route("http://localhost:4000/dashboard", (route) =>
       route.fulfill({
