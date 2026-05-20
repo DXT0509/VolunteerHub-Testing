@@ -1,22 +1,22 @@
 {
   "version": 1,
-  "generatedAt": "2026-05-20T04:03:34.034Z",
+  "generatedAt": "2026-05-20T10:13:15.606Z",
   "outputDir": "C:\\xampp\\htdocs\\VolunteerHub\\playwright-flaky-report",
   "totals": {
-    "total": 12,
-    "passed": 10,
+    "total": 13,
+    "passed": 11,
     "flaky": 0,
     "failed": 2,
-    "executions": 60
+    "executions": 65
   },
   "tests": [
     {
-      "id": "36943161b78213d9758d-a7c7729e30d40d39dcf1",
-      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > handles /article/ without a runtime error or blank page",
+      "id": "9a880f30605c63b572b3-731db60a0dfcd96943b8",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > shows empty state when no volunteers",
       "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 184,
-      "column": 7,
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 212,
+      "column": 6,
       "status": "passed",
       "repeat": 5,
       "passed": 5,
@@ -25,37 +25,37 @@
         {
           "run": 1,
           "status": "passed",
-          "durationMs": 3091
+          "durationMs": 9747
         },
         {
           "run": 2,
           "status": "passed",
-          "durationMs": 5129
+          "durationMs": 4964
         },
         {
           "run": 3,
           "status": "passed",
-          "durationMs": 1966
+          "durationMs": 5749
         },
         {
           "run": 4,
           "status": "passed",
-          "durationMs": 2113
+          "durationMs": 5808
         },
         {
           "run": 5,
           "status": "passed",
-          "durationMs": 2483
+          "durationMs": 5557
         }
       ]
     },
     {
-      "id": "36943161b78213d9758d-dad2aa78ed046332a256",
-      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > handles /article without a runtime error or blank page",
+      "id": "9a880f30605c63b572b3-9582c6fbc6bdd73792a1",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > renders heading, loading state, and table content",
       "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 184,
-      "column": 7,
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 147,
+      "column": 6,
       "status": "passed",
       "repeat": 5,
       "passed": 5,
@@ -63,193 +63,154 @@
       "runs": [
         {
           "run": 1,
+          "status": "passed",
+          "durationMs": 9594
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 5972
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 5258
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 6647
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 4970
+        }
+      ]
+    },
+    {
+      "id": "9a880f30605c63b572b3-12fdc1d0f0b0c1e9689f",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > paginates registrations and exposes aria labels",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 190,
+      "column": 6,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 10261
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 7901
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 6733
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 8252
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 9424
+        }
+      ]
+    },
+    {
+      "id": "9a880f30605c63b572b3-a7259d2bc10afc19bd1d",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > supports campaign filter and total count",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 167,
+      "column": 6,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 10131
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 7297
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 6710
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 8836
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 9524
+        }
+      ]
+    },
+    {
+      "id": "9a880f30605c63b572b3-fa744012e8f195da0ff7",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > opens volunteer detail dialog and closes with button",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 248,
+      "column": 6,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 10785
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 10271
+        },
+        {
+          "run": 3,
           "status": "passed",
           "durationMs": 8551
         },
         {
-          "run": 2,
-          "status": "passed",
-          "durationMs": 2057
-        },
-        {
-          "run": 3,
-          "status": "passed",
-          "durationMs": 2855
-        },
-        {
           "run": 4,
           "status": "passed",
-          "durationMs": 3453
+          "durationMs": 5375
         },
         {
           "run": 5,
-          "status": "passed",
-          "durationMs": 3129
-        }
-      ]
-    },
-    {
-      "id": "36943161b78213d9758d-16f372e62ff015ce02dc",
-      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > falls back to article 1 when id is 999",
-      "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 168,
-      "column": 7,
-      "status": "passed",
-      "repeat": 5,
-      "passed": 5,
-      "failed": 0,
-      "runs": [
-        {
-          "run": 1,
-          "status": "passed",
-          "durationMs": 8586
-        },
-        {
-          "run": 2,
-          "status": "passed",
-          "durationMs": 4137
-        },
-        {
-          "run": 3,
-          "status": "passed",
-          "durationMs": 5587
-        },
-        {
-          "run": 4,
-          "status": "passed",
-          "durationMs": 3729
-        },
-        {
-          "run": 5,
-          "status": "passed",
-          "durationMs": 4289
-        }
-      ]
-    },
-    {
-      "id": "36943161b78213d9758d-80b90ed0f3d4e447e528",
-      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > falls back to article 1 when id is 100",
-      "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 168,
-      "column": 7,
-      "status": "passed",
-      "repeat": 5,
-      "passed": 5,
-      "failed": 0,
-      "runs": [
-        {
-          "run": 1,
-          "status": "passed",
-          "durationMs": 8029
-        },
-        {
-          "run": 2,
-          "status": "passed",
-          "durationMs": 4158
-        },
-        {
-          "run": 3,
-          "status": "passed",
-          "durationMs": 5523
-        },
-        {
-          "run": 4,
-          "status": "passed",
-          "durationMs": 3908
-        },
-        {
-          "run": 5,
-          "status": "passed",
-          "durationMs": 4582
-        }
-      ]
-    },
-    {
-      "id": "36943161b78213d9758d-746d864f36d426b7e371",
-      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > falls back to article 1 when id is abc",
-      "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 168,
-      "column": 7,
-      "status": "passed",
-      "repeat": 5,
-      "passed": 5,
-      "failed": 0,
-      "runs": [
-        {
-          "run": 1,
-          "status": "passed",
-          "durationMs": 7905
-        },
-        {
-          "run": 2,
-          "status": "passed",
-          "durationMs": 4509
-        },
-        {
-          "run": 3,
-          "status": "passed",
-          "durationMs": 5457
-        },
-        {
-          "run": 4,
-          "status": "passed",
-          "durationMs": 3686
-        },
-        {
-          "run": 5,
-          "status": "passed",
-          "durationMs": 4614
-        }
-      ]
-    },
-    {
-      "id": "36943161b78213d9758d-11b56d0668435a1e708c",
-      "title": "chromium > article.spec.ts > Article page content by id > renders article 1 with title, metadata, image, all paragraphs and copyright footer",
-      "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 134,
-      "column": 6,
-      "status": "passed",
-      "repeat": 5,
-      "passed": 5,
-      "failed": 0,
-      "runs": [
-        {
-          "run": 1,
           "status": "passed",
           "durationMs": 8384
-        },
-        {
-          "run": 2,
-          "status": "passed",
-          "durationMs": 4746
-        },
-        {
-          "run": 3,
-          "status": "passed",
-          "durationMs": 5904
-        },
-        {
-          "run": 4,
-          "status": "passed",
-          "durationMs": 4019
-        },
-        {
-          "run": 5,
-          "status": "passed",
-          "durationMs": 6107
         }
       ]
     },
     {
-      "id": "36943161b78213d9758d-b252b0cd11576c0bfc21",
-      "title": "chromium > article.spec.ts > Article page UI rendering > renders the article shell in the expected visual order",
+      "id": "9a880f30605c63b572b3-ee95bc9e82b9dd303097",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > opens kick confirm dialog and cancels",
       "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 198,
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 261,
       "column": 6,
       "status": "passed",
       "repeat": 5,
@@ -259,37 +220,37 @@
         {
           "run": 1,
           "status": "passed",
-          "durationMs": 5061
+          "durationMs": 11470
         },
         {
           "run": 2,
           "status": "passed",
-          "durationMs": 4367
+          "durationMs": 9811
         },
         {
           "run": 3,
           "status": "passed",
-          "durationMs": 5210
+          "durationMs": 9798
         },
         {
           "run": 4,
           "status": "passed",
-          "durationMs": 2685
+          "durationMs": 9073
         },
         {
           "run": 5,
           "status": "passed",
-          "durationMs": 2529
+          "durationMs": 6161
         }
       ]
     },
     {
-      "id": "36943161b78213d9758d-3f436882a9d510582045",
-      "title": "chromium > article.spec.ts > Article page responsive layout > desktop 1920x1080: article content remains visible without horizontal overflow",
+      "id": "9a880f30605c63b572b3-93121bd1abd85d4a7395",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > opens event detail dialog and closes with Escape",
       "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 217,
-      "column": 7,
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 234,
+      "column": 6,
       "status": "passed",
       "repeat": 5,
       "passed": 5,
@@ -298,114 +259,36 @@
         {
           "run": 1,
           "status": "passed",
-          "durationMs": 3962
+          "durationMs": 11202
         },
         {
           "run": 2,
           "status": "passed",
-          "durationMs": 5799
+          "durationMs": 10651
         },
         {
           "run": 3,
           "status": "passed",
-          "durationMs": 2840
+          "durationMs": 9875
         },
         {
           "run": 4,
           "status": "passed",
-          "durationMs": 2662
+          "durationMs": 9442
         },
         {
           "run": 5,
           "status": "passed",
-          "durationMs": 2369
+          "durationMs": 7762
         }
       ]
     },
     {
-      "id": "36943161b78213d9758d-557cc4ad7774fd2f83f9",
-      "title": "chromium > article.spec.ts > Article page responsive layout > tablet 768x1024: article content remains visible without horizontal overflow",
+      "id": "9a880f30605c63b572b3-a51f5a93a4bbb005daf2",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > shows error state when fetch fails",
       "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 217,
-      "column": 7,
-      "status": "passed",
-      "repeat": 5,
-      "passed": 5,
-      "failed": 0,
-      "runs": [
-        {
-          "run": 1,
-          "status": "passed",
-          "durationMs": 3982
-        },
-        {
-          "run": 2,
-          "status": "passed",
-          "durationMs": 2872
-        },
-        {
-          "run": 3,
-          "status": "passed",
-          "durationMs": 2566
-        },
-        {
-          "run": 4,
-          "status": "passed",
-          "durationMs": 2378
-        },
-        {
-          "run": 5,
-          "status": "passed",
-          "durationMs": 3268
-        }
-      ]
-    },
-    {
-      "id": "36943161b78213d9758d-fefa677ea14bfa831e77",
-      "title": "chromium > article.spec.ts > Article page responsive layout > mobile 375x812: article content remains visible without horizontal overflow",
-      "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 217,
-      "column": 7,
-      "status": "passed",
-      "repeat": 5,
-      "passed": 5,
-      "failed": 0,
-      "runs": [
-        {
-          "run": 1,
-          "status": "passed",
-          "durationMs": 4016
-        },
-        {
-          "run": 2,
-          "status": "passed",
-          "durationMs": 2846
-        },
-        {
-          "run": 3,
-          "status": "passed",
-          "durationMs": 2364
-        },
-        {
-          "run": 4,
-          "status": "passed",
-          "durationMs": 2471
-        },
-        {
-          "run": 5,
-          "status": "passed",
-          "durationMs": 3087
-        }
-      ]
-    },
-    {
-      "id": "36943161b78213d9758d-fdf6524dc9c1ac7b9fd1",
-      "title": "chromium > article.spec.ts > Article page content by id > renders article 2 content and does not mix content from article 1 or article 3",
-      "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 143,
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 223,
       "column": 6,
       "status": "failed",
       "repeat": 5,
@@ -415,91 +298,247 @@
         {
           "run": 1,
           "status": "failed",
-          "durationMs": 12417,
+          "durationMs": 11531,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for\" http://localhost:5173/show-volunteers\" navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for\" http://localhost:5173/show-volunteers\" navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:231:67\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 231,
+              "column": 67
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-1-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-1-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-1-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-1-trace.zip"
         },
         {
           "run": 2,
           "status": "failed",
-          "durationMs": 10316,
+          "durationMs": 10337,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:231:67\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 231,
+              "column": 67
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-2-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-2-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-2-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-2-trace.zip"
         },
         {
           "run": 3,
           "status": "failed",
-          "durationMs": 9411,
+          "durationMs": 10638,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for\" http://localhost:5173/show-volunteers\" navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for\" http://localhost:5173/show-volunteers\" navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:231:67\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 231,
+              "column": 67
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-3-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-3-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-3-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-3-trace.zip"
         },
         {
           "run": 4,
           "status": "failed",
-          "durationMs": 8408,
+          "durationMs": 8925,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:231:67\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 231,
+              "column": 67
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-4-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-4-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-4-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-4-trace.zip"
         },
         {
           "run": 5,
           "status": "failed",
-          "durationMs": 7855,
+          "durationMs": 8373,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByText('Failed to fetch volunteers list')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByText('Failed to fetch volunteers list')\n    - waiting for navigation to finish...\n    - navigated to \"http://localhost:5173/show-volunteers\"\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:231:67\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 231,
+              "column": 67
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-5-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-5-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-5-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-8a583-rror-state-when-fetch-fails-chromium\\run-5-trace.zip"
         }
       ]
     },
     {
-      "id": "36943161b78213d9758d-a86110cdbc85537576cf",
-      "title": "chromium > article.spec.ts > Article page content by id > renders article 3 with title, metadata, image and complete content",
+      "id": "9a880f30605c63b572b3-59398a9c537d08f98650",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers navigation guards > redirects to login when token is missing",
       "projectName": "chromium",
-      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-      "line": 156,
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 314,
+      "column": 6,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 2596
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 1668
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 1166
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 1848
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 1274
+        }
+      ]
+    },
+    {
+      "id": "9a880f30605c63b572b3-8a62875c205242a9f3f9",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers navigation guards > redirects to home when role is not manager",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 319,
+      "column": 6,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 2466
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 1504
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 1323
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 1896
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 1304
+        }
+      ]
+    },
+    {
+      "id": "9a880f30605c63b572b3-5dba1e3f4be00c82c2b5",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > responsive sanity > renders mobile table and view details action",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 301,
+      "column": 7,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 5419
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 3879
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 2186
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 3286
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 2430
+        }
+      ]
+    },
+    {
+      "id": "9a880f30605c63b572b3-c2ab51e923350ea26ea4",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > kicks a volunteer and shows success toast",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 274,
+      "column": 6,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 8590
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 6513
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 4371
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 5315
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 5522
+        }
+      ]
+    },
+    {
+      "id": "9a880f30605c63b572b3-1d5e981564ab61e97ce1",
+      "title": "chromium > showvolunteer.spec.ts > Manager - Show Volunteers > shows warning toast when kick fails",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+      "line": 286,
       "column": 6,
       "status": "failed",
       "repeat": 5,
@@ -509,82 +548,82 @@
         {
           "run": 1,
           "status": "failed",
-          "durationMs": 13698,
+          "durationMs": 15784,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n",
+            "stack": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:295:41\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 295,
+              "column": 41
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-1-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-1-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-1-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-1-trace.zip"
         },
         {
           "run": 2,
           "status": "failed",
-          "durationMs": 11070,
+          "durationMs": 11260,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n",
+            "stack": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:295:41\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 295,
+              "column": 41
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-2-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-2-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-2-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-2-trace.zip"
         },
         {
           "run": 3,
           "status": "failed",
-          "durationMs": 10325,
+          "durationMs": 9683,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n",
+            "stack": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:295:41\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 295,
+              "column": 41
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-3-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-3-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-3-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-3-trace.zip"
         },
         {
           "run": 4,
           "status": "failed",
-          "durationMs": 7779,
+          "durationMs": 9727,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n",
+            "stack": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:295:41\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 295,
+              "column": 41
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-4-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-4-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-4-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-4-trace.zip"
         },
         {
           "run": 5,
           "status": "failed",
-          "durationMs": 7232,
+          "durationMs": 9527,
           "error": {
-            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
-            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "message": "expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n",
+            "stack": "Error: expect(locator).toContainText(expected) failed\n\nLocator: getByRole('alert')\nExpected substring: \"Kick failed\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toContainText\" with timeout 5000ms\n  - waiting for getByRole('alert')\n\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts:295:41\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
             "location": {
-              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
-              "line": 84,
-              "column": 77
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\showvolunteer.spec.ts",
+              "line": 295,
+              "column": 41
             }
           },
-          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-5-failure.png",
-          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-5-trace.zip"
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-5-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\showvolunteer-Manager---Sh-e86d6-rning-toast-when-kick-fails-chromium\\run-5-trace.zip"
         }
       ]
     }
