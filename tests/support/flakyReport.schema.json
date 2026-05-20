@@ -1,0 +1,93 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://example.local/flaky-report.schema.json",
+	"title": "Flaky Report Document",
+	"type": "object",
+	"required": ["version", "generatedAt", "outputDir", "totals", "tests"],
+	"additionalProperties": false,
+	"properties": {
+		"version": {
+			"const": 1
+		},
+		"generatedAt": {
+			"type": "string",
+			"format": "date-time"
+		},
+		"outputDir": {
+			"type": "string",
+			"minLength": 1
+		},
+		"totals": {
+			"type": "object",
+			"required": ["total", "passed", "flaky", "failed", "executions"],
+			"additionalProperties": false,
+			"properties": {
+				"total": { "type": "integer", "minimum": 0 },
+				"passed": { "type": "integer", "minimum": 0 },
+				"flaky": { "type": "integer", "minimum": 0 },
+				"failed": { "type": "integer", "minimum": 0 },
+				"executions": { "type": "integer", "minimum": 0 }
+			}
+		},
+		"tests": {
+			"type": "array",
+			"items": { "$ref": "#/$defs/logicalTest" }
+		}
+	},
+	"$defs": {
+		"sourceLocation": {
+			"type": "object",
+			"required": ["file", "line", "column"],
+			"additionalProperties": false,
+			"properties": {
+				"file": { "type": "string", "minLength": 1 },
+				"line": { "type": "integer", "minimum": 1 },
+				"column": { "type": "integer", "minimum": 1 }
+			}
+		},
+		"errorDetails": {
+			"type": "object",
+			"required": ["message"],
+			"additionalProperties": false,
+			"properties": {
+				"message": { "type": "string" },
+				"stack": { "type": "string" },
+				"location": { "$ref": "#/$defs/sourceLocation" }
+			}
+		},
+		"iteration": {
+			"type": "object",
+			"required": ["run", "status", "durationMs"],
+			"additionalProperties": false,
+			"properties": {
+				"run": { "type": "integer", "minimum": 1 },
+				"status": { "enum": ["passed", "failed"] },
+				"durationMs": { "type": "integer", "minimum": 0 },
+				"error": { "$ref": "#/$defs/errorDetails" },
+				"screenshotPath": { "type": "string", "minLength": 1 },
+				"tracePath": { "type": "string", "minLength": 1 }
+			}
+		},
+		"logicalTest": {
+			"type": "object",
+			"required": ["id", "title", "projectName", "file", "line", "column", "status", "repeat", "passed", "failed", "runs"],
+			"additionalProperties": false,
+			"properties": {
+				"id": { "type": "string", "minLength": 1 },
+				"title": { "type": "string", "minLength": 1 },
+				"projectName": { "type": "string", "minLength": 1 },
+				"file": { "type": "string", "minLength": 1 },
+				"line": { "type": "integer", "minimum": 0 },
+				"column": { "type": "integer", "minimum": 0 },
+				"status": { "enum": ["passed", "flaky", "failed"] },
+				"repeat": { "type": "integer", "minimum": 1 },
+				"passed": { "type": "integer", "minimum": 0 },
+				"failed": { "type": "integer", "minimum": 0 },
+				"runs": {
+					"type": "array",
+					"items": { "$ref": "#/$defs/iteration" }
+				}
+			}
+		}
+	}
+}

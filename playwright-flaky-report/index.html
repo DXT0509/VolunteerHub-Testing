@@ -1,0 +1,1883 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Flaky Test Report</title>
+	<style>
+		:root {
+			--bg: #0b1020;
+			--panel: rgba(11, 16, 32, 0.82);
+			--panel-strong: #111833;
+			--text: #e8ecff;
+			--muted: #9aa6cb;
+			--line: rgba(153, 170, 221, 0.18);
+			--shadow: 0 18px 42px rgba(0, 0, 0, 0.34);
+			--passed: #2dd4bf;
+			--flaky: #f59e0b;
+			--failed: #fb7185;
+			--accent: #7c9cff;
+			--sans: 'Segoe UI Variable Text', 'Segoe UI', Inter, Aptos, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+			--mono: 'Cascadia Code', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+			font-family: var(--sans);
+		}
+
+		* { box-sizing: border-box; }
+		body {
+			margin: 0;
+			color: var(--text);
+			font-family: var(--sans);
+			background:
+				radial-gradient(circle at top left, rgba(124, 156, 255, 0.18), transparent 30%),
+				radial-gradient(circle at top right, rgba(45, 212, 191, 0.14), transparent 24%),
+				linear-gradient(180deg, #070a14 0%, #10172a 100%);
+			min-height: 100vh;
+			-webkit-font-smoothing: antialiased;
+			text-rendering: optimizeLegibility;
+		}
+
+		.page {
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 32px 20px 56px;
+		}
+
+		.hero, .section, .test-card, .run {
+			border: 1px solid var(--line);
+			background: var(--panel);
+			backdrop-filter: blur(14px);
+			box-shadow: var(--shadow);
+		}
+
+		.hero {
+			padding: 28px;
+			border-radius: 28px;
+			margin-bottom: 20px;
+			background: linear-gradient(135deg, rgba(17, 24, 51, 0.9), rgba(11, 16, 32, 0.82));
+		}
+
+		.hero__eyebrow {
+			text-transform: uppercase;
+			letter-spacing: .18em;
+			font-size: .78rem;
+			color: var(--muted);
+		}
+
+		h1 {
+			margin: 10px 0 8px;
+			font-size: clamp(2rem, 4vw, 3.6rem);
+			line-height: 1.03;
+			letter-spacing: -0.04em;
+		}
+
+		.hero p {
+			max-width: 860px;
+			color: var(--muted);
+			font-size: 1rem;
+			line-height: 1.6;
+		}
+
+		.hero__meta {
+			display: grid;
+			grid-template-columns: repeat(5, minmax(0, 1fr));
+			gap: 12px;
+			margin-top: 22px;
+		}
+
+		.hero__meta div {
+			padding: 14px 16px;
+			background: rgba(255,255,255,.04);
+			border: 1px solid rgba(255,255,255,.08);
+			border-radius: 18px;
+		}
+
+		.hero__meta span {
+			display: block;
+			font-size: .82rem;
+			color: var(--muted);
+		}
+
+		.hero__meta strong {
+			display: block;
+			margin-top: 4px;
+			font-size: 1.45rem;
+			font-weight: 700;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.tabs {
+			display: grid;
+			grid-template-columns: repeat(4, minmax(0, 1fr));
+			gap: 12px;
+			margin: 18px 0 22px;
+		}
+
+		.tab {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			padding: 14px 16px;
+			border-radius: 18px;
+			border: 1px solid var(--line);
+			background: rgba(255,255,255,.04);
+			color: var(--text);
+			cursor: pointer;
+			font: inherit;
+			font-weight: 650;
+			transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+		}
+
+		.tab span {
+			text-transform: uppercase;
+			letter-spacing: .12em;
+			font-size: .78rem;
+			color: var(--muted);
+		}
+
+		.tab strong {
+			font-size: 1.2rem;
+			font-variant-numeric: tabular-nums;
+		}
+
+		.tab:hover {
+			transform: translateY(-1px);
+			border-color: rgba(124, 156, 255, 0.35);
+		}
+
+		.tab--active {
+			background: linear-gradient(135deg, rgba(124, 156, 255, 0.22), rgba(45, 212, 191, 0.10));
+			border-color: rgba(124, 156, 255, 0.48);
+			box-shadow: 0 12px 32px rgba(124, 156, 255, 0.12);
+		}
+
+		.sections {
+			display: grid;
+			gap: 18px;
+		}
+
+		.section {
+			padding: 20px;
+			border-radius: 22px;
+			background: rgba(8, 12, 24, 0.6);
+		}
+
+		.section__head {
+			display: flex;
+			justify-content: space-between;
+			align-items: baseline;
+			gap: 12px;
+			margin-bottom: 16px;
+		}
+
+		.section__head h2 {
+			margin: 0;
+			font-size: 1.2rem;
+		}
+
+		.section__count {
+			color: var(--muted);
+			font-size: .92rem;
+		}
+
+		.test-list {
+			display: grid;
+			gap: 14px;
+		}
+
+		.test-card {
+			padding: 0;
+			overflow: hidden;
+			border-radius: 20px;
+			background: rgba(255,255,255,.03);
+		}
+
+		.test-card > summary {
+			list-style: none;
+			cursor: pointer;
+			padding: 18px 18px 16px;
+		}
+
+		.test-card > summary::-webkit-details-marker,
+		.run > summary::-webkit-details-marker {
+			display: none;
+		}
+
+		.test-card__head {
+			display: flex;
+			justify-content: space-between;
+			gap: 16px;
+			align-items: flex-start;
+		}
+
+		.test-card__title {
+			font-size: 1.02rem;
+			font-weight: 700;
+			margin-bottom: 4px;
+		}
+
+		.test-card__meta {
+			color: var(--muted);
+			font-size: .92rem;
+		}
+
+		.badges {
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+			justify-content: flex-end;
+		}
+
+		.badge {
+			display: inline-flex;
+			align-items: center;
+			padding: 7px 11px;
+			border-radius: 999px;
+			font-size: .8rem;
+			font-weight: 700;
+			letter-spacing: .02em;
+			text-transform: uppercase;
+		}
+
+		.badge--passed { background: rgba(45, 212, 191, .14); color: var(--passed); }
+		.badge--flaky { background: rgba(245, 158, 11, .16); color: var(--flaky); }
+		.badge--failed { background: rgba(251, 113, 133, .16); color: var(--failed); }
+		.badge--neutral { background: rgba(255, 255, 255, .07); color: var(--muted); text-transform: none; font-weight: 600; }
+
+		.test-card__body {
+			padding: 0 18px 18px;
+			border-top: 1px solid var(--line);
+		}
+
+		.test-card__stats {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+			padding: 14px 0 16px;
+			color: var(--muted);
+			font-size: .92rem;
+		}
+
+		.runs {
+			display: grid;
+			gap: 12px;
+		}
+
+		.run {
+			border: 1px solid var(--line);
+			background: rgba(255,255,255,.03);
+			overflow: hidden;
+			border-radius: 18px;
+		}
+
+		.run > summary {
+			display: flex;
+			justify-content: space-between;
+			gap: 12px;
+			padding: 12px 14px;
+			cursor: pointer;
+			font-weight: 600;
+		}
+
+		.run__body {
+			padding: 0 14px 14px;
+			display: grid;
+			gap: 12px;
+		}
+
+		.kv {
+			display: grid;
+			gap: 6px;
+		}
+
+		.kv span {
+			font-size: .8rem;
+			color: var(--muted);
+			text-transform: uppercase;
+			letter-spacing: .08em;
+		}
+
+		.kv code, .error-block pre {
+			white-space: pre-wrap;
+			word-break: break-word;
+			margin: 0;
+			padding: 12px;
+			border-radius: 14px;
+			border: 1px solid var(--line);
+			background: rgba(0,0,0,.2);
+			color: var(--text);
+			font-family: var(--mono);
+			font-size: .84rem;
+			line-height: 1.6;
+		}
+
+		.kv a {
+			color: var(--accent);
+			text-decoration: none;
+		}
+
+		.error-block {
+			display: grid;
+			gap: 8px;
+		}
+
+		.error-block__title {
+			font-weight: 700;
+			color: #ffd9df;
+		}
+
+		.muted {
+			color: var(--muted);
+		}
+
+		.empty-state {
+			padding: 22px;
+			border: 1px dashed var(--line);
+			border-radius: 18px;
+			color: var(--muted);
+		}
+
+		.report-view[data-active-tab="passed"] .section[data-status="flaky"],
+		.report-view[data-active-tab="passed"] .section[data-status="failed"],
+		.report-view[data-active-tab="passed"] .section[data-status="passed"] .badge--flaky,
+		.report-view[data-active-tab="passed"] .section[data-status="passed"] .badge--failed {
+			display: none;
+		}
+
+		.report-view[data-active-tab="flaky"] .section[data-status="passed"],
+		.report-view[data-active-tab="flaky"] .section[data-status="failed"] {
+			display: none;
+		}
+
+		.report-view[data-active-tab="failed"] .section[data-status="passed"],
+		.report-view[data-active-tab="failed"] .section[data-status="flaky"] {
+			display: none;
+		}
+
+		.report-view[data-active-tab="total"] .section {
+			display: block;
+		}
+
+		.report-view[data-active-tab="total"] .section__count::after {
+			content: ' '; 
+		}
+
+		@media (max-width: 960px) {
+			.hero__meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+			.tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+			.test-card__head { flex-direction: column; }
+			.badges { justify-content: flex-start; }
+			.section__head { flex-direction: column; align-items: flex-start; }
+		}
+
+		@media (max-width: 640px) {
+			.page { padding-inline: 12px; }
+			.hero, .section { border-radius: 20px; }
+			.hero__meta { grid-template-columns: 1fr; }
+			.tabs { grid-template-columns: 1fr; }
+			.tab { width: 100%; }
+		}
+	</style>
+</head>
+<body>
+	<main class="page">
+		<header class="hero">
+			<div class="hero__eyebrow">Standalone flaky test report</div>
+			<h1>Flaky Test Report</h1>
+			<p>Each logical test runs multiple iterations internally. This report keeps logical counts intact and shows every pass/fail iteration.</p>
+			<div class="hero__meta">
+				<div><span>Total logical tests</span><strong>12</strong></div>
+				<div><span>Passed</span><strong>10</strong></div>
+				<div><span>Flaky</span><strong>0</strong></div>
+				<div><span>Failed</span><strong>2</strong></div>
+				<div><span>Raw executions</span><strong>60</strong></div>
+			</div>
+		</header>
+
+		<nav class="tabs" aria-label="Report tabs">
+			
+		<button class="tab tab--active" type="button" data-tab="total" aria-pressed="true">
+			<span>Total</span>
+			<strong>12</strong>
+		</button>
+	
+			
+		<button class="tab" type="button" data-tab="passed" aria-pressed="false">
+			<span>Passed</span>
+			<strong>10</strong>
+		</button>
+	
+			
+		<button class="tab" type="button" data-tab="flaky" aria-pressed="false">
+			<span>Flaky</span>
+			<strong>0</strong>
+		</button>
+	
+			
+		<button class="tab" type="button" data-tab="failed" aria-pressed="false">
+			<span>Failed</span>
+			<strong>2</strong>
+		</button>
+	
+		</nav>
+
+		<section class="sections report-view" data-active-tab="total" id="reportView">
+			
+		<section class="section" data-status="passed">
+			<div class="section__head">
+				<h2>Passed tests</h2>
+				<div class="section__count">10 logical tests</div>
+			</div>
+			<div class="test-list">
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page content by id &gt; renders article 1 with title, metadata, image, all paragraphs and copyright footer c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page content by id &gt; renders article 1 with title, metadata, image, all paragraphs and copyright footer</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:134:6</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>8384 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>4746 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>5904 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>4019 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>6107 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page invalid and missing id behavior &gt; falls back to article 1 when id is 100 c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page invalid and missing id behavior &gt; falls back to article 1 when id is 100</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:168:7</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>8029 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>4158 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>5523 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>3908 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>4582 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page invalid and missing id behavior &gt; falls back to article 1 when id is 999 c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page invalid and missing id behavior &gt; falls back to article 1 when id is 999</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:168:7</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>8586 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>4137 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>5587 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>3729 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>4289 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page invalid and missing id behavior &gt; falls back to article 1 when id is abc c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page invalid and missing id behavior &gt; falls back to article 1 when id is abc</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:168:7</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>7905 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>4509 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>5457 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>3686 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>4614 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page invalid and missing id behavior &gt; handles /article without a runtime error or blank page c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page invalid and missing id behavior &gt; handles /article without a runtime error or blank page</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:184:7</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>8551 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>2057 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>2855 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>3453 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>3129 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page invalid and missing id behavior &gt; handles /article/ without a runtime error or blank page c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page invalid and missing id behavior &gt; handles /article/ without a runtime error or blank page</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:184:7</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>3091 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>5129 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>1966 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>2113 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>2483 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page responsive layout &gt; desktop 1920x1080: article content remains visible without horizontal overflow c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page responsive layout &gt; desktop 1920x1080: article content remains visible without horizontal overflow</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:217:7</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>3962 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>5799 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>2840 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>2662 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>2369 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page responsive layout &gt; mobile 375x812: article content remains visible without horizontal overflow c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page responsive layout &gt; mobile 375x812: article content remains visible without horizontal overflow</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:217:7</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>4016 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>2846 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>2364 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>2471 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>3087 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page responsive layout &gt; tablet 768x1024: article content remains visible without horizontal overflow c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page responsive layout &gt; tablet 768x1024: article content remains visible without horizontal overflow</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:217:7</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>3982 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>2872 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>2566 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>2378 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>3268 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="passed" data-search="chromium &gt; article.spec.ts &gt; article page ui rendering &gt; renders the article shell in the expected visual order c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page UI rendering &gt; renders the article shell in the expected visual order</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:198:6</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--passed">PASSED</span>
+						<span class="badge badge--neutral">5/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 5</span>
+					<span>failed 0</span>
+					<span>failed iterations 0</span>
+				</div>
+				<div class="runs">
+		<details class="run run--passed">
+			<summary>
+				<span>Run 1</span>
+				<strong>PASSED</strong>
+				<span>5061 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 2</span>
+				<strong>PASSED</strong>
+				<span>4367 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 3</span>
+				<strong>PASSED</strong>
+				<span>5210 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 4</span>
+				<strong>PASSED</strong>
+				<span>2685 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--passed">
+			<summary>
+				<span>Run 5</span>
+				<strong>PASSED</strong>
+				<span>2529 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>Unknown</code></div>
+				<div class="kv"><span>Screenshot</span><code><span class="muted">No screenshot</span></code></div>
+				<div class="kv"><span>Trace</span><code><span class="muted">No trace</span></code></div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	</div>
+		</section>
+	
+			
+		<section class="section" data-status="flaky">
+			<div class="section__head">
+				<h2>Flaky tests</h2>
+				<div class="section__count">0 logical tests</div>
+			</div>
+			<div class="test-list"><div class="empty-state">No tests in this category.</div></div>
+		</section>
+	
+			
+		<section class="section" data-status="failed">
+			<div class="section__head">
+				<h2>Failed tests</h2>
+				<div class="section__count">2 logical tests</div>
+			</div>
+			<div class="test-list">
+		<details class="test-card" data-status="failed" data-search="chromium &gt; article.spec.ts &gt; article page content by id &gt; renders article 2 content and does not mix content from article 1 or article 3 c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page content by id &gt; renders article 2 content and does not mix content from article 1 or article 3</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:143:6</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--failed">FAILED</span>
+						<span class="badge badge--neutral">0/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 0</span>
+					<span>failed 5</span>
+					<span>failed iterations 5</span>
+				</div>
+				<div class="runs">
+		<details class="run run--failed">
+			<summary>
+				<span>Run 1</span>
+				<strong>FAILED</strong>
+				<span>12417 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-1-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-1-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-1-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-1-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:147:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--failed">
+			<summary>
+				<span>Run 2</span>
+				<strong>FAILED</strong>
+				<span>10316 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-2-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-2-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-2-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-2-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:147:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--failed">
+			<summary>
+				<span>Run 3</span>
+				<strong>FAILED</strong>
+				<span>9411 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-3-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-3-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-3-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-3-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:147:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--failed">
+			<summary>
+				<span>Run 4</span>
+				<strong>FAILED</strong>
+				<span>8408 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-4-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-4-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-4-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-4-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:147:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--failed">
+			<summary>
+				<span>Run 5</span>
+				<strong>FAILED</strong>
+				<span>7855 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-5-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-5-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-95239-from-article-1-or-article-3-chromium/run-5-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\run-5-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Balancing remote work with volunteer work.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:147:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	
+		<details class="test-card" data-status="failed" data-search="chromium &gt; article.spec.ts &gt; article page content by id &gt; renders article 3 with title, metadata, image and complete content c:\xampp\htdocs\volunteerhub\tests\article.spec.ts chromium">
+			<summary>
+				<div class="test-card__head">
+					<div>
+						<div class="test-card__title">chromium &gt; article.spec.ts &gt; Article page content by id &gt; renders article 3 with title, metadata, image and complete content</div>
+						<div class="test-card__meta">chromium • C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:156:6</div>
+					</div>
+					<div class="badges">
+						<span class="badge badge--failed">FAILED</span>
+						<span class="badge badge--neutral">0/5 passed</span>
+					</div>
+				</div>
+			</summary>
+			<div class="test-card__body">
+				<div class="test-card__stats">
+					<span>repeat 5</span>
+					<span>passed 0</span>
+					<span>failed 5</span>
+					<span>failed iterations 5</span>
+				</div>
+				<div class="runs">
+		<details class="run run--failed">
+			<summary>
+				<span>Run 1</span>
+				<strong>FAILED</strong>
+				<span>13698 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-1-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-1-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-1-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-1-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:160:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--failed">
+			<summary>
+				<span>Run 2</span>
+				<strong>FAILED</strong>
+				<span>11070 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-2-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-2-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-2-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-2-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:160:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--failed">
+			<summary>
+				<span>Run 3</span>
+				<strong>FAILED</strong>
+				<span>10325 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-3-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-3-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-3-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-3-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:160:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--failed">
+			<summary>
+				<span>Run 4</span>
+				<strong>FAILED</strong>
+				<span>7779 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-4-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-4-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-4-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-4-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:160:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	
+		<details class="run run--failed">
+			<summary>
+				<span>Run 5</span>
+				<strong>FAILED</strong>
+				<span>7232 ms</span>
+			</summary>
+			<div class="run__body">
+				<div class="kv"><span>Source line</span><code>C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77</code></div>
+				<div class="kv"><span>Screenshot</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-5-failure.png" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-5-failure.png</a></code></div>
+				<div class="kv"><span>Trace</span><code><a href="file:///C:/xampp/htdocs/VolunteerHub/test-results/article-Article-page-conte-7ab94--image-and-complete-content-chromium/run-5-trace.zip" target="_blank" rel="noreferrer">C:\xampp\htdocs\VolunteerHub\test-results\article-Article-page-conte-7ab94--image-and-complete-content-chromium\run-5-trace.zip</a></code></div>
+				
+					<div class="error-block">
+						<div class="error-block__title">expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+</div>
+						<pre>Error: expect(locator).toBeVisible() failed
+
+Locator: getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+Expected: visible
+Timeout: 5000ms
+Error: element(s) not found
+
+Call log:
+  - Expect &quot;toBeVisible&quot; with timeout 5000ms
+  - waiting for getByRole(&#39;heading&#39;, { name: &#39;Spreading the spirit of volunteerism in the community.&#39;, level: 1 })
+
+    at expectArticleContent (C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:84:77)
+    at C:\xampp\htdocs\VolunteerHub\tests\article.spec.ts:160:3
+    at C:\xampp\htdocs\VolunteerHub\tests\support\flakyTest.ts:139:6</pre>
+					</div>
+				
+			</div>
+		</details>
+	</div>
+			</div>
+		</details>
+	</div>
+		</section>
+	
+		</section>
+	</main>
+	<script type="application/json" id="flaky-report-data">{"version":1,"generatedAt":"2026-05-20T04:03:34.034Z","outputDir":"C:\\xampp\\htdocs\\VolunteerHub\\playwright-flaky-report","totals":{"total":12,"passed":10,"flaky":0,"failed":2,"executions":60},"tests":[{"id":"36943161b78213d9758d-a7c7729e30d40d39dcf1","title":"chromium > article.spec.ts > Article page invalid and missing id behavior > handles /article/ without a runtime error or blank page","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":184,"column":7,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":3091},{"run":2,"status":"passed","durationMs":5129},{"run":3,"status":"passed","durationMs":1966},{"run":4,"status":"passed","durationMs":2113},{"run":5,"status":"passed","durationMs":2483}]},{"id":"36943161b78213d9758d-dad2aa78ed046332a256","title":"chromium > article.spec.ts > Article page invalid and missing id behavior > handles /article without a runtime error or blank page","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":184,"column":7,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":8551},{"run":2,"status":"passed","durationMs":2057},{"run":3,"status":"passed","durationMs":2855},{"run":4,"status":"passed","durationMs":3453},{"run":5,"status":"passed","durationMs":3129}]},{"id":"36943161b78213d9758d-16f372e62ff015ce02dc","title":"chromium > article.spec.ts > Article page invalid and missing id behavior > falls back to article 1 when id is 999","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":168,"column":7,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":8586},{"run":2,"status":"passed","durationMs":4137},{"run":3,"status":"passed","durationMs":5587},{"run":4,"status":"passed","durationMs":3729},{"run":5,"status":"passed","durationMs":4289}]},{"id":"36943161b78213d9758d-80b90ed0f3d4e447e528","title":"chromium > article.spec.ts > Article page invalid and missing id behavior > falls back to article 1 when id is 100","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":168,"column":7,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":8029},{"run":2,"status":"passed","durationMs":4158},{"run":3,"status":"passed","durationMs":5523},{"run":4,"status":"passed","durationMs":3908},{"run":5,"status":"passed","durationMs":4582}]},{"id":"36943161b78213d9758d-746d864f36d426b7e371","title":"chromium > article.spec.ts > Article page invalid and missing id behavior > falls back to article 1 when id is abc","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":168,"column":7,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":7905},{"run":2,"status":"passed","durationMs":4509},{"run":3,"status":"passed","durationMs":5457},{"run":4,"status":"passed","durationMs":3686},{"run":5,"status":"passed","durationMs":4614}]},{"id":"36943161b78213d9758d-11b56d0668435a1e708c","title":"chromium > article.spec.ts > Article page content by id > renders article 1 with title, metadata, image, all paragraphs and copyright footer","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":134,"column":6,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":8384},{"run":2,"status":"passed","durationMs":4746},{"run":3,"status":"passed","durationMs":5904},{"run":4,"status":"passed","durationMs":4019},{"run":5,"status":"passed","durationMs":6107}]},{"id":"36943161b78213d9758d-b252b0cd11576c0bfc21","title":"chromium > article.spec.ts > Article page UI rendering > renders the article shell in the expected visual order","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":198,"column":6,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":5061},{"run":2,"status":"passed","durationMs":4367},{"run":3,"status":"passed","durationMs":5210},{"run":4,"status":"passed","durationMs":2685},{"run":5,"status":"passed","durationMs":2529}]},{"id":"36943161b78213d9758d-3f436882a9d510582045","title":"chromium > article.spec.ts > Article page responsive layout > desktop 1920x1080: article content remains visible without horizontal overflow","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":217,"column":7,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":3962},{"run":2,"status":"passed","durationMs":5799},{"run":3,"status":"passed","durationMs":2840},{"run":4,"status":"passed","durationMs":2662},{"run":5,"status":"passed","durationMs":2369}]},{"id":"36943161b78213d9758d-557cc4ad7774fd2f83f9","title":"chromium > article.spec.ts > Article page responsive layout > tablet 768x1024: article content remains visible without horizontal overflow","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":217,"column":7,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":3982},{"run":2,"status":"passed","durationMs":2872},{"run":3,"status":"passed","durationMs":2566},{"run":4,"status":"passed","durationMs":2378},{"run":5,"status":"passed","durationMs":3268}]},{"id":"36943161b78213d9758d-fefa677ea14bfa831e77","title":"chromium > article.spec.ts > Article page responsive layout > mobile 375x812: article content remains visible without horizontal overflow","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":217,"column":7,"status":"passed","repeat":5,"passed":5,"failed":0,"runs":[{"run":1,"status":"passed","durationMs":4016},{"run":2,"status":"passed","durationMs":2846},{"run":3,"status":"passed","durationMs":2364},{"run":4,"status":"passed","durationMs":2471},{"run":5,"status":"passed","durationMs":3087}]},{"id":"36943161b78213d9758d-fdf6524dc9c1ac7b9fd1","title":"chromium > article.spec.ts > Article page content by id > renders article 2 content and does not mix content from article 1 or article 3","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":143,"column":6,"status":"failed","repeat":5,"passed":0,"failed":5,"runs":[{"run":1,"status":"failed","durationMs":12417,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-1-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-1-trace.zip"},{"run":2,"status":"failed","durationMs":10316,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-2-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-2-trace.zip"},{"run":3,"status":"failed","durationMs":9411,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-3-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-3-trace.zip"},{"run":4,"status":"failed","durationMs":8408,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-4-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-4-trace.zip"},{"run":5,"status":"failed","durationMs":7855,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-5-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-5-trace.zip"}]},{"id":"36943161b78213d9758d-a86110cdbc85537576cf","title":"chromium > article.spec.ts > Article page content by id > renders article 3 with title, metadata, image and complete content","projectName":"chromium","file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":156,"column":6,"status":"failed","repeat":5,"passed":0,"failed":5,"runs":[{"run":1,"status":"failed","durationMs":13698,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-1-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-1-trace.zip"},{"run":2,"status":"failed","durationMs":11070,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-2-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-2-trace.zip"},{"run":3,"status":"failed","durationMs":10325,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-3-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-3-trace.zip"},{"run":4,"status":"failed","durationMs":7779,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-4-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-4-trace.zip"},{"run":5,"status":"failed","durationMs":7232,"error":{"message":"expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n","stack":"Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6","location":{"file":"C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts","line":84,"column":77}},"screenshotPath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-5-failure.png","tracePath":"C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-5-trace.zip"}]}]}</script>
+	<script>
+		(() => {
+			const reportView = document.getElementById('reportView');
+			const tabs = Array.from(document.querySelectorAll('.tab'));
+			if (!reportView || tabs.length === 0) return;
+
+			const setActiveTab = (tab) => {
+				reportView.dataset.activeTab = tab;
+				for (const button of tabs) {
+					button.classList.toggle('tab--active', button.dataset.tab === tab);
+					button.setAttribute('aria-pressed', String(button.dataset.tab === tab));
+				}
+			};
+
+			for (const button of tabs) {
+				button.addEventListener('click', () => setActiveTab(button.dataset.tab || 'total'));
+			}
+		})();
+	</script>
+</body>
+</html>

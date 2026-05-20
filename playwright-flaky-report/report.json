@@ -1,0 +1,592 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-20T04:03:34.034Z",
+  "outputDir": "C:\\xampp\\htdocs\\VolunteerHub\\playwright-flaky-report",
+  "totals": {
+    "total": 12,
+    "passed": 10,
+    "flaky": 0,
+    "failed": 2,
+    "executions": 60
+  },
+  "tests": [
+    {
+      "id": "36943161b78213d9758d-a7c7729e30d40d39dcf1",
+      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > handles /article/ without a runtime error or blank page",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 184,
+      "column": 7,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 3091
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 5129
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 1966
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 2113
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 2483
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-dad2aa78ed046332a256",
+      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > handles /article without a runtime error or blank page",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 184,
+      "column": 7,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 8551
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 2057
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 2855
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 3453
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 3129
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-16f372e62ff015ce02dc",
+      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > falls back to article 1 when id is 999",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 168,
+      "column": 7,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 8586
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 4137
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 5587
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 3729
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 4289
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-80b90ed0f3d4e447e528",
+      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > falls back to article 1 when id is 100",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 168,
+      "column": 7,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 8029
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 4158
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 5523
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 3908
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 4582
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-746d864f36d426b7e371",
+      "title": "chromium > article.spec.ts > Article page invalid and missing id behavior > falls back to article 1 when id is abc",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 168,
+      "column": 7,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 7905
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 4509
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 5457
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 3686
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 4614
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-11b56d0668435a1e708c",
+      "title": "chromium > article.spec.ts > Article page content by id > renders article 1 with title, metadata, image, all paragraphs and copyright footer",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 134,
+      "column": 6,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 8384
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 4746
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 5904
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 4019
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 6107
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-b252b0cd11576c0bfc21",
+      "title": "chromium > article.spec.ts > Article page UI rendering > renders the article shell in the expected visual order",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 198,
+      "column": 6,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 5061
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 4367
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 5210
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 2685
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 2529
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-3f436882a9d510582045",
+      "title": "chromium > article.spec.ts > Article page responsive layout > desktop 1920x1080: article content remains visible without horizontal overflow",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 217,
+      "column": 7,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 3962
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 5799
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 2840
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 2662
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 2369
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-557cc4ad7774fd2f83f9",
+      "title": "chromium > article.spec.ts > Article page responsive layout > tablet 768x1024: article content remains visible without horizontal overflow",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 217,
+      "column": 7,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 3982
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 2872
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 2566
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 2378
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 3268
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-fefa677ea14bfa831e77",
+      "title": "chromium > article.spec.ts > Article page responsive layout > mobile 375x812: article content remains visible without horizontal overflow",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 217,
+      "column": 7,
+      "status": "passed",
+      "repeat": 5,
+      "passed": 5,
+      "failed": 0,
+      "runs": [
+        {
+          "run": 1,
+          "status": "passed",
+          "durationMs": 4016
+        },
+        {
+          "run": 2,
+          "status": "passed",
+          "durationMs": 2846
+        },
+        {
+          "run": 3,
+          "status": "passed",
+          "durationMs": 2364
+        },
+        {
+          "run": 4,
+          "status": "passed",
+          "durationMs": 2471
+        },
+        {
+          "run": 5,
+          "status": "passed",
+          "durationMs": 3087
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-fdf6524dc9c1ac7b9fd1",
+      "title": "chromium > article.spec.ts > Article page content by id > renders article 2 content and does not mix content from article 1 or article 3",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 143,
+      "column": 6,
+      "status": "failed",
+      "repeat": 5,
+      "passed": 0,
+      "failed": 5,
+      "runs": [
+        {
+          "run": 1,
+          "status": "failed",
+          "durationMs": 12417,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-1-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-1-trace.zip"
+        },
+        {
+          "run": 2,
+          "status": "failed",
+          "durationMs": 10316,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-2-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-2-trace.zip"
+        },
+        {
+          "run": 3,
+          "status": "failed",
+          "durationMs": 9411,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-3-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-3-trace.zip"
+        },
+        {
+          "run": 4,
+          "status": "failed",
+          "durationMs": 8408,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-4-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-4-trace.zip"
+        },
+        {
+          "run": 5,
+          "status": "failed",
+          "durationMs": 7855,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Balancing remote work with volunteer work.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:147:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-5-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-95239-from-article-1-or-article-3-chromium\\run-5-trace.zip"
+        }
+      ]
+    },
+    {
+      "id": "36943161b78213d9758d-a86110cdbc85537576cf",
+      "title": "chromium > article.spec.ts > Article page content by id > renders article 3 with title, metadata, image and complete content",
+      "projectName": "chromium",
+      "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+      "line": 156,
+      "column": 6,
+      "status": "failed",
+      "repeat": 5,
+      "passed": 0,
+      "failed": 5,
+      "runs": [
+        {
+          "run": 1,
+          "status": "failed",
+          "durationMs": 13698,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-1-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-1-trace.zip"
+        },
+        {
+          "run": 2,
+          "status": "failed",
+          "durationMs": 11070,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-2-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-2-trace.zip"
+        },
+        {
+          "run": 3,
+          "status": "failed",
+          "durationMs": 10325,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-3-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-3-trace.zip"
+        },
+        {
+          "run": 4,
+          "status": "failed",
+          "durationMs": 7779,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-4-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-4-trace.zip"
+        },
+        {
+          "run": 5,
+          "status": "failed",
+          "durationMs": 7232,
+          "error": {
+            "message": "expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n",
+            "stack": "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('heading', { name: 'Spreading the spirit of volunteerism in the community.', level: 1 })\n\n    at expectArticleContent (C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:84:77)\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts:160:3\n    at C:\\xampp\\htdocs\\VolunteerHub\\tests\\support\\flakyTest.ts:139:6",
+            "location": {
+              "file": "C:\\xampp\\htdocs\\VolunteerHub\\tests\\article.spec.ts",
+              "line": 84,
+              "column": 77
+            }
+          },
+          "screenshotPath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-5-failure.png",
+          "tracePath": "C:\\xampp\\htdocs\\VolunteerHub\\test-results\\article-Article-page-conte-7ab94--image-and-complete-content-chromium\\run-5-trace.zip"
+        }
+      ]
+    }
+  ]
+}

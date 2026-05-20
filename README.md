@@ -43,3 +43,22 @@ npm run dev
 
 Server chạy tại:
 👉 http://localhost:4000
+
+---
+
+## Playwright flaky report
+
+The Playwright suite now writes a standalone flaky report after each run.
+
+Run the tests:
+
+```powershell
+.\node_modules\.bin\playwright.cmd test
+```
+
+Report output:
+
+- JSON: `playwright-flaky-report/report.json`
+- HTML: `playwright-flaky-report/index.html`
+
+You can change the output folder with `FLAKY_REPORT_DIR` and the repeat count with `FLAKY_REPEAT_COUNT`.
