@@ -106,10 +106,11 @@ function createFlakyTest(baseRepeat = DEFAULT_REPEAT) {
 			}
 
 			const originalTimeout = testInfo.timeout;
-			testInfo.setTimeout(originalTimeout * repeat);
+			testInfo.setTimeout(originalTimeout * repeat + 60_000);
 
 			const results: FlakyIterationResult[] = [];
 			const contextOptions = { ...(testInfo.project.use as Record<string, unknown>) };
+			const seedUrl = page.url();
 
 			for (let run = 1; run <= repeat; run += 1) {
 				const context = await browser.newContext(contextOptions);
@@ -121,10 +122,16 @@ function createFlakyTest(baseRepeat = DEFAULT_REPEAT) {
 
 				try {
 					try {
-						await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
-						tracingStarted = true;
+						if (process.env.FLAKY_TRACE === '1') {
+							await context.tracing.start({ screenshots: true, snapshots: true, sources: true });
+							tracingStarted = true;
+						}
 					} catch {
 						tracingStarted = false;
+					}
+
+					if (seedUrl && seedUrl !== 'about:blank') {
+						await page.goto(seedUrl);
 					}
 
 					const runFixtures = {

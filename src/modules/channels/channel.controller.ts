@@ -7,7 +7,7 @@ import { changePassword } from "../users/user.service";
 
 export async function getEventPosts(req: AuthRequest, res: Response) {
   try {
-    const eventId = parseInt(req.params.eventId);
+    const eventId = parseInt(String(req.params.eventId));
     const page = req.query.page ? parseInt(String(req.query.page)) : 1;
     const pageSize = req.query.pageSize
       ? parseInt(String(req.query.pageSize))
@@ -26,7 +26,7 @@ export async function getEventPosts(req: AuthRequest, res: Response) {
 
 export async function createPost(req: AuthRequest, res: Response) {
   try {
-    const eventId = parseInt(req.params.eventId);
+    const eventId = parseInt(String(req.params.eventId));
     const { content, attachments: rawAttachments } = req.body as { content?: string; attachments?: any };
     // allow attachments to be sent as JSON string when using multipart/form-data
     let attachments: string[] = [];
@@ -66,7 +66,7 @@ export async function createPost(req: AuthRequest, res: Response) {
 
 export async function deletePost(req: AuthRequest, res: Response) {
   try {
-    const postId = parseInt(req.params.postId);
+    const postId = parseInt(String(req.params.postId));
     const resutl = await ChannelService.deletePost(req.user!.userId, postId);
     res.json(resutl);
   } catch (err: any) {
@@ -76,7 +76,7 @@ export async function deletePost(req: AuthRequest, res: Response) {
 
 export async function createComment(req: AuthRequest, res: Response) {
   try {
-    const postId = parseInt(req.params.postId);
+    const postId = parseInt(String(req.params.postId));
     const { content, attachments: rawAttachments } = req.body as { content?: string; attachments?: any };
     let attachments: string[] = [];
     if (rawAttachments) {
@@ -112,7 +112,7 @@ export async function createComment(req: AuthRequest, res: Response) {
 
 export async function deleteComment(req: AuthRequest, res: Response) {
   try {
-    const commentId = parseInt(req.params.commentId);
+    const commentId = parseInt(String(req.params.commentId));
     const result = await ChannelService.deleteComment(
       req.user!.userId,
       commentId
