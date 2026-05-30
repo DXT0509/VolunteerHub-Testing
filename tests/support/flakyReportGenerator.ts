@@ -39,6 +39,10 @@ function toFileHref(filePath: string) {
 	return pathToFileURL(filePath).toString();
 }
 
+function toTraceViewerHref(tracePath: string) {
+	return `https://trace.playwright.dev/?trace=${encodeURIComponent(toFileHref(tracePath))}`;
+}
+
 function formatLocation(filePath: string, line?: number, column?: number) {
 	if (!line || !column) {
 		return filePath;
@@ -55,7 +59,11 @@ function renderRun(run: FlakyIterationResult) {
 		? `<a href="${escapeHtml(toFileHref(run.screenshotPath))}" target="_blank" rel="noreferrer">${escapeHtml(run.screenshotPath)}</a>`
 		: '<span class="muted">No screenshot</span>';
 	const traceMarkup = run.tracePath
-		? `<a href="${escapeHtml(toFileHref(run.tracePath))}" target="_blank" rel="noreferrer">${escapeHtml(run.tracePath)}</a>`
+		? `<div class="trace-links">
+				<a class="trace-button" href="${escapeHtml(toTraceViewerHref(run.tracePath))}" target="_blank" rel="noreferrer">Open Trace Viewer</a>
+				<a href="${escapeHtml(toFileHref(run.tracePath))}" target="_blank" rel="noreferrer">${escapeHtml(run.tracePath)}</a>
+				<code>npx playwright show-trace "${escapeHtml(run.tracePath)}"</code>
+			</div>`
 		: '<span class="muted">No trace</span>';
 
 	return `
@@ -461,6 +469,23 @@ function renderHtml(document: FlakyReportDocument, reportTitle: string) {
 		.kv a {
 			color: var(--accent);
 			text-decoration: none;
+		}
+
+		.trace-links {
+			display: grid;
+			gap: 8px;
+		}
+
+		.trace-button {
+			width: fit-content;
+			display: inline-flex;
+			align-items: center;
+			padding: 8px 12px;
+			border-radius: 10px;
+			background: rgba(124, 156, 255, 0.18);
+			border: 1px solid rgba(124, 156, 255, 0.34);
+			color: var(--text);
+			font-weight: 700;
 		}
 
 		.error-block {
